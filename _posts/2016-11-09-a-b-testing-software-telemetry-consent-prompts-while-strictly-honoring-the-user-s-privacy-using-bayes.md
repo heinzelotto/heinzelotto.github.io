@@ -2,7 +2,7 @@
 layout: post
 title: >-
   A/B-testing software telemetry consent prompts while strictly honoring the
-  user's privacy using Bayes' theorem!
+  user's privacy using Bayes' theorem
 date: '2016-11-09 21:04'
 ---
 
@@ -48,9 +48,9 @@ We observe that the quantity we are interested in is the probability that a user
 
 Since we do not receive data from the user in the case $$T=0$$ of non-consent, we cant calculate this probability by $$P(T=1\vert F) \approx \frac{\text{#consented to F}}{\text{#consented to F} + \text{#non-consented to F}}$$.
 
-We can use Bayes' Formula relating conditional probabilities, $$P(A\vert B) = P(B\vert A)\frac{P(A)}{P(B)}$$. Applied to our problem it takes the form
+We can use Bayes' Formula relating conditional probabilities, $$P(A\vert B) = P(A)\frac{P(B\vert A)}{P(B)}$$. Applied to our problem it takes the form
 
-$$P(T=1\vert F) = P(F\vert T=1)\frac{P(T=1)}{P(F)},$$
+$$P(T=1\vert F) = P(T=1)\frac{P(F\vert T=1)}{P(F)},$$
 
 that is, the probability of consent upon being presented a specific form is equal to a term consisting of
 
