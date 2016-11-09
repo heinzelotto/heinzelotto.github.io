@@ -1,6 +1,6 @@
 ## P1graph
 
-[This][http://www.p1graph.org] is my blog containing things I find interesting, mostly on the topics of math, programming, and (studying) 中文.
+[This](http://www.p1graph.org) is my blog containing things I find interesting, mostly on the topics of math, programming, and (studying) 中文.
 
 ## Technology
 
