@@ -17,27 +17,31 @@ others can share his joy in reading these titles.
 ![why we need bookvoyage](/assets/bookvoyage_teaser.jpg)
 
 I like this plan a lot since this act of sharing opens up so many possibilities
-for human interaction and a feeling of connectedness. What if the recipient will
-themselves pass the book on to someone else? What kinds of discussions between
-successive readers of the same copy of a book could come from such exchanges?
-What would be the farthest a book could go, could it by great and unforgettable
-coincidence and unbeknownst to the previous reader even reach the original owner
-again?
+for human interaction and a feeling of connectedness. Knowing that the recipient
+may themselves pass the book on to someone else, what kinds of discussions
+between successive readers of the same copy of a book could come from such
+exchanges? What would be the farthest a book could go? Could it by great and
+unforgettable coincidence and unbeknownst to the previous reader even reach the
+original owner again?
 
 Sometimes when buying a used book from the internet, you might find a
 hand-written dedication in the cover written by the previous owner that shared a
 few thoughts about the book and what things they wished the recipient to
-experience during their read-through. Or other times there are margin notes,
-doodles, and comments written in the book. All written by people unknown to you
-that spent several hours on reading through the same book that they and you
-liked enough to pass on to someone else. Who were these mysterious other people?
-Hearing what they have to say about the book all of you have read would
+experience during their read-through. Or other times there might be margin
+notes, doodles, and anecdotes written in the book. All written by people unknown
+to you that spent several hours on reading through the same book that they and
+you liked enough to pass on to someone else. Who were these mysterious other
+people? Hearing what they have to say about this book all of you have read would
 definitely make for some awesome discussions.
 
 I also set a goal for myself to give one of my favorite books away and have it
 go on as far as possible a journey. And for that, the idea of _passing it on and
-on_ should be written in the book at least, or be incentivized in some way. And,
-if possible, I want to know what others thought about the book.
+on_ should be codified in the book, or be incentivized in some way. For example
+by reading with the idea in mind that by owning this book for a while you are
+creating something special together with strangers. And by leaving doodles and
+comments in the book, and, if it could somehow be realized, the ability of
+hearing back from future readers what their thoughts were while reading this
+book..
 
 Tracking a book and gamifying its journey is a task that can be efficiently
 solved by technology. There could be a web app that does just this, acting as
