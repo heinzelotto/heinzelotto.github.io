@@ -1,0 +1,31 @@
+Privacy Policy
+
+Last Updated: 2023-09-15
+
+1. Introduction
+
+Welcome to Pitchvis, a music visualization application that turns music into a symphony of colors. This privacy policy aims to inform users about the policies governing the collection, use, and disclosure of personal information. Since our app does not collect personal information, the policy is straightforward and concise.
+
+2. Information We Collect
+
+Our application does not collect or store any personal data. The app utilizes the microphone on your device solely to analyze the frequency spectrum of music and visualize it as colors. We do not store, share, or transmit this data in any form.
+
+3. Permissions
+
+The app requires permission to access the microphone on your device. This permission is used exclusively for the purpose of analyzing the frequency spectrum to provide the color visualization feature. The app does not record audio or collect any information from the microphone other than the frequency data necessary for visualization.
+
+4. Third-party Services
+
+Pitchvis does not rely on third-party services that collect information used to identify you.
+
+5. Security
+
+We value your trust in providing us your permission to access the microphone, thus we are striving to protect it. However, remember that no method of transmission over the internet, or method of electronic storage is 100% secure and reliable, and we cannot guarantee its absolute security.
+
+6. Changes to This Privacy Policy
+
+We may update our Privacy Policy from time to time. Thus, you are advised to review this page periodically for any changes. We will notify you of any changes by posting the new Privacy Policy on this page.
+
+7. Contact Us
+
+If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us.
