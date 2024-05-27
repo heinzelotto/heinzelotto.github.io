@@ -10,21 +10,21 @@
     <style>
         html,
         body {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             color: #333;
+            height: 100%;
+            /* transition: background-color 1s; */
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
         }
 
         .container {
+            height: 100%;
+            margin: 0;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            font-family: Arial, sans-serif;
             width: 100%;
             height: 100%;
         }
@@ -45,7 +45,7 @@
             font-size: 2em;
             padding: 20px;
             margin: 10px;
-            width: 60%;
+            width: 80%;
             /* Adjust based on preference */
             max-width: 300px;
             /* Prevents the button from becoming too wide on large screens */
@@ -67,8 +67,8 @@
         <h1>Random Piano Generator</h1>
         <p>Click the "Load" button to load the piano sounds, then click "Play Random Notes" to play random notes.</p>
         <p>Choose the number of notes to play from the dropdown list.</p>
-        <button id="loadButton">Load</button>
-        <button id="playButton">Play Random Chord</button>
+        <button style="background-color: greenyellow;" id="loadButton">Load first!</button>
+        <div><button id="playButton">Play Random Chord</button><button id="replayButton">Replay Chord</button></div>
         <!-- dropdown list from 1 to 4 -->
         <p>Number of notes to play:</p>
         <select id="chord_size">
@@ -81,7 +81,9 @@
         <p>Notes played:</p>
         <div id="notes_played"></div>
 
-        <button id="playSequenceButton">Play random note sequence (5 notes)</button>
+        <button id="playSequenceButton">Play random note sequence</button>
+        Number of notes to play:
+        <input type="number" id="sequence_size" value="15" min="1" max="1500">
     </div>
 
     <script>
@@ -89,6 +91,11 @@
 
     <script>
         document.getElementById('loadButton').addEventListener('click', function () {
+            // document.getElementById('loadButton').disabled = true;
+            // document.getElementById('loadButton').innerHTML = 'Loaded!';
+            // document.getElementById('loadButton').style.backgroundColor = 'gray';
+            document.getElementById('loadButton').remove();
+
             // Ensure Tone.js audio context is started/resumed upon user interaction
             Tone.start().then(() => {
                 const sampler = new Tone.Sampler({
@@ -114,52 +121,148 @@
                     release: 0.5,
                     onload: () => {
                         // Function to generate a random note
-                        function getRandomNote() {
-                            const notes = [
+                        const notes = [
                                 'C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'A#2', 'B2',
                                 'C3', 'C#3', 'D3', 'D#3', 'E3', 'F3', 'F#3', 'G3', 'G#3', 'A3', 'A#3', 'B3',
                                 'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4',
                                 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5',];
-                            return notes[Math.floor(Math.random() * notes.length)];
+                            const colors = [
+                                "#d85b5b",  // C
+                                "#0284b5",  // C#
+                                "#f7c10c",  // D
+                                "#7256a0",  // D#
+                                "#77c438",  // E
+                                "#c65184",  // F
+                                "#00a38e",  // F#
+                                "#f2893a",  // G
+                                "#4c5ea3",  // G#
+                                "#fff407",  // A
+                                "#914c8c",  // A#
+                                "#1eb556",  // B
+                        ];
+                        function getNote(idx) {
+                            return { pitch: notes[idx % notes.length], color: colors[idx % 12], index: idx%notes.length };
                         }
 
+                        function getRandomNote() {
+                            let randomIndex = Math.floor(Math.random() * notes.length);
+                            return getNote(randomIndex);
+                        }
 
-                        document.getElementById('playButton').addEventListener('click', function () {
-                            var notes = [];
-                            document.getElementById('notes_played').innerHTML = '';
-                            // Play up to four random notes, get the number of notes from the dropdown list
-                            for (let i = 0; i < document.getElementById('chord_size').value; i++) {
+                        function getMajorChord(size) {
+                            var chordNotes = [];
+                            const root = getRandomNote();
+                            chordNotes.push(root);
+                            if (size > 1) {
+                                chordNotes.push(getNote((root.index + 4) % notes.length));
+                                if (size > 2) {
+                                    chordNotes.push(getNote((root.index + 7) % notes.length));
+                                    if (size > 3) {
+                                        chordNotes.push(getRandomNote());
+                                    }
+                                }
+                            }
+
+                            return chordNotes;
+                        }
+
+                        function getMinorChord(size) {
+                            var chordNotes = [];
+                            const root = getRandomNote();
+                            chordNotes.push(root);
+                            if (size > 1) {
+                                chordNotes.push(getNote((root.index + 3) % notes.length));
+                                if (size > 2) {
+                                    chordNotes.push(getNote((root.index + 7) % notes.length));
+                                    if (size > 3) {
+                                        chordNotes.push(getRandomNote());
+                                    }
+                                }
+                            }
+                         
+                            return chordNotes;
+                        }
+
+                        function getChord(size) {
+                            var chordNotes = [];
+                            for (let i = 0; i < size; i++) {
                                 do {
                                     var note = getRandomNote();
-                                } while (notes.includes(note));
-                                sampler.triggerAttackRelease(note, "3", Tone.now() + Math.random() * 0.06);
-                                sampler.triggerAttackRelease(note, "3", Tone.now() + 3.5 + Math.random() * 0.06);
-                                sampler.triggerAttackRelease(note, "3", Tone.now() + 7 + Math.random() * 0.06);
-                                notes.push(note);
+                                } while (chordNotes.find((n) => n.pitch == note.pitch) != undefined);
+                                chordNotes.push(note);
                             }
+
+                            return chordNotes;
+                        }
+
+                        function getRandomChord(size) {
+                            // roll a die. If it's a 1, play a major chord. If it's a 2, play a minor chord. If it's another number, play a random chord.
+                            const roll = Math.floor(Math.random() * 6);
+                            if (roll == 0 && size > 2) {
+                                return getMajorChord(size);
+                            } else if (roll == 1 && size > 2) {
+                                return getMinorChord(size);
+                            } else {
+                                return getChord(size);
+                            }
+                        }
+
+                        var chordNotes = [];
+                        document.getElementById('playButton').addEventListener('click', function () {
+                            document.body.style.backgroundImage = '';
+                            const chordSize = document.getElementById('chord_size').value;
+                            chordNotes = [];
+                            document.getElementById('notes_played').innerHTML = '';
+                            sampler.releaseAll();
+
+                            // Play up to four random notes, get the number of notes from the dropdown list
+                            chordNotes = getRandomChord(chordSize);
+                            chordNotes.sort((a, b) => a.index - b.index);
+
+                            // Play the chord
+                            chordNotes.forEach(note =>
+                                sampler.triggerAttackRelease(note.pitch, "3", Tone.now() + Math.random() * 0.06)
+                            );
                             // sleep for a while
                             setTimeout(() => {
-                                document.getElementById('notes_played').innerHTML = notes.join(', ');
-                            }, 10000);
+                                document.getElementById('notes_played').innerHTML = chordNotes.map(note => `<span style="background: ${note.color}">${note.pitch}</span>`).join(', ');
+                                //background-image: 
+                                //linear-gradient(to right, green 0%, green 33.3%, yellow 33.3%, yellow 66.6%, blue 66.6%, blue 100%);
+
+                                document.body.style.backgroundImage = `linear-gradient(to right, ${chordNotes.map((note, index) => note.color + ' ' + (index) / chordSize * 100 + '%, ' + note.color + ' ' + (index + 1) / chordSize * 100 + '%').join(', ')})`;
+                            }, 3500);
+                        });
+                        document.getElementById('replayButton').addEventListener('click', function () {
+                            // Play up to four random notes, get the number of notes from the dropdown list
+                            chordNotes.forEach(note =>
+                                sampler.triggerAttackRelease(note.pitch, "3", Tone.now() + Math.random() * 0.06)
+                            );
                         });
 
                         document.getElementById('playSequenceButton').addEventListener('click', function () {
                             var notes = [];
                             document.getElementById('notes_played').innerHTML = '';
-                            for (let i = 0; i < 5; i++) {
+                            const interval = 2.7;
+                            const reps = document.getElementById('sequence_size').value;
+                            for (let i = 0; i < reps; i++) {
                                 let note = getRandomNote();
-                                sampler.triggerAttackRelease(note, "2", Tone.now() + i * 2.7);
                                 notes.push(note);
+                                setTimeout((i) => {
+                                    sampler.triggerAttackRelease(note.pitch, "2", Tone.now());
+                                    setTimeout(() => {
+                                        document.getElementById('notes_played').innerHTML = notes.slice(0, i + 1).reverse().map(note => `<span style="background: ${note.color}">${note.pitch}</span>`).join(', ');
+                                        document.body.style.transition = 'background-color 0s';
+                                        document.body.style.backgroundColor = notes[i].color;
+                                    }, .5 * interval * 1000);
+                                    setTimeout(() => {
+                                        document.body.style.transition = 'background-color ' + interval / 3 + 's';
+                                        document.body.style.backgroundColor = '#f0f0f0';
+                                    }, .9 * interval * 1000);
+                                }, i * interval * 1000, i);
                             }
-                            // sleep for a while
-                            setTimeout(() => {
-                                document.getElementById('notes_played').innerHTML = notes.join(', ');
-                            }, 13000);
                         });
                     }
                 }).toDestination();
-
-
             });
         });
     </script>
