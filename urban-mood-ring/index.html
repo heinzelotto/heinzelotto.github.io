@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Urban Mood Ring</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 8px;
+        }
+        .mood-popup {
+            text-align: center;
+        }
+        .mood-button {
+            font-size: 24px;
+            padding: 5px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: transform 0.2s;
+        }
+        .mood-button:hover {
+            transform: scale(1.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .stats-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .mood-count {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .mood-count span {
+            margin-left: 5px;
+        }
+        .emoji-marker {
+            font-size: 24px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .emoji-marker.temp {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #3388ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Urban Mood Ring</h1>
+        <p>Click anywhere on the map to share your mood! 🗺️</p>
+    </div>
+    <div id="map"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        // Initialize the map centered on a default location (Munich)
+        const map = L.map('map').setView([48.137154, 11.576124], 13);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Define mood emoji options
+        const moods = [
+            { emoji: '😊', name: 'happy', count: 0 },
+            { emoji: '😢', name: 'sad', count: 0 },
+            { emoji: '😴', name: 'tired', count: 0 },
+            { emoji: '😡', name: 'angry', count: 0 },
+            { emoji: '😌', name: 'relaxed', count: 0 },
+            { emoji: '🤔', name: 'thoughtful', count: 0 },
+            { emoji: '🍾', name: 'celebratory', count: 0 },
+            { emoji: '😱', name: 'panicked', count: 0 },
+            { emoji: '🔥', name: 'excited', count: 0 },
+            { emoji: '𝄢', name: 'musical', count: 0 },
+        ];
+
+        // Custom Emoji Marker
+        L.EmojiMarker = L.Marker.extend({
+            initialize: function(latlng, emoji, isTemp = false) {
+                const icon = L.divIcon({
+                    className: `emoji-marker ${isTemp ? 'temp' : ''}`,
+                    html: emoji,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16],
+                    popupAnchor: [0, -16]
+                });
+                L.Marker.prototype.initialize.call(this, latlng, { icon: icon });
+            }
+        });
+
+        // Create stats panel
+        const statsPanel = document.createElement('div');
+        statsPanel.className = 'stats-panel';
+        statsPanel.innerHTML = '<h3>Mood Statistics</h3>';
+        map.getContainer().appendChild(statsPanel);
+
+        function updateStats() {
+            statsPanel.innerHTML = '<h3>Mood Statistics</h3>';
+            moods.forEach(mood => {
+                if (mood.count > 0) {
+                    const div = document.createElement('div');
+                    div.className = 'mood-count';
+                    div.innerHTML = `${mood.emoji} <span>${mood.count} ${mood.name}</span>`;
+                    statsPanel.appendChild(div);
+                }
+            });
+        }
+
+        // Function to create mood selection popup content
+        function createMoodPopup() {
+            const container = document.createElement('div');
+            container.className = 'mood-popup';
+            container.innerHTML = '<h3>How are you feeling?</h3>';
+
+            moods.forEach(mood => {
+                const button = document.createElement('button');
+                button.className = 'mood-button';
+                button.innerHTML = mood.emoji;
+                button.title = mood.name;
+                button.onclick = () => submitMood(mood);
+                container.appendChild(button);
+            });
+
+            return container;
+        }
+
+        // Function to handle mood submission
+        function submitMood(mood) {
+            const clickedLatLng = tempMarker.getLatLng();
+            
+            // Increment mood count
+            mood.count++;
+            updateStats();
+
+            // Simulate API call to submit mood
+            console.log('Submitting mood:', {
+                lat: clickedLatLng.lat,
+                lng: clickedLatLng.lng,
+                mood: mood.name,
+                timestamp: new Date().toISOString()
+            });
+
+            // Add permanent emoji marker
+            const marker = new L.EmojiMarker(clickedLatLng, mood.emoji).addTo(map);
+            marker.bindPopup(
+                `<div style="text-align: center">
+                    <div style="font-size: 12px">${mood.name}</div>
+                    <div style="font-size: 10px">${new Date().toLocaleTimeString()}</div>
+                </div>`
+            );
+
+            // Remove temporary marker and popup
+            map.closePopup();
+            tempMarker.remove();
+        }
+
+        // Variable to store temporary marker
+        let tempMarker;
+
+        // Handle map clicks
+        map.on('click', function(e) {
+            // Remove previous temporary marker if it exists
+            if (tempMarker) {
+                tempMarker.remove();
+            }
+
+            // Create temporary marker with question mark emoji
+            tempMarker = new L.EmojiMarker(e.latlng, '❓', true).addTo(map);
+
+            // Create and open popup with mood selection
+            const popup = L.popup()
+                .setLatLng(e.latlng)
+                .setContent(createMoodPopup());
+
+            tempMarker.bindPopup(popup).openPopup();
+        });
+    </script>
+</body>
+</html>
