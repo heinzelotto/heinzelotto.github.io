@@ -76,6 +76,10 @@
         .cta-tertiary:hover {
             background-color: var(--color-c);
         }
+
+        .note-shadow {
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        }
     </style>
 
     <script>
@@ -115,28 +119,60 @@
         <section id="intro" class="py-16 relative">
             <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
                 style="background-image: url('spiral-bg.jpg'); z-index: -1;">
-                <!-- Optional dark gradient overlay -->
-                <div class="absolute inset-0 bg-gradient-to-b from-gray-900/80 to-gray-900"></div>
             </div>
 
+            <div class="relative z-10 max-w-5xl mx-auto flex items-stretch">
+                <!-- Left column - Chromatic -->
+                <div class="flex-shrink-0 flex flex-col justify-center pl-4 pr-8">
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-c)">C</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-cs)">C♯</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-d)">D</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-eb)">E♭</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-e)">E</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-f)">F</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-fs)">F♯</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-g)">G</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-ab)">A♭</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-a)">A</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-bb)">B♭</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-b)">B</span>
+                </div>
 
-            <div class="relative z-10 max-w-3xl mx-auto">
-                <h1 class="text-4xl font-bold mb-6" style="color: var(--color-d)">
-                    Live Musical Pitch Visualization
-                </h1>
-                <p class="text-xl mb-8">
-                    PitchVis brings music to life through real-time pitch analysis and a nice visualization.
-                    Perfect for singers, music teachers, and anyone who wants to experience their music in a new
-                    dimension.
-                </p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="#try-it" class="cta-primary px-6 py-3 rounded-lg font-semibold">
-                        Try Web Version
-                    </a>
-                    <a href="https://play.google.com/store/apps/details?id=org.p1graph.pitchvis"
-                        class="cta-secondary px-6 py-3 rounded-lg font-semibold">
-                        Download Android App
-                    </a>
+                <!-- Center content -->
+                <div class="flex-1 m-8">
+                    <h1 class="text-4xl font-bold mb-6" style="color: var(--color-d)">
+                        Live Musical Pitch Visualization
+                    </h1>
+                    <p class="text-xl mb-8">
+                        PitchVis adds color to your music through real-time pitch analysis and a nice visualization.
+                        Perfect for singers, music teachers, and anyone who wants to explore their music in a new way.
+                    </p>
+
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#try-it" class="cta-primary px-6 py-3 rounded-lg font-semibold">
+                            Try Web Version
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=org.p1graph.pitchvis"
+                            class="cta-secondary px-6 py-3 rounded-lg font-semibold">
+                            Download Android App
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right column - Circle of Fifths -->
+                <div class="flex-shrink-0 flex flex-col justify-center pl-8 pr-4">
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-f)">F</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-c)">C</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-g)">G</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-d)">D</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-a)">A</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-e)">E</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-b)">B</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-fs)">F♯</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-cs)">C♯</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-ab)">A♭</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-eb)">E♭</span>
+                    <span class="text-lg font-bold note-shadow" style="color: var(--color-bb)">B♭</span>
                 </div>
             </div>
         </section>
@@ -271,6 +307,7 @@
                                 <span class="ml-2">Setup Instructions for Desktop Viewer</span>
                             </a>
                         </li>
+                        <!-- TODO: add contact info -->
                     </ul>
                 </div>
             </div>
@@ -278,22 +315,14 @@
     </main>
 
     <footer class="bg-gray-800 mt-16">
-        <div class="container mx-auto px-4 py-8">
+        <div class="container mx-auto px-4 pt-8 pb-20">
             <p class="text-center text-gray-400">
                 <script>
                     const messages = [
-                        "Built with love for musicians everywhere.",
+                        "Built with ❤️ for musicians everywhere.",
                         "Making music visible, one note at a time.",
                         "An open-source project for music lovers everywhere.",
-                        "From one musician to another.",
-                        "Turning sound into sight since 2023.",
-                        "Making music visible.",
-                        "Open source music visualization.",
-                        "Music is more than just sound.",
-                        "If you can hear it, you can see it.",
-                        "If you can see it, you can hear it.",
                         "Helping choirs stay in tune since 2023 :>",
-                        "Supporting music education with visual tools",
                     ];
                     document.write(messages[Math.floor(Math.random() * messages.length)]);
                 </script>
