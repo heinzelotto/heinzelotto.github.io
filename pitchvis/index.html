@@ -1,39 +1,315 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>pitchvis: music visualization</title><script>function goFullscreen(id) {
-			// Get the element that we want to take into fullscreen mode
-			var element = document.getElementsByTagName(id)[0];
+<!DOCTYPE html>
+<html lang="en">
 
-			// These function will not exist in the browsers that don't support fullscreen mode yet,
-			// so we'll have to check to see if they're available before calling them.
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PitchVis - Musical Pitch Visualization</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-c: #d85b5b;
+            --color-cs: #0284b5;
+            --color-d: #f7c10c;
+            --color-eb: #7256a0;
+            --color-e: #77c438;
+            --color-f: #c65184;
+            --color-fs: #00a38e;
+            --color-g: #f2893a;
+            --color-ab: #4c5ea3;
+            --color-a: #fff407;
+            --color-bb: #914c8c;
+            --color-b: #1eb556;
+        }
 
-			if (element.mozRequestFullScreen) {
-				// This is how to go into fullscren mode in Firefox
-				// Note the "moz" prefix, which is short for Mozilla.
-				element.mozRequestFullScreen();
-			} else if (element.webkitRequestFullScreen) {
-				// This is how to go into fullscreen mode in Chrome and Safari
-				// Both of those browsers are based on the Webkit project, hence the same prefix.
-				element.webkitRequestFullScreen();
-			}
-			// Hooray, now we're in fullscreen mode!
-		}</script><style>html,
-		body,
-		canvas {
-			margin: 0px;
-			padding: 0px;
-			width: 100%;
-			height: 100%;
-			overflow: hidden;
-		}
+        .gradient-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        }
 
-		.button {
-			padding: 15px;
-			margin: 20px 0;
-			border: none;
-			cursor: pointer;
-			border-radius: 20px;
-			color: white;
-			background-color: #04AA6D;
-			box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
-			font-family: inherit;
-			font-size: large;
-		}</style><script defer="defer" src="main.js"></script></head><body><div id="instructions"><h2>Browser policy only permits microphone capture after user trigger, e. g. button click:</h2><br><button class="button" onclick="youClicked()">😬 clickme 😁</button><br/><a href="/pitchvis-old">Click here for old version (non-continuous peaks)</a></div><button onclick="goFullscreen('canvas')">Enter Fullscreen</button></body></html>
+        .nav-link {
+            position: relative;
+            padding-left: 1.0em;
+            /* Make space for the clef */
+        }
+
+        .nav-link:hover {
+            border-bottom: 2px solid var(--color-d);
+        }
+
+        .nav-link::before {
+            content: '𝄢';
+            color: var(--color-d);
+            position: absolute;
+            left: 0;
+            top: 0.05em;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .cta-primary {
+            background-color: var(--color-fs);
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-primary:hover {
+            background-color: var(--color-cs);
+        }
+
+        .cta-secondary {
+            background-color: var(--color-eb);
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-secondary:hover {
+            background-color: var(--color-bb);
+        }
+
+        .cta-tertiary {
+            background-color: var(--color-f);
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-tertiary:hover {
+            background-color: var(--color-c);
+        }
+    </style>
+
+    <script>
+        function goFullscreen(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.webkitRequestFullscreen) { // Safari
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { // IE11
+                element.msRequestFullscreen();
+            }
+        }
+    </script>
+    <script defer="defer" src="main.js"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100">
+    <nav class="fixed w-full bg-gray-900 bg-opacity-95 shadow-lg z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="text-2xl font-bold" style="color: var(--color-d)">PitchVis</div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#intro" class="nav-link">Introduction</a>
+                    <a href="#demo" class="nav-link">Videos</a>
+                    <a href="#try-it" class="nav-link">Try It</a>
+                    <a href="#hardware" class="nav-link">Hardware</a>
+                    <a href="#downloads" class="nav-link">Downloads</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 pt-20">
+        <section id="intro" class="py-16 relative">
+            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+                style="background-image: url('spiral-bg.jpg'); z-index: -1;">
+                <!-- Optional dark gradient overlay -->
+                <div class="absolute inset-0 bg-gradient-to-b from-gray-900/80 to-gray-900"></div>
+            </div>
+
+
+            <div class="relative z-10 max-w-3xl mx-auto">
+                <h1 class="text-4xl font-bold mb-6" style="color: var(--color-d)">
+                    Live Musical Pitch Visualization
+                </h1>
+                <p class="text-xl mb-8">
+                    PitchVis brings music to life through real-time pitch analysis and a nice visualization.
+                    Perfect for singers, music teachers, and anyone who wants to experience their music in a new
+                    dimension.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#try-it" class="cta-primary px-6 py-3 rounded-lg font-semibold">
+                        Try Web Version
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=org.p1graph.pitchvis"
+                        class="cta-secondary px-6 py-3 rounded-lg font-semibold">
+                        Download Android App
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="demo" class="py-16">
+            <h2 class="text-3xl font-bold mb-8" style="color: var(--color-fs)">See It In Action</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+
+                <!-- Left column top - YouTube video (landscape) -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-xl mb-4" style="color: var(--color-e)">PitchVis Choir Music Visualization Demo</h3>
+                    <div class="aspect-w-16 aspect-h-9 bg-gray-700">
+                        <iframe width="560" height="315" class="w-full rounded"
+                            src="https://www.youtube-nocookie.com/embed/zVvoLa5aYY0?modestbranding=1&rel=0"
+                            title="PitchVis Choir Music Visualization Demo" frameborder="0" gesture="media"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <!-- Right column with piano video (portrait) -->
+                <div class="bg-gray-800 rounded-lg p-6 row-span-2">
+                    <h3 class="text-xl mb-4" style="color: var(--color-e)">Piano Practice</h3>
+                    <div class="aspect-w-9 aspect-h-16 bg-gray-700"> <!-- Adjusted aspect ratio for portrait -->
+                        <video class="w-full rounded video-no-volume" controls loop muted playsinline autoplay>
+                            <source src="pitchvis_piano.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+
+                <!-- Left column bottom - LED disk video (landscape) -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-xl mb-4" style="color: var(--color-e)">Wooden LED Disk Display</h3>
+                    <div class="aspect-w-16 aspect-h-9 bg-gray-700">
+                        <video class="w-full rounded" controls loop playsinline>
+                            <source src="pitchvis_wooden_disk.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="try-it" class="py-16">
+            <h2 class="text-3xl font-bold mb-8" style="color: var(--color-fs)">Try It Out</h2>
+            <div class="bg-gray-800 rounded-lg p-8">
+                <div class="mb-6">
+                    <p class="text-lg mb-4">
+                        Run PitchVis right in your browser! On desktop, your audio input source can be selected in the
+                        browser's permission dialog (e. g. system audio or microphone). On mobile, the microphone is
+                        always used.
+                    </p>
+                    <div class="flex gap-4">
+                        <button onclick="youClicked()" class="cta-primary px-6 py-3 rounded-lg font-semibold">
+                            Start PitchVis Web
+                        </button>
+                        <button onclick="goFullscreen('pitchviscanvas')"
+                            class="cta-secondary px-6 py-3 rounded-lg font-semibold">
+                            Enter Fullscreen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="visualization-container" class="aspect-w-16 aspect-h-9 bg-gray-900 rounded-lg overflow-hidden">
+                    <canvas id="pitchviscanvas" class="w-full h-full">
+                        Your browser does not support the canvas element.
+                    </canvas>
+                    <div id="instructions" class="flex items-center justify-center text-gray-400">
+                        Click the button above to start
+                    </div>
+                </div>
+
+                <p class="text-sm text-gray-400 mt-4">
+                    Note: Browser permission is required for audio capture.
+                </p>
+            </div>
+        </section>
+
+        <section id="hardware" class="py-16">
+            <h2 class="text-3xl font-bold mb-8" style="color: var(--color-fs)">Hardware Project</h2>
+            <div class="bg-gray-800 rounded-lg p-8">
+                <p class="text-lg mb-6">
+                    Take your visualization to the next level with our DIY LED disk project.
+                    Connect it to your computer or phone and watch your music come to life in the physical world.
+                    (More info &amp; instructions coming soon...)
+                </p>
+                <a href="https://github.com/heinzelotto/pitchvis/tree/main/pitchvis_serial"
+                    class="inline-block cta-tertiary px-6 py-3 rounded-lg font-semibold">
+                    View on GitHub
+                </a>
+            </div>
+        </section>
+
+        <section id="downloads" class="py-16">
+            <h2 class="text-3xl font-bold mb-8" style="color: var(--color-fs)">Downloads & Links</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-xl mb-4" style="color: var(--color-e)">Apps</h3>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="https://play.google.com/store/apps/details?id=org.p1graph.pitchvis"
+                                class="flex items-center text-lg hover:text-gray-300">
+                                <span style="color: var(--color-g)">►</span>
+                                <span class="ml-2">Android App</span>
+                            </a>
+                        </li>
+                        <li class="text-gray-400">
+                            <span class="flex items-center text-lg">
+                                <span>✕</span>
+                                <span class="ml-2">iOS App (help wanted)</span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-xl mb-4" style="color: var(--color-e)">Resources</h3>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="https://github.com/heinzelotto/pitchvis"
+                                class="flex items-center text-lg hover:text-gray-300">
+                                <span style="color: var(--color-g)">►</span>
+                                <span class="ml-2">GitHub Project</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/heinzelotto/pitchvis/tree/main/pitchvis_viewer"
+                                class="flex items-center text-lg hover:text-gray-300">
+                                <span style="color: var(--color-g)">►</span>
+                                <span class="ml-2">Setup Instructions for Desktop Viewer</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <p class="text-center text-gray-400">
+                <script>
+                    const messages = [
+                        "Built with love for musicians everywhere.",
+                        "Making music visible, one note at a time.",
+                        "An open-source project for music lovers everywhere.",
+                        "From one musician to another.",
+                        "Turning sound into sight since 2023.",
+                        "Making music visible.",
+                        "Open source music visualization.",
+                        "Music is more than just sound.",
+                        "If you can hear it, you can see it.",
+                        "If you can see it, you can hear it.",
+                        "Helping choirs stay in tune since 2023 :>",
+                        "Supporting music education with visual tools",
+                    ];
+                    document.write(messages[Math.floor(Math.random() * messages.length)]);
+                </script>
+            </p>
+        </div>
+    </footer>
+
+    <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+    <script>
+        kofiWidgetOverlay.draw('mofeien', {
+            'type': 'floating-chat',
+            'floating-chat.donateButton.text': 'Support Me',
+            'floating-chat.donateButton.background-color': '#f2893a',
+            'floating-chat.donateButton.text-color': '#323842'
+        });
+    </script>
+</body>
+
+</html>
