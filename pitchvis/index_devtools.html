@@ -7,6 +7,7 @@
     <title>PitchVis - Musical Pitch Visualization</title>
     <script src="//cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
         :root {
@@ -106,8 +107,8 @@
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
                 <div class="text-2xl font-bold" style="color: var(--color-d)">PitchVis</div>
-                <div class="hidden md:flex space-x-6">
-                    <a href="#intro" class="nav-link">Introduction</a>
+                <div class="hidden sm:flex space-x-6">
+                    <a href="#intro" class="nav-link">Intro</a>
                     <a href="#demo" class="nav-link">Videos</a>
                     <a href="#try-it" class="nav-link">Try It</a>
                     <a href="#hardware" class="nav-link">Hardware</a>
@@ -157,6 +158,9 @@
                         <a href="https://play.google.com/store/apps/details?id=org.p1graph.pitchvis"
                             class="cta-secondary px-6 py-3 rounded-lg font-semibold">
                             Download Android App
+                        </a>
+                        <a href="#demo" class="md:hidden cta-tertiary px-6 py-3 rounded-lg font-semibold">
+                            Watch Video Demo
                         </a>
                     </div>
                 </div>
@@ -251,7 +255,8 @@
                 </div>
 
                 <p class="text-sm text-gray-400 mt-4">
-                    Note: Browser permission is required for audio capture.
+                    Notes: Browser permission is required for audio capture. Currently the web version won't stop by
+                    itself, so close the tab to stop it.
                 </p>
             </div>
         </section>
