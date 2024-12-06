@@ -4,7 +4,7 @@ Last Updated: 2023-09-15
 
 1. Introduction
 
-Welcome to Pitchvis, a music visualization application that turns music into a symphony of colors. This privacy policy aims to inform users about the policies governing the collection, use, and disclosure of personal information. Since our app does not collect personal information, the policy is straightforward and concise.
+Welcome to PitchVis, a music visualization application that turns music into a symphony of colors. This privacy policy aims to inform users about the policies governing the collection, use, and disclosure of personal information. Since our app does not collect personal information, the policy is straightforward and concise.
 
 2. Information We Collect
 
@@ -16,7 +16,7 @@ The app requires permission to access the microphone on your device. This permis
 
 4. Third-party Services
 
-Pitchvis does not rely on third-party services that collect information used to identify you.
+PitchVis does not rely on third-party services that collect information used to identify you.
 
 5. Security
 
