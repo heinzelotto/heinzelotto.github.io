@@ -305,44 +305,43 @@
                     </div>
                 </div>
 
-                <div id="visualization-container" class="aspect-w-16 aspect-h-9 bg-gray-900 rounded-lg overflow-hidden">
-                    <canvas id="pitchviscanvas" class="w-full h-full">
+                <div id="visualization-container" class="w-full bg-gray-900 rounded-lg overflow-hidden"
+                    style="aspect-ratio: 16/9;">
+                    <canvas id="pitchviscanvas">
                         Your browser does not support the canvas element.
                     </canvas>
-                    <div id="instructions" class="flex items-center justify-center text-gray-400">
+                    <div id="instructions" class="inset-0 flex items-center justify-center text-gray-400">
                         Click the button above to start
                     </div>
                 </div>
 
-                <p class="text-sm text-gray-400 mt-4">
-                    Notes:
-                    <br>
-                <ul class="text-sm text-gray-400 ">
-                    <li>
-                        <div class="flex items-center">
-                            <span style="color: var(--color-bb)">►</span>
-                            <span class="ml-2">Browser permission is required for audio capture.</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="flex items-center">
-                            <span style="color: var(--color-f)">►</span>
-                            <span class="ml-2">Currently the web version won't stop by itself, so close the tab to stop
-                                it.</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="flex items-center">
-                            <span style="color: var(--color-c)">►</span>
-                            <span class="ml-2">The web version has not been tested on too many different setups yet. If
-                                the results are garbage, try another input device.</span>
-                        </div>
-                    </li>
-                </ul>
-
-
-
-                </p>
+                <div class="text-sm text-gray-400 ">
+                    <p class="mt-4">Notes:</p>
+                    <ul class="text-sm text-gray-400 ">
+                        <li>
+                            <div class="flex items-center">
+                                <span style="color: var(--color-bb)">►</span>
+                                <span class="ml-2">Browser permission is required for audio capture.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <span style="color: var(--color-f)">►</span>
+                                <span class="ml-2">Currently the web version won't stop by itself, so close the tab to
+                                    stop
+                                    it.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <span style="color: var(--color-c)">►</span>
+                                <span class="ml-2">The web version has not been tested on too many different setups yet.
+                                    If
+                                    the results are garbage, try another input device.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </section>
 
