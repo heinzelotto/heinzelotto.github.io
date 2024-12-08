@@ -287,8 +287,8 @@
                 <div class="mb-6">
                     <p class="text-lg mb-4">
                         Run PitchVis right in your browser! On desktop, your audio input source can be selected in the
-                        browser's permission dialog (e. g. system audio or microphone). On mobile, the microphone is
-                        always used.
+                        browser's permission dialog or system settings (e. g. system audio or microphone). On mobile,
+                        the microphone is always used.
                     </p>
                     <div class="flex gap-4">
                         <button id="startPitchvis" onclick="disableButton(); youClicked()"
@@ -317,24 +317,30 @@
                     <ul class="text-sm text-gray-400 ">
                         <li>
                             <div class="flex items-center">
-                                <span style="color: var(--color-bb)">►</span>
+                                <span style="color: var(--color-eb)">►</span>
                                 <span class="ml-2">Browser permission is required for audio capture.</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <span style="color: var(--color-bb)">►</span>
+                                <span class="ml-2">On mobile, enable screen auto-rotate for landscape fullscreen
+                                    view.</span>
                             </div>
                         </li>
                         <li>
                             <div class="flex items-center">
                                 <span style="color: var(--color-f)">►</span>
                                 <span class="ml-2">Currently the web version won't stop by itself, so close the tab to
-                                    stop
-                                    it.</span>
+                                    stop it.</span>
                             </div>
                         </li>
                         <li>
                             <div class="flex items-center">
                                 <span style="color: var(--color-c)">►</span>
-                                <span class="ml-2">The web version has not been tested on too many different setups yet.
-                                    If
-                                    the results are garbage, try another input device.</span>
+                                <span class="ml-2">The web version on Firefox still has some issues with sound input
+                                    source handling. If the results are garbage, selecting another input device may
+                                    help.</span>
                             </div>
                         </li>
                     </ul>
