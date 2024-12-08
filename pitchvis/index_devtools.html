@@ -15,6 +15,7 @@
     <title>PitchVis - Musical Pitch Visualization</title>
     <script src="//cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="icon" href="favicon.png" type="image/png" />
     <style>
@@ -94,16 +95,66 @@
     </style>
 
     <script>
+        disableButton = () => {
+            const button = document.getElementById('startPitchvis');
+            button.disabled = true;
+            button.textContent = 'Running...';
+            button.style.backgroundColor = 'var(--color-cs)';
+        }
+
         function goFullscreen(elementId) {
             const element = document.getElementById(elementId);
             if (!element) return;
 
-            if (element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if (element.webkitRequestFullscreen) { // Safari
-                element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) { // IE11
-                element.msRequestFullscreen();
+            // Check if running on iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            // Handle iOS differently
+            if (isIOS) {
+                // For iOS, we can try using viewport meta tag to maximize the viewing area
+                const meta = document.createElement('meta');
+                meta.setAttribute('name', 'viewport');
+                meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+                document.head.appendChild(meta);
+
+                // You might also want to consider adding specific iOS styling
+                element.style.position = 'fixed';
+                element.style.top = '0';
+                element.style.left = '0';
+                element.style.width = '100%';
+                element.style.height = '100%';
+                element.style.zIndex = '9999';
+
+                // Request landscape orientation if possible
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(err => {
+                        console.log('Orientation lock failed:', err);
+                    });
+                }
+
+                return;
+            }
+
+            // For other browsers, try each fullscreen method
+            const fullscreenMethods = [
+                'requestFullscreen',
+                'webkitRequestFullscreen',
+                'mozRequestFullscreen',
+                'msRequestFullscreen'
+            ];
+
+            const methodFound = fullscreenMethods.find(method => element[method]);
+            if (methodFound) {
+                element[methodFound]().then(() => {
+                    // Request landscape orientation after fullscreen
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(err => {
+                            console.log('Orientation lock failed:', err);
+                        });
+                    }
+                }).catch(err => {
+                    console.log('Fullscreen request failed:', err);
+                });
             }
         }
     </script>
@@ -243,7 +294,8 @@
                         always used.
                     </p>
                     <div class="flex gap-4">
-                        <button onclick="youClicked()" class="cta-primary px-6 py-3 rounded-lg font-semibold">
+                        <button id="startPitchvis" onclick="disableButton(); youClicked()"
+                            class="cta-primary px-6 py-3 rounded-lg font-semibold">
                             Start PitchVis Web
                         </button>
                         <button onclick="goFullscreen('pitchviscanvas')"
@@ -263,8 +315,33 @@
                 </div>
 
                 <p class="text-sm text-gray-400 mt-4">
-                    Notes: Browser permission is required for audio capture. Currently the web version won't stop by
-                    itself, so close the tab to stop it.
+                    Notes:
+                    <br>
+                <ul class="text-sm text-gray-400 ">
+                    <li>
+                        <div class="flex items-center">
+                            <span style="color: var(--color-bb)">►</span>
+                            <span class="ml-2">Browser permission is required for audio capture.</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <span style="color: var(--color-f)">►</span>
+                            <span class="ml-2">Currently the web version won't stop by itself, so close the tab to stop
+                                it.</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <span style="color: var(--color-c)">►</span>
+                            <span class="ml-2">The web version has not been tested on too many different setups yet. If
+                                the results are garbage, try another input device.</span>
+                        </div>
+                    </li>
+                </ul>
+
+
+
                 </p>
             </div>
         </section>
@@ -319,7 +396,7 @@
                             <a href="https://github.com/heinzelotto/pitchvis/tree/main/pitchvis_viewer"
                                 class="flex items-center text-lg hover:text-gray-300">
                                 <span style="color: var(--color-g)">►</span>
-                                <span class="ml-2">Setup Instructions for Desktop Viewer</span>
+                                <span class="ml-2">Setup Instructions for desktop PitchVis Viewer program</span>
                             </a>
                         </li>
                     </ul>
