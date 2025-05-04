@@ -16,7 +16,7 @@
 title: P1 Graphs
 email: felix.monninger Æt gmail dÆt com
 description: > # this means to ignore newlines until "baseurl:"
-  This is my blog containing things I find interesting, mostly on the topics of math, programming, (studying) 中文, and P1 graphs.
+  This is my blog containing things I find interesting, mostly on the topics of math, programming, (studying) 國語, and P1 graphs.
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://p1graph.org" # the base hostname & protocol for your site
 twitter_username:
@@ -26,9 +26,15 @@ github_username:  heinzelotto
 remote_theme: jekyll/minima
 minima:
   skin: solarized
+  social_links:
+    - title: Heinzelotto @ GitHub
+      icon: github
+      url: "https://github.com/heinzelotto"
+  date_format: "%Y-%m-%d"
 plugins:
   - jekyll-feed
   - jekyll-remote-theme
+  - jekyll-seo-tag
 markdown: kramdown
 
 # Exclude from processing.
