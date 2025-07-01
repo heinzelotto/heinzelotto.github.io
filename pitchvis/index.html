@@ -98,6 +98,67 @@
         .note-shadow {
             text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
         }
+
+        /* Interactive Screenshot Styles */
+        .hotspot {
+            border: 2px dashed var(--color-d);
+            background-color: rgba(247, 193, 12, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            width: 8%;
+            aspect-ratio: 1;
+        }
+
+        .hotspot:hover {
+            background-color: rgba(247, 193, 12, 0.2);
+            border-color: var(--color-g);
+            box-shadow: 0 0 15px rgba(247, 193, 12, 0.4);
+        }
+
+        /* Explanation Area Styles */
+        #explanation-area {
+            transition: all 0.3s ease;
+        }
+
+        #explanation-content {
+            transition: opacity 0.3s ease;
+        }
+
+        #explanation-content.visible {
+            opacity: 1;
+        }
+
+        #explanation-content h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        #explanation-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        #explanation-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Arrow Animation */
+        #connecting-arrow {
+            transition: opacity 0.3s ease;
+        }
+
+        #connecting-arrow.visible {
+            opacity: 1;
+        }
+
+        /* Hotspot Active State */
+        .hotspot.active {
+            background-color: rgba(247, 193, 12, 0.3);
+            border-color: var(--color-g);
+            box-shadow: 0 0 20px rgba(247, 193, 12, 0.6);
+        }
     </style>
 
     <script>
@@ -163,6 +224,188 @@
                 });
             }
         }
+
+        // Interactive Screenshot Functions
+        const explanations = {
+            'spider-net': {
+                title: 'PitchVis Spiral',
+                color: 'var(--color-f)',
+                content: 'The PitchVis analysis spans seven octaves from the A1 = 55 Hz to the G♯8 ≈ 6650 Hz. The twelve semitones of each octave are arranged like the hours on a clock with C at the 12 o\'clock position, and one octave is one revolution of the spiral, starting from the low notes near the center and rising outwards.'
+            },
+            'bass-spiral': {
+                title: 'Bass Spiral',
+                color: 'var(--color-a)',
+                content: 'The spiral up to the lowest note is highlighted in the shape of an infinitely winding 𝄢 bass clef. This makes the currently played bass note easily recognizable. In this example the bass note of the A minor chord is the A3 = 220 Hz.'
+            },
+            'nice-overtone': {
+                title: 'A Nice Overtone',
+                color: 'var(--color-cs)',
+                content: 'The sound in this example is from a rather high A minor chord sung by the King\'s Singers, and it has a very pure and soft sound without many high overtones. We notice one special overtone though: The fifth overtone of the bass note A3 = 220 Hz sounds at around 1100 Hz = 5 * 220 Hz, which is just 13 cents below the C♯6 ≈ 1109 Hz.'
+            },
+            'pitch-colors': {
+                title: 'PitchVis Colors',
+                color: 'var(--color-f)',
+                content: 'Following <a href="https://en.wikipedia.org/wiki/Alexander_Scriabin#Influence_of_colour" style="color: var(--color-fs)">Scriabin</a>, the PitchVis colors are chosen to form a rainbow along the circle of fifths. Incidentally, on the piano this gives warmer colors on the white keys and cooler colors on the black keys.<br><br><span class="text-lg font-bold note-shadow" style="color: var(--color-f)">F</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-c)">C</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-g)">G</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-d)">D</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-a)">A</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-e)">E</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-b)">B</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-fs)">F♯</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-cs)">C♯</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-ab)">A♭</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-eb)">E♭</span> <span class="text-lg font-bold note-shadow" style="color: var(--color-bb)">B♭</span>'
+            },
+            'calmness-glow': {
+                title: 'Calmness Glow',
+                color: 'var(--color-g)',
+                content: 'When the recognized pitches are the same for a few seconds, e. g. during a final chord of a piece, everything will start glowing. A quick succession of different pitches will make the glow go away again.'
+            },
+        };
+
+        function drawConnectingArrow(hotspot, explanationArea) {
+            const arrow = document.getElementById('connecting-arrow');
+            const arrowPath = document.getElementById('arrow-path');
+            const svgContainer = arrow.parentElement; // The bg-gray-800 container
+
+            // Get positions relative to the SVG container
+            const svgRect = svgContainer.getBoundingClientRect();
+            const hotspotRect = hotspot.getBoundingClientRect();
+            const explanationRect = explanationArea.getBoundingClientRect();
+
+            // Calculate hotspot center relative to SVG container
+            const hotspotCenterX = hotspotRect.left + hotspotRect.width / 2 - svgRect.left;
+            const hotspotCenterY = hotspotRect.top + hotspotRect.height / 2 - svgRect.top;
+
+            // Calculate explanation area center relative to SVG container
+            const explanationCenterX = explanationRect.left + explanationRect.width / 2 - svgRect.left;
+            const explanationTop = explanationRect.top - svgRect.top;
+
+            // Calculate hotspot radius (it's a circle with aspect-ratio 1)
+            const hotspotRadius = hotspotRect.width / 2;
+
+            // Calculate direction vector from explanation to hotspot
+            const dx = hotspotCenterX - explanationCenterX;
+            const dy = hotspotCenterY - explanationTop;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Normalize direction vector
+            const normalizedDx = dx / distance;
+            const normalizedDy = dy / distance;
+
+            // Calculate arrow start point (from explanation area)
+            const startX = explanationCenterX;
+            const startY = explanationTop;
+
+            // Calculate arrow end point (at edge of hotspot circle)
+            const endX = hotspotCenterX - (normalizedDx * hotspotRadius);
+            const endY = hotspotCenterY - (normalizedDy * hotspotRadius);
+
+            // Calculate control point for curved path
+            // Place control point to the side for a nice curve
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2;
+
+            // Calculate perpendicular direction for curve
+            const perpX = -normalizedDy;
+            const perpY = normalizedDx;
+
+            // Offset the control point to create the curve
+            const curveOffset = Math.min(distance * 0.3, 80); // Limit curve intensity
+            const controlX = midX + perpX * curveOffset;
+            const controlY = midY + perpY * curveOffset;
+
+            // Create curved path using quadratic Bezier curve
+            const pathData = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
+            arrowPath.setAttribute('d', pathData);
+
+            // Show arrow
+            arrow.style.display = 'block';
+            arrow.classList.add('visible');
+        }
+
+        function showExplanation(explanationId, hotspot) {
+            // Hide any existing explanation
+            hideExplanation();
+
+            // Get explanation data
+            const explanation = explanations[explanationId];
+            if (!explanation) return;
+
+            // Show explanation in the area
+            const explanationArea = document.getElementById('explanation-area');
+            const explanationContent = document.getElementById('explanation-content');
+            const explanationText = document.getElementById('explanation-text');
+            const placeholder = document.getElementById('explanation-placeholder');
+
+            // Update content
+            explanationText.innerHTML = `
+                <h4 style="color: ${explanation.color}">${explanation.title}</h4>
+                <p>${explanation.content}</p>
+            `;
+
+            // Show explanation content and hide placeholder
+            placeholder.style.display = 'none';
+            explanationContent.classList.remove('hidden');
+            explanationContent.classList.add('visible');
+
+            // Mark hotspot as active
+            hotspot.classList.add('active');
+
+            // Draw connecting arrow
+            drawConnectingArrow(hotspot, explanationArea);
+        }
+
+        function hideExplanation() {
+            // Hide explanation content and show placeholder
+            const explanationContent = document.getElementById('explanation-content');
+            const placeholder = document.getElementById('explanation-placeholder');
+            const arrow = document.getElementById('connecting-arrow');
+
+            explanationContent.classList.remove('visible');
+            explanationContent.classList.add('hidden');
+            placeholder.style.display = 'block';
+
+            // Hide arrow
+            arrow.style.display = 'none';
+            arrow.classList.remove('visible');
+
+            // Remove active state from all hotspots
+            document.querySelectorAll('.hotspot').forEach(hotspot => {
+                hotspot.classList.remove('active');
+            });
+        }
+
+        // Initialize interactive screenshot functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add click and hover handlers to hotspots
+            document.querySelectorAll('.hotspot').forEach(hotspot => {
+                hotspot.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const explanationId = this.getAttribute('data-tooltip');
+                    showExplanation(explanationId, this);
+                });
+
+                hotspot.addEventListener('mouseenter', function (e) {
+                    const explanationId = this.getAttribute('data-tooltip');
+                    showExplanation(explanationId, this);
+                });
+            });
+
+            // Hide explanations on any click outside hotspots and explanation area
+            document.addEventListener('click', function (e) {
+                if (!e.target.classList.contains('hotspot') &&
+                    !e.target.closest('#explanation-area')) {
+                    hideExplanation();
+                }
+            });
+
+            // Hide explanations on any key press
+            document.addEventListener('keydown', function (e) {
+                hideExplanation();
+            });
+
+            // Redraw arrow when window is resized
+            window.addEventListener('resize', function () {
+                const activeHotspot = document.querySelector('.hotspot.active');
+                if (activeHotspot) {
+                    const explanationArea = document.getElementById('explanation-area');
+                    drawConnectingArrow(activeHotspot, explanationArea);
+                }
+            });
+        });
     </script>
     <script defer="defer" src="main.js"></script>
 </head>
@@ -175,6 +418,7 @@
                 <div class="hidden sm:flex space-x-6">
                     <a href="#intro" class="nav-link">Intro</a>
                     <a href="#demo" class="nav-link">Videos</a>
+                    <a href="#explanation" class="nav-link">Explanation</a>
                     <a href="#try-it" class="nav-link">Try It</a>
                     <a href="#hardware" class="nav-link">Hardware</a>
                     <a href="#downloads" class="nav-link">Downloads</a>
@@ -290,6 +534,67 @@
             </div>
         </section>
 
+        <section id="explanation" class="py-16 px-4">
+            <h2 class="text-3xl font-bold mb-8" style="color: var(--color-fs)">How to Read the Visualization</h2>
+            <div class="bg-gray-800 rounded-lg p-8 relative">
+                <p class="text-lg mb-6">
+                    Click on the highlighted areas in the screenshot below to learn about different parts of the
+                    visualization:
+                </p>
+
+                <!-- Connecting Arrow SVG - spans entire explanation section -->
+                <svg id="connecting-arrow" class="absolute inset-0 w-full h-full pointer-events-none"
+                    style="display: none; z-index: 10;">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="var(--color-d)" />
+                        </marker>
+                    </defs>
+                    <path id="arrow-path" d="M 0 0 Q 0 0 0 0" stroke="var(--color-d)" stroke-width="2" fill="none"
+                        marker-end="url(#arrowhead)" />
+                </svg>
+
+                <!-- Interactive Screenshot Container -->
+                <div class="relative mx-auto max-w-4xl">
+                    <img id="app-screenshot" src="pitchvis_explanation.jpg" alt="PitchVis App Interface"
+                        class="w-full rounded-lg border border-gray-600" />
+
+                    <!-- Clickable/Hoverable Regions -->
+                    <div class="hotspot" data-tooltip="spider-net"
+                        style="position: absolute; top: 42%; left: 85%; width: 18%; transform: translate(-50%, -50%);">
+                    </div>
+
+                    <div class="hotspot" data-tooltip="bass-spiral"
+                        style="position: absolute; top: 52%; left: 47%; width: 42%; transform: translate(-50%, -50%);">
+                    </div>
+
+                    <div class="hotspot" data-tooltip="nice-overtone"
+                        style="position: absolute; top: 12.5%; left: 64.7%; width: 8%; transform: translate(-50%, -50%);">
+                    </div>
+
+                    <div class="hotspot" data-tooltip="pitch-colors"
+                        style="position: absolute; top: 96.5%; left: 71.7%; width: 8%; transform: translate(-50%, -50%);">
+                    </div>
+
+                    <div class="hotspot" data-tooltip="calmness-glow"
+                        style="position: absolute; top: 66.5%; left: 76.2%; width: 10%; transform: translate(-50%, -50%);">
+                    </div>
+
+                </div>
+
+                <!-- Explanation Area -->
+                <div id="explanation-area" class="mt-8 bg-gray-700 rounded-lg p-6 min-h-[200px] border border-gray-600">
+                    <div id="explanation-content" class="hidden">
+                        <div id="explanation-text"></div>
+                    </div>
+                    <div id="explanation-placeholder" class="text-center text-gray-400 py-8">
+                        <p class="text-lg">Click on any highlighted area in the screenshot above to see its explanation
+                            here.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="try-it" class="py-16 px-4">
             <h2 class="text-3xl font-bold mb-8" style="color: var(--color-fs)">Try It Out</h2>
             <div class="bg-gray-800 rounded-lg p-8">
@@ -400,10 +705,13 @@
                                 <span class="ml-2">Android App</span>
                             </a>
                         </li>
-                        <li class="text-gray-400">
+                        <li>
                             <span class="flex items-center text-lg">
-                                <span>✕</span>
-                                <span class="ml-2">iOS App (help wanted)</span>
+                                <span class="text-gray-400">✕</span>
+                                <span class="ml-2 text-gray-400">iOS App </span> <a
+                                    href="https://github.com/heinzelotto/pitchvis/issues/2"
+                                    class="flex items-center text-lg hover:text-gray-300"><span class="ml-2">(help
+                                        wanted)</span></a>
                             </span>
                         </li>
                     </ul>
