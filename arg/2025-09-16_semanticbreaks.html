@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Hierarchical Argument Structure - Cytoscape.js</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        #cy {
+            width: 100%;
+            height: 800px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            margin-right: 10px;
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        #info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f4f8;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .legend {
+            display: inline-block;
+            margin-right: 20px;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="controls">
+        <h2>Hierarchical Argument Structure - Cytoscape.js</h2>
+        <button id="expandBtn">Expand All</button>
+        <button id="level2Btn">Show Level 2</button>
+        <button id="level1Btn">Show Level 1 Only</button>
+        <button id="layoutBtn">Toggle Layout</button>
+        <button id="fitBtn">Fit View</button>
+
+        <div id="info">
+            <strong>Legend:</strong>
+            <span class="legend" style="background:#ADD8E6">Article Quote</span>
+            <span class="legend" style="background:#FFFFE0">Direct Statement</span>
+            <span class="legend" style="background:#FFE4B5">Sarcastic</span>
+            <br><br>
+            <strong>Interaction:</strong> Click nodes to highlight connections | Double-click compound nodes to
+            expand/collapse | Scroll to zoom | Drag to pan
+        </div>
+    </div>
+
+    <div id="cy"></div>
+
+    <script type="module">
+        import cytoscape from 'https://cdn.skypack.dev/cytoscape@3.26.0';
+        import fcose from 'https://cdn.skypack.dev/cytoscape-fcose';
+        import layoutUtilities from 'https://cdn.skypack.dev/cytoscape-layout-utilities';
+
+        cytoscape.use(fcose);
+        cytoscape.use(layoutUtilities);
+
+        // Initialize Cytoscape
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+
+            style: [
+                // Core node styles
+                {
+                    selector: 'node',
+                    style: {
+                        'label': 'data(label)',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '120px',
+                        'font-size': '10px',
+                        'border-width': 2,
+                        'border-color': '#333',
+                        'width': '140px',
+                        'height': '60px'
+                    }
+                },
+
+                // Compound node styles (parents)
+                {
+                    selector: ':parent',
+                    style: {
+                        'background-opacity': 0.1,
+                        'text-valign': 'top',
+                        'text-halign': 'center',
+                        'font-size': '12px',
+                        'font-weight': 'bold',
+                        'padding': '20px',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '200px'
+                    }
+                },
+
+                // Level 1 (outermost)
+                {
+                    selector: '.level1',
+                    style: {
+                        'background-color': '#f0f0f0',
+                        'border-color': '#666',
+                        'border-width': 3,
+                        'font-size': '14px'
+                    }
+                },
+
+                // Level 2
+                {
+                    selector: '.level2',
+                    style: {
+                        'background-color': '#e0e0e0',
+                        'border-color': '#888',
+                        'border-width': 2
+                    }
+                },
+
+                // Level 3
+                {
+                    selector: '.level3',
+                    style: {
+                        'background-color': '#d0d0d0',
+                        'border-color': '#999',
+                        'border-width': 1,
+                        'font-size': '11px'
+                    }
+                },
+
+                // Statement node types
+                {
+                    selector: '.article',
+                    style: {
+                        'background-color': '#ADD8E6',
+                        'shape': 'roundrectangle'
+                    }
+                },
+                {
+                    selector: '.direct',
+                    style: {
+                        'background-color': '#FFFFE0',
+                        'shape': 'rectangle'
+                    }
+                },
+                {
+                    selector: '.sarcastic',
+                    style: {
+                        'background-color': '#FFE4B5',
+                        'shape': 'diamond'
+                    }
+                },
+
+                // Edge styles
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 2,
+                        'line-color': '#999',
+                        'target-arrow-color': '#999',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'label': 'data(label)',
+                        'font-size': '9px',
+                        'text-rotation': 'autorotate',
+                        'text-margin-y': -10
+                    }
+                },
+                {
+                    selector: '.refutes',
+                    style: {
+                        'line-color': '#ff4444',
+                        'target-arrow-color': '#ff4444',
+                        'line-style': 'solid'
+                    }
+                },
+                {
+                    selector: '.supports',
+                    style: {
+                        'line-color': '#44ff44',
+                        'target-arrow-color': '#44ff44'
+                    }
+                },
+                {
+                    selector: '.alternative',
+                    style: {
+                        'line-color': '#4444ff',
+                        'target-arrow-color': '#4444ff',
+                        'line-style': 'dashed'
+                    }
+                },
+
+                // Highlighted styles
+                {
+                    selector: '.highlighted',
+                    style: {
+                        'background-color': '#ffcc00',
+                        'border-width': 3,
+                        'border-color': '#ff9900',
+                        'z-index': 999
+                    }
+                },
+                {
+                    selector: '.dimmed',
+                    style: {
+                        'opacity': 0.3
+                    }
+                }
+            ],
+
+            elements: {
+                nodes: [
+                    // Level 1 - Core container
+                    { data: { id: 'L1', label: 'LEVEL 1: Line-breaking sentences is counterproductive' }, classes: 'level1' },
+
+                    // Level 2 containers
+                    { data: { id: 'L2A', parent: 'L1', label: 'L2: Article contradicts itself' }, classes: 'level2' },
+                    { data: { id: 'L2B', parent: 'L1', label: 'L2: Creates display problems' }, classes: 'level2' },
+                    { data: { id: 'L2C', parent: 'L1', label: 'L2: Paragraphs serve the purpose' }, classes: 'level2' },
+
+                    // Level 3 containers
+                    { data: { id: 'L3A', parent: 'L2A', label: 'L3: Acknowledges automatic wrapping' }, classes: 'level3' },
+                    { data: { id: 'L3B', parent: 'L2B', label: 'L3: Wastes screen width' }, classes: 'level3' },
+                    { data: { id: 'L3C', parent: 'L2C', label: 'L3: Paragraphs are semantic units' }, classes: 'level3' },
+                    { data: { id: 'L3D', parent: 'L2C', label: 'L3: Breaking destroys meaning' }, classes: 'level3' },
+                    { data: { id: 'L3E', parent: 'L2C', label: 'L3: Alternatives exist' }, classes: 'level3' },
+
+                    // Original statements
+                    { data: { id: 'S1', parent: 'L3A', label: 'S1: "Without line breaks...continuous line"' }, classes: 'article' },
+                    { data: { id: 'S2', parent: 'L3A', label: 'S2: "automatically wrapped"' }, classes: 'article' },
+                    { data: { id: 'S3', parent: 'L3A', label: 'S3: "Of course it doesn\'t"' }, classes: 'direct' },
+                    { data: { id: 'S4', parent: 'L3A', label: 'S4: "short on apps?"' }, classes: 'sarcastic' },
+
+                    { data: { id: 'S5', parent: 'L3B', label: 'S5: "Line breaks make easier"' }, classes: 'article' },
+                    { data: { id: 'S6', parent: 'L3B', label: 'S6: "wastes device width"' }, classes: 'direct' },
+                    { data: { id: 'S7', parent: 'L3B', label: 'S7: "same issue: doesn\'t fit"' }, classes: 'direct' },
+                    { data: { id: 'S12', parent: 'L3B', label: 'S12: "why deprive readers?"' }, classes: 'sarcastic' },
+
+                    { data: { id: 'S8', parent: 'L3C', label: 'S8: "already exists: paragraph"' }, classes: 'direct' },
+                    { data: { id: 'S9', parent: 'L3D', label: 'S9: "Sentence has different meaning"' }, classes: 'direct' },
+                    { data: { id: 'S10', parent: 'L3D', label: 'S10: "It kills the structure"' }, classes: 'direct' },
+                    { data: { id: 'S11', parent: 'L3E', label: 'S11: "bullet points exist"' }, classes: 'direct' },
+
+                    { data: { id: 'S13', parent: 'L1', label: 'S13: Article quote about "reason and conscience"' }, classes: 'article' }
+                ],
+
+                edges: [
+                    // Refutation relationships
+                    { data: { source: 'S2', target: 'S1', label: 'contradicts' }, classes: 'refutes' },
+                    { data: { source: 'S3', target: 'S1', label: 'refutes' }, classes: 'refutes' },
+                    { data: { source: 'S6', target: 'S5', label: 'refutes' }, classes: 'refutes' },
+                    { data: { source: 'S7', target: 'S5', label: 'refutes' }, classes: 'refutes' },
+                    { data: { source: 'S10', target: 'S5', label: 'refutes' }, classes: 'refutes' },
+                    { data: { source: 'S12', target: 'S5', label: 'sarcastically refutes' }, classes: 'refutes' },
+                    { data: { source: 'S12', target: 'S13', label: 'mocks' }, classes: 'refutes' },
+
+                    // Support relationships
+                    { data: { source: 'S4', target: 'S3', label: 'reinforces' }, classes: 'supports' },
+                    { data: { source: 'S9', target: 'S8', label: 'supports' }, classes: 'supports' },
+                    { data: { source: 'S10', target: 'S8', label: 'supports' }, classes: 'supports' },
+
+                    // Alternative relationships
+                    { data: { source: 'S8', target: 'S5', label: 'alternative' }, classes: 'alternative' },
+                    { data: { source: 'S11', target: 'S5', label: 'alternative' }, classes: 'alternative' }
+                ]
+            },
+
+            layout: {
+                name: 'fcose',
+                // 'draft', 'default' or 'proof' 
+                // - "draft" only applies spectral layout 
+                // - "default" improves the quality with incremental layout (fast cooling rate)
+                // - "proof" improves the quality with incremental layout (slow cooling rate) 
+                quality: "proof",
+                // Use random node positions at beginning of layout
+                // if this is set to false, then quality option must be "proof"
+                randomize: true,
+                // Whether or not to animate the layout
+                animate: false,
+                // Duration of animation in ms, if enabled
+                animationDuration: 1000,
+                // Easing of animation, if enabled
+                animationEasing: undefined,
+                // Fit the viewport to the repositioned nodes
+                fit: true,
+                // Padding around layout
+                padding: 30,
+                // Whether to include labels in node dimensions. Valid in "proof" quality
+                nodeDimensionsIncludeLabels: true,
+                // Whether or not simple nodes (non-compound nodes) are of uniform dimensions
+                uniformNodeDimensions: false,
+                // Whether to pack disconnected components - cytoscape-layout-utilities extension should be registered and initialized
+                packComponents: true,
+                // Layout step - all, transformed, enforced, cose - for debug purpose only
+                step: "all",
+
+                /* spectral layout options */
+
+                // False for random, true for greedy sampling
+                samplingType: true,
+                // Sample size to construct distance matrix
+                sampleSize: 25,
+                // Separation amount between nodes
+                nodeSeparation: 75,
+                // Power iteration tolerance
+                piTol: 0.0000001,
+
+                /* incremental layout options */
+
+                // Node repulsion (non overlapping) multiplier
+                nodeRepulsion: node => 4500,
+                // Ideal edge (non nested) length
+                idealEdgeLength: edge => 50,
+                // Divisor to compute edge forces
+                edgeElasticity: edge => 0.45,
+                // Nesting factor (multiplier) to compute ideal edge length for nested edges
+                nestingFactor: 0.1,
+                // Maximum number of iterations to perform - this is a suggested value and might be adjusted by the algorithm as required
+                numIter: 2500,
+                // For enabling tiling
+                tile: true,
+                // The comparison function to be used while sorting nodes during tiling operation.
+                // Takes the ids of 2 nodes that will be compared as a parameter and the default tiling operation is performed when this option is not set.
+                // It works similar to ``compareFunction`` parameter of ``Array.prototype.sort()``
+                // If node1 is less then node2 by some ordering criterion ``tilingCompareBy(nodeId1, nodeId2)`` must return a negative value
+                // If node1 is greater then node2 by some ordering criterion ``tilingCompareBy(nodeId1, nodeId2)`` must return a positive value
+                // If node1 is equal to node2 by some ordering criterion ``tilingCompareBy(nodeId1, nodeId2)`` must return 0
+                tilingCompareBy: undefined,
+                // Represents the amount of the vertical space to put between the zero degree members during the tiling operation(can also be a function)
+                tilingPaddingVertical: 10,
+                // Represents the amount of the horizontal space to put between the zero degree members during the tiling operation(can also be a function)
+                tilingPaddingHorizontal: 10,
+                // Gravity force (constant)
+                gravity: 0.25,
+                // Gravity range (constant) for compounds
+                gravityRangeCompound: 1.5,
+                // Gravity force (constant) for compounds
+                gravityCompound: 1.0,
+                // Gravity range (constant)
+                gravityRange: 3.8,
+                // Initial cooling factor for incremental layout  
+                initialEnergyOnIncremental: 0.3,
+
+                /* constraint options */
+
+                // Fix desired nodes to predefined positions
+                // [{nodeId: 'n1', position: {x: 100, y: 200}}, {...}]
+                fixedNodeConstraint: undefined,
+                // Align desired nodes in vertical/horizontal direction
+                // {vertical: [['n1', 'n2'], [...]], horizontal: [['n2', 'n4'], [...]]}
+                alignmentConstraint: undefined,
+                // Place two nodes relatively in vertical/horizontal direction
+                // [{top: 'n1', bottom: 'n2', gap: 100}, {left: 'n3', right: 'n4', gap: 75}, {...}]
+                relativePlacementConstraint: undefined,
+
+                /* layout event callbacks */
+                ready: () => { }, // on layoutready
+                stop: () => { } // on layoutstop
+            }
+        });
+
+        // Add interaction handlers
+        cy.on('tap', 'node', function (evt) {
+            const node = evt.target;
+
+            // Reset all styles
+            cy.elements().removeClass('highlighted dimmed');
+
+            // Highlight clicked node and its connections
+            node.addClass('highlighted');
+            node.connectedEdges().addClass('highlighted');
+            node.connectedEdges().connectedNodes().addClass('highlighted');
+
+            // Dim everything else
+            cy.elements().not(node).not(node.connectedEdges()).not(node.connectedEdges().connectedNodes()).addClass('dimmed');
+        });
+
+        // Double-click to expand/collapse
+        let collapsedNodes = new Set();
+
+        cy.on('dbltap', ':parent', function (evt) {
+            const node = evt.target;
+            const nodeId = node.id();
+            const children = node.children();
+
+            if (collapsedNodes.has(nodeId)) {
+                // Expand
+                children.style('display', 'element');
+                children.connectedEdges().style('display', 'element');
+                collapsedNodes.delete(nodeId);
+            } else {
+                // Collapse
+                children.style('display', 'none');
+                children.connectedEdges().style('display', 'none');
+                collapsedNodes.add(nodeId);
+            }
+
+            cy.layout({ name: 'fcose', animate: true }).run();
+        });
+
+        // Click on background to reset
+        cy.on('tap', function (evt) {
+            if (evt.target === cy) {
+                cy.elements().removeClass('highlighted dimmed');
+            }
+        });
+
+        // Control functions
+        window.expandAll = function () {
+            cy.nodes().style('display', 'element');
+            cy.edges().style('display', 'element');
+            collapsedNodes.clear();
+            cy.layout({ name: 'fcose', animate: true }).run();
+        }
+
+        window.collapseToLevel = function (level) {
+            if (level === 1) {
+                cy.nodes('.level2, .level3, .article, .direct, .sarcastic').style('display', 'none');
+                cy.edges().style('display', 'none');
+            } else if (level === 2) {
+                cy.nodes('.level3, .article, .direct, .sarcastic').not('#S13').style('display', 'none');
+                cy.edges().style('display', 'none');
+            }
+            cy.layout({ name: 'fcose', animate: true }).run();
+        }
+
+        let currentLayout = 'fcose';
+        window.toggleLayout = function () {
+            currentLayout = currentLayout === 'fcose' ? 'breadthfirst' : 'fcose';
+            cy.layout({
+                name: currentLayout,
+                directed: true,
+                spacingFactor: 1.5,
+                animate: true
+            }).run();
+        }
+
+        window.fitView = function () {
+            cy.fit();
+        }
+
+        // Attach button handlers
+        document.getElementById('expandBtn').addEventListener('click', expandAll);
+        document.getElementById('level2Btn').addEventListener('click', () => collapseToLevel(2));
+        document.getElementById('level1Btn').addEventListener('click', () => collapseToLevel(1));
+        document.getElementById('layoutBtn').addEventListener('click', toggleLayout);
+        document.getElementById('fitBtn').addEventListener('click', fitView);
+
+        // Run initial layout
+        cy.layout({ name: 'fcose', animate: false }).run();
+    </script>
+</body>
+
+</html>
