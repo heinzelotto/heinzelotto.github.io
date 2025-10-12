@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,13 +16,13 @@
             flex-direction: column;
             justify-content: center;
         }
-
+        
         .question {
             font-size: 1.5em;
             margin-bottom: 40px;
             text-align: center;
         }
-
+        
         .attribution {
             font-size: 0.9em;
             color: #666;
@@ -31,7 +30,7 @@
             /* margin-bottom: 30px; */
             font-style: italic;
         }
-
+        
         .links {
             text-align: center;
             font-size: 0.7em;
@@ -41,60 +40,60 @@
             align-self: center;
             transition: opacity 0.3s;
         }
-
+        
         .links:hover {
             opacity: 0.6;
         }
-
+        
         .links a {
             margin: 0 8px;
             text-decoration: none;
         }
-
+        
         /* 36 Questions styling */
         body.love {
             background-color: #fff5f5;
             color: #5a1a1a;
         }
-
+        
         body.love .links a {
             color: #5a1a1a;
         }
-
+        
         /* Life-changing questions styling */
         body.life {
             background-color: #f0f8ff;
             color: #1a3a5a;
         }
-
+        
         body.life .links a {
             color: #1a3a5a;
         }
-
+        
         /* Askhole styling */
         body.askhole {
             background-color: #2a2a2a;
             color: #f0f0f0;
         }
-
+        
         body.askhole .attribution {
             color: #aaa;
         }
-
+        
         body.askhole .links a {
             color: #f0f0f0;
         }
-
+        
         /* Truth or Dare styling */
         body.truthdare {
             background-color: #1a0a2e;
             color: #e94560;
         }
-
+        
         body.truthdare .attribution {
             color: #b83b5e;
         }
-
+        
         body.truthdare .links a {
             color: #e94560;
         }
@@ -363,14 +362,22 @@
         // Set body class for styling
         document.body.className = set;
 
-        // Get random question
-        const questionArray = questions[set];
-        const randomQuestion = questionArray[Math.floor(Math.random() * questionArray.length)];
+        // Storage key for this specific set
+        const storageKey = `question_${set}`;
+        
+        // Try to get stored question for this set
+        let randomQuestion = sessionStorage.getItem(storageKey);
+        
+        // If no stored question, generate a new one and store it
+        if (!randomQuestion) {
+            const questionArray = questions[set];
+            randomQuestion = questionArray[Math.floor(Math.random() * questionArray.length)];
+            sessionStorage.setItem(storageKey, randomQuestion);
+        }
 
         // Display question and attribution
         document.getElementById('question').textContent = randomQuestion;
         document.getElementById('attribution').textContent = attributions[set];
     </script>
 </body>
-
 </html>
