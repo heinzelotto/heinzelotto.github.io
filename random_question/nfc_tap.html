@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const set = urlParams.get('set') || 'love';
+        // Add fresh flag to indicate we want a new question
+        window.location.replace(`index.html?set=${set}&fresh=1`);
+    </script>
+</head>
+<body>
+    <p>Loading question...</p>
+</body>
+</html>
