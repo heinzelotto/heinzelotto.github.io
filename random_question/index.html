@@ -385,19 +385,19 @@
             return perm[offset];
         }
 
-        let randomQuestion= "";
+        let randomQuestion = "";
 
         if (!idx) {
             const questionArray = questions[set];
             randomQuestion = questionArray[Math.floor(Math.random() * questionArray.length)];
         } else {
-            const questionArray= questions[set];
+            const questionArray = questions[set];
             const index = parseInt(idx, 16);
             const n = questionArray.length;
-let block = index / questionArray.length;
-let offset= index % questionArray.length;
+            let block = Math.floor(index / questionArray.length);
+            let offset = index % questionArray.length;
 
-randomQuestion= questionArray[s(block,offset,n)];
+            randomQuestion = questionArray[s(block, offset, n)];
         }
 
         // Display question and attribution
