@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treasure Hunt</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    #app {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    #map {
+      height: 500px;
+      width: 100%;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .start-screen {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .start-button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .start-button:disabled {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #95c099;
+      color: #999999;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .start-button:hover:enabled {
+      background: #45a049;
+    }
+
+    .progress {
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .waypoint-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .waypoint-item {
+      padding: 10px;
+      margin: 5px 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .waypoint-item.completed {
+      background: #e8f5e9;
+      border-color: #4CAF50;
+    }
+
+    .location-controls {
+      margin: 20px 0;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .control-group {
+      margin-bottom: 15px;
+    }
+
+    .control-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .control-group input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f9f9f9;
+      box-sizing: border-box;
+    }
+
+    .control-group input[type="range"] {
+      width: 100%;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .feature-selector {
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: left;
+    }
+
+    .feature-category {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+
+    .feature-category h3 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .feature-checkboxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+
+    .feature-checkbox {
+      display: flex;
+      align-items: center;
+    }
+
+    .feature-checkbox input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    .feature-checkbox label {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .hunt-length-option {
+      cursor: pointer;
+      padding: 10px 20px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    .hunt-length-option:has(input:checked) {
+      border-color: #4CAF50;
+      background: #e8f5e9;
+    }
+
+    .hunt-length-option input[type="radio"] {
+      margin-right: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <!-- Leaflet JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Your app code -->
+  <script>
+    // State interface
+    let currentState = null;
+    let map = null;
+    let markers = [];
+    let currentLocationMarker = null;
+    let pathPolyline = null;
+
+    // Treasure hunt parameter state (is not stored to URL GET param)
+    let selectedLocationMarker = null;
+    let selectedAreaCircle = null;
+    let selectedLocation = null;
+    let selectedRadius = 500; // default 500 meters
+    let selectedHuntLength = 'medium'; // default: short, medium, or long
+
+    // Encode state to URL-safe string
+    function encodeState(state) {
+      const json = JSON.stringify(state);
+      return encodeURIComponent(btoa(json));
+    }
+
+    // Decode state from URL parameter
+    function decodeState(encoded) {
+      try {
+        const json = atob(decodeURIComponent(encoded));
+        return JSON.parse(json);
+      } catch (e) {
+        console.error('Failed to decode state:', e);
+        return null;
+      }
+    }
+
+    // Read state from URL
+    function getStateFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const stateParam = params.get('state');
+
+      if (stateParam) {
+        return decodeState(stateParam);
+      }
+      return null;
+    }
+
+    // Update URL with new state (without page reload)
+    function updateURLWithState(state) {
+      const encoded = encodeState(state);
+      const newURL = `${window.location.pathname}?state=${encoded}`;
+      window.history.replaceState(null, '', newURL);
+      currentState = state;
+    }
+
+    // Update selected location marker and circle
+    function updateSelectedLocationDisplay() {
+      if (!map || !selectedLocation) return;
+
+      // Remove existing marker and circle
+      if (selectedLocationMarker) {
+        map.removeLayer(selectedLocationMarker);
+      }
+      if (selectedAreaCircle) {
+        map.removeLayer(selectedAreaCircle);
+      }
+
+      // Add new marker
+      const redIcon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      selectedLocationMarker = L.marker([selectedLocation.lat, selectedLocation.lng], { icon: redIcon })
+        .addTo(map)
+        .bindPopup('Play area center');
+
+      // Add circle
+      selectedAreaCircle = L.circle([selectedLocation.lat, selectedLocation.lng], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.2,
+        radius: selectedRadius
+      }).addTo(map);
+
+      // Fit map to show the circle
+      map.fitBounds(selectedAreaCircle.getBounds(), { padding: [50, 50] });
+    }
+
+    // Show the start screen map
+    function initStartScreenMap(currentLocation) {
+      // Create map if it doesn't exist
+      if (!map) {
+
+        // Center on first waypoint or current location
+        const center = currentLocation || { lat: 48.1651, lng: 11.5820 };
+        map = L.map('map').setView([center.lat, center.lng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19
+        }).addTo(map);
+
+        // Add click handler for location selection
+        map.on('click', function (e) {
+          selectedLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+
+          // Update the input field
+          const locationInput = document.getElementById('location-input');
+          if (locationInput) {
+            locationInput.value = `${selectedLocation.lat.toFixed(6)}, ${selectedLocation.lng.toFixed(6)}`;
+          }
+
+          // Enable the start button
+          document.getElementsByClassName("start-button")[0].removeAttribute("disabled");
+
+          // Update marker and circle
+          updateSelectedLocationDisplay();
+        });
+      }
+
+      // Clear existing markers
+      markers.forEach(marker => map.removeLayer(marker));
+
+      // Add current location marker if available
+      if (currentLocation) {
+        const blueIcon = L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+
+        currentLocationMarker = L.marker([currentLocation.lat, currentLocation.lng], { icon: blueIcon })
+          .addTo(map)
+          .bindPopup('You are here');
+      }
+
+      // Restore selected location display if it exists
+      if (selectedLocation) {
+        updateSelectedLocationDisplay();
+      }
+
+      // Fit map to show all markers
+      if (markers.length > 0) {
+        const bounds = L.latLngBounds(markers.map(m => m.getLatLng()));
+        if (currentLocationMarker) {
+          bounds.extend(currentLocationMarker.getLatLng());
+        }
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    }
+
+    // Initialize or update the map
+    function initMap(waypoints, completedIndices, currentLocation) {
+      // Create map if it doesn't exist
+      if (!map) {
+        const mapDiv = document.createElement('div');
+        mapDiv.id = 'map';
+        document.getElementById('app').appendChild(mapDiv);
+
+        // Center on first waypoint or current location
+        const center = currentLocation || waypoints[0];
+        map = L.map('map').setView([center.lat, center.lng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19
+        }).addTo(map);
+      }
+
+      // Clear existing markers
+      markers.forEach(marker => map.removeLayer(marker));
+      markers = [];
+      if (currentLocationMarker) {
+        map.removeLayer(currentLocationMarker);
+        currentLocationMarker = null;
+      }
+
+      // Add waypoint markers
+      waypoints.forEach((waypoint, index) => {
+        const isCompleted = completedIndices.includes(index);
+
+        // Create custom icon for completed waypoints
+        let icon = undefined;
+        if (isCompleted) {
+          icon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          });
+        }
+
+        const marker = L.marker([waypoint.lat, waypoint.lng], icon ? { icon } : {})
+          .addTo(map)
+          .bindPopup(`
+            <b>${waypoint.name}</b><br>
+            ${isCompleted ? '✓ Completed' : 'Not visited yet'}
+          `);
+
+        markers.push(marker);
+      });
+
+      // Add current location marker if available
+      if (currentLocation) {
+        const blueIcon = L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+
+        currentLocationMarker = L.marker([currentLocation.lat, currentLocation.lng], { icon: blueIcon })
+          .addTo(map)
+          .bindPopup('You are here');
+      }
+
+      // Fit map to show all markers
+      if (markers.length > 0) {
+        const bounds = L.latLngBounds(markers.map(m => m.getLatLng()));
+        if (currentLocationMarker) {
+          bounds.extend(currentLocationMarker.getLatLng());
+        }
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    }
+
+    // Handle radius change
+    function handleRadiusChange() {
+      const radiusInput = document.getElementById('radius-input');
+      const radiusValue = document.getElementById('radius-value');
+
+      if (radiusInput && radiusValue) {
+        selectedRadius = parseInt(radiusInput.value);
+        radiusValue.textContent = selectedRadius;
+
+        // Update circle if location is selected
+        if (selectedLocation) {
+          updateSelectedLocationDisplay();
+        }
+      }
+    }
+
+    // Render start screen
+    function renderStartScreen() {
+      document.getElementById('app').innerHTML = `
+        <div class="start-screen">
+          <h1>Random Treasure Hunt</h1>
+          <p>Click on the map to select your play area center:</p>
+          <div class="location-controls">
+            <div class="control-group">
+              <label for="location-input">
+                Selected Location:
+              </label>
+              <input
+                type="text"
+                id="location-input"
+                readonly
+                placeholder="Click on the map to select a location"
+              />
+            </div>
+            <div class="control-group">
+              <label for="radius-input">
+                Play Area Radius: <span id="radius-value">${selectedRadius}</span> meters
+              </label>
+              <input
+                type="range"
+                id="radius-input"
+                min="100"
+                max="5000"
+                step="50"
+                value="${selectedRadius}"
+                oninput="handleRadiusChange()"
+              />
+              <div class="range-labels">
+                <span>100m</span>
+                <span>5000m</span>
+              </div>
+            </div>
+          </div>
+          <div id="map"></div>
+          <p style="margin-top: 20px;">Ready to start your adventure?</p>
+          <button class="start-button" onclick="handleStart()" disabled>Create New Hunt</button>
+
+          <div class="feature-selector">
+            <h2>Hunt Length:</h2>
+            <div class="feature-category">
+              <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <label class="hunt-length-option">
+                  <input type="radio" name="hunt-length" value="short" onchange="selectedHuntLength = 'short'">
+                  Short (4-6 stops)
+                </label>
+                <label class="hunt-length-option">
+                  <input type="radio" name="hunt-length" value="medium" checked onchange="selectedHuntLength = 'medium'">
+                  Medium (7-10 stops)
+                </label>
+                <label class="hunt-length-option">
+                  <input type="radio" name="hunt-length" value="long" onchange="selectedHuntLength = 'long'">
+                  Long (11-15 stops)
+                </label>
+              </div>
+            </div>
+
+            <h2>Select Features to Include:</h2>
+
+            <div class="feature-category">
+              <h3>Tourism</h3>
+              <div class="feature-checkboxes">
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="tourism-yes" name="feature" value="tourism=yes" checked>
+                  <label for="tourism-yes">Yes</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="tourism-artwork" name="feature" value="tourism=artwork" checked>
+                  <label for="tourism-artwork">Artwork</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="tourism-viewpoint" name="feature" value="tourism=viewpoint" checked>
+                  <label for="tourism-viewpoint">Viewpoint</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="tourism-attraction" name="feature" value="tourism=attraction" checked>
+                  <label for="tourism-attraction">Attraction</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="tourism-information" name="feature" value="tourism=information" checked>
+                  <label for="tourism-information">Information</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="feature-category">
+              <h3>Amenity</h3>
+              <div class="feature-checkboxes">
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-library" name="feature" value="amenity=library" checked>
+                  <label for="amenity-library">Library</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-public_bookcase" name="feature" value="amenity=public_bookcase" checked>
+                  <label for="amenity-public_bookcase">Public Bookcase</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-shower" name="feature" value="amenity=shower" checked>
+                  <label for="amenity-shower">Shower</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-telephone" name="feature" value="amenity=telephone" checked>
+                  <label for="amenity-telephone">Telephone</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-toilets" name="feature" value="amenity=toilets" checked>
+                  <label for="amenity-toilets">Toilets</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-water_point" name="feature" value="amenity=water_point" checked>
+                  <label for="amenity-water_point">Water Point</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-clock" name="feature" value="amenity=clock" checked>
+                  <label for="amenity-clock">Clock</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-photo_booth" name="feature" value="amenity=photo_booth" checked>
+                  <label for="amenity-photo_booth">Photo Booth</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-public_bath" name="feature" value="amenity=public_bath" checked>
+                  <label for="amenity-public_bath">Public Bath</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-post_box" name="feature" value="amenity=post_box" checked>
+                  <label for="amenity-post_box">Post Box</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-bench" name="feature" value="amenity=bench">
+                  <label for="amenity-bench">Bench</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-dressing_room" name="feature" value="amenity=dressing_room" checked>
+                  <label for="amenity-dressing_room">Dressing Room</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-parcel_locker" name="feature" value="amenity=parcel_locker" checked>
+                  <label for="amenity-parcel_locker">Parcel Locker</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-watering_place" name="feature" value="amenity=watering_place" checked>
+                  <label for="amenity-watering_place">Watering Place</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="amenity-fountain" name="feature" value="amenity=fountain" checked>
+                  <label for="amenity-fountain">Fountain</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="feature-category">
+              <h3>Building</h3>
+              <div class="feature-checkboxes">
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="building-clock_tower" name="feature" value="building=clock_tower" checked>
+                  <label for="building-clock_tower">Clock Tower</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="building-shrine" name="feature" value="building=shrine" checked>
+                  <label for="building-shrine">Shrine</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="building-church" name="feature" value="building=church" checked>
+                  <label for="building-church">Church</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="building-cathedral" name="feature" value="building=cathedral" checked>
+                  <label for="building-cathedral">Cathedral</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="feature-category">
+              <h3>Man Made</h3>
+              <div class="feature-checkboxes">
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="man_made-water_tap" name="feature" value="man_made=water_tap" checked>
+                  <label for="man_made-water_tap">Water Tap</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="feature-category">
+              <h3>Historic</h3>
+              <div class="feature-checkboxes">
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="historic-memorial" name="feature" value="historic=memorial" checked>
+                  <label for="historic-memorial">Memorial</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="historic-milestone" name="feature" value="historic=milestone" checked>
+                  <label for="historic-milestone">Milestone</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="historic-highwater_mark" name="feature" value="historic=highwater_mark" checked>
+                  <label for="historic-highwater_mark">Highwater Mark</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="historic-epigraph" name="feature" value="historic=epigraph" checked>
+                  <label for="historic-epigraph">Epigraph</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="historic-church" name="feature" value="historic=church" checked>
+                  <label for="historic-church">Church</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="historic-stone" name="feature" value="historic=stone" checked>
+                  <label for="historic-stone">Stone</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="feature-category">
+              <h3>Information</h3>
+              <div class="feature-checkboxes">
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="information-board" name="feature" value="information=board" checked>
+                  <label for="information-board">Board</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="information-stele" name="feature" value="information=stele" checked>
+                  <label for="information-stele">Stele</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="information-terminal" name="feature" value="information=terminal" checked>
+                  <label for="information-terminal">Terminal</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="information-map" name="feature" value="information=map" checked>
+                  <label for="information-map">Map</label>
+                </div>
+                <div class="feature-checkbox">
+                  <input type="checkbox" id="information-guidepost" name="feature" value="information=guidepost" checked>
+                  <label for="information-guidepost">Guidepost</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Initialize map after DOM is updated
+      initStartScreenMap(null);
+    }
+
+    // Render treasure hunt UI
+    function renderTreasureHunt(state) {
+      // Check if hunt is complete
+      if (state.currentWaypointIndex >= state.waypoints.length) {
+        const totalTime = Math.floor((Date.now() - state.startTime) / 1000 / 60); // minutes
+        document.getElementById('app').innerHTML = `
+          <div class="start-screen">
+            <h1>Hunt Complete!</h1>
+            <p>Congratulations! You found all ${state.waypoints.length} waypoints.</p>
+            <div class="progress">
+              <strong>Total Time:</strong> ${totalTime} minutes<br>
+              <strong>Penalty Score:</strong> ${state.penaltyScore} points
+            </div>
+            <div id="map"></div>
+            <h2>Waypoints Visited:</h2>
+            <ul class="waypoint-list">
+              ${state.waypoints.map((wp, i) => `
+                <li class="waypoint-item completed">
+                  <strong>${i + 1}. ${wp.name}</strong>
+                </li>
+              `).join('')}
+            </ul>
+            <button class="start-button" onclick="resetHunt()">Start New Hunt</button>
+          </div>
+        `;
+        // Show the complete path on the map
+        initHuntMap(state);
+        return;
+      }
+
+      const currentWaypoint = state.waypoints[state.currentWaypointIndex];
+      const progressPercent = (state.currentWaypointIndex / state.waypoints.length * 100).toFixed(0);
+
+      document.getElementById('app').innerHTML = `
+        <h1>${state.huntName}</h1>
+
+        <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 15px; margin: 20px 0;">
+          <p style="margin: 0; font-style: italic;">
+            "Oof, I had one drink too many last night and got lost. I just woke up near
+            <strong>${state.waypoints[0].name}</strong> and am looking for another drink,
+            and also my way home. Luckily I remember where I live. It's a few stops, let me think...
+            First I need to find a <strong>${currentWaypoint.name}</strong>..."
+          </p>
+        </div>
+
+        <div class="progress">
+          <strong>Progress:</strong> Waypoint ${state.currentWaypointIndex + 1} of ${state.waypoints.length} (${progressPercent}%)
+          <br><strong>Penalty Score:</strong> ${state.penaltyScore} points
+        </div>
+
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h2>Current Target:</h2>
+          <p style="font-size: 18px; margin: 10px 0;"><strong>${currentWaypoint.name}</strong></p>
+          ${state.distance !== null ? `
+            <p style="font-size: 16px; margin: 5px 0;">
+              <strong>Distance:</strong> ${Math.round(state.distance)} meters
+            </p>
+            <p style="font-size: 16px; margin: 5px 0;">
+              <strong>Bearing:</strong> ${state.bearing}° ${getCompassDirection(state.bearing)}
+            </p>
+          ` : '<p>Click "Update Location" to get distance and bearing.</p>'}
+        </div>
+
+        <div style="margin: 20px 0;">
+          <button class="start-button" onclick="updateHuntLocation()" style="margin: 5px;">Update Location</button>
+          <button class="start-button" onclick="foundWaypoint()" style="margin: 5px;">Found It!</button>
+          <button onclick="resetHunt()" style="margin: 5px; padding: 15px 30px;">Reset Hunt</button>
+        </div>
+
+        <div id="map"></div>
+
+        ${state.completed.length > 0 ? `
+          <h2>Completed Waypoints:</h2>
+          <ul class="waypoint-list">
+            ${state.completed.map(idx => `
+              <li class="waypoint-item completed">
+                <strong>${idx + 1}. ${state.waypoints[idx].name}</strong>
+              </li>
+            `).join('')}
+          </ul>
+        ` : ''}
+      `;
+
+      // Initialize map showing only completed waypoints and current location
+      initHuntMap(state);
+    }
+
+    // Helper to convert bearing to compass direction
+    function getCompassDirection(bearing) {
+      const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      const index = Math.round(bearing / 22.5) % 16;
+      return directions[index];
+    }
+
+    // Initialize map for active hunt (show only completed waypoints + current location)
+    function initHuntMap(state) {
+      // Remove existing map if it exists (since the HTML was replaced)
+      if (map) {
+        map.remove();
+        map = null;
+      }
+
+      // Clear existing markers
+      markers = [];
+      currentLocationMarker = null;
+
+      // Create new map
+      const center = state.currentLocation || state.waypoints[0];
+      map = L.map('map').setView([center.lat, center.lng], 15);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(map);
+
+      // Always show first waypoint (starting point)
+      const firstWaypoint = state.waypoints[0];
+      const isFirstCompleted = state.completed.includes(0);
+
+      if (!isFirstCompleted) {
+        // Show orange marker for uncompleted first waypoint
+        const orangeIcon = L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+        const startMarker = L.marker([firstWaypoint.lat, firstWaypoint.lng], { icon: orangeIcon })
+          .addTo(map)
+          .bindPopup(`<b>Starting Point</b><br>${firstWaypoint.name}`);
+        markers.push(startMarker);
+      }
+
+      // Add completed waypoint markers
+      state.completed.forEach(idx => {
+        const waypoint = state.waypoints[idx];
+        const greenIcon = L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+
+        const marker = L.marker([waypoint.lat, waypoint.lng], { icon: greenIcon })
+          .addTo(map)
+          .bindPopup(`<b>${waypoint.name}</b><br>✓ Completed`);
+        markers.push(marker);
+      });
+
+      // Draw path between completed waypoints
+      if (state.completed.length > 1) {
+        const pathCoords = state.completed.map(idx => [
+          state.waypoints[idx].lat,
+          state.waypoints[idx].lng
+        ]);
+        if (pathPolyline) {
+          map.removeLayer(pathPolyline);
+        }
+        pathPolyline = L.polyline(pathCoords, {
+          color: 'blue',
+          weight: 4,
+          opacity: 0.7
+        }).addTo(map);
+      }
+
+      // Add current location marker if available
+      if (state.currentLocation) {
+        const blueIcon = L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+
+        currentLocationMarker = L.marker([state.currentLocation.lat, state.currentLocation.lng], { icon: blueIcon })
+          .addTo(map)
+          .bindPopup('You are here');
+        map.setView([state.currentLocation.lat, state.currentLocation.lng], 15);
+      }
+
+      // Fit map to show all markers
+      if (markers.length > 0 || currentLocationMarker) {
+        const allMarkers = [...markers];
+        if (currentLocationMarker) allMarkers.push(currentLocationMarker);
+        if (allMarkers.length > 0) {
+          const bounds = L.latLngBounds(allMarkers.map(m => m.getLatLng()));
+          map.fitBounds(bounds, { padding: [50, 50] });
+        }
+      }
+    }
+
+    // Helper Functions
+
+    // Haversine distance formula - returns distance in meters
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // Earth's radius in meters
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+      const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return R * c;
+    }
+
+    // Calculate bearing from point 1 to point 2 - returns degrees (0-360)
+    function calculateBearing(lat1, lon1, lat2, lon2) {
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+      const y = Math.sin(Δλ) * Math.cos(φ2);
+      const x = Math.cos(φ1) * Math.sin(φ2) -
+        Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+      const θ = Math.atan2(y, x);
+      const bearing = (θ * 180 / Math.PI + 360) % 360;
+
+      return Math.round(bearing);
+    }
+
+    // Format waypoint description from OSM element
+    function formatWaypointDescription(element) {
+      const tags = element.tags || {};
+
+      // Try to get a name
+      if (tags.name) {
+        // Find the main feature type
+        const featureType = Object.keys(tags).find(key =>
+          ['tourism', 'amenity', 'historic', 'building', 'man_made', 'information'].includes(key)
+        );
+        if (featureType) {
+          return `${featureType}=${tags[featureType]}, name: ${tags.name}`;
+        }
+        return `name: ${tags.name}`;
+      }
+
+      // Try ref (e.g., for post boxes)
+      // if (tags.ref) {
+      //     const featureType = Object.keys(tags).find(key =>
+      //         ['tourism', 'amenity', 'historic', 'building', 'man_made', 'information'].includes(key)
+      //     );
+      //     if (featureType) {
+      //         return `${featureType}=${tags[featureType]}, ref: ${tags.ref}`;
+      //     }
+      // }
+
+      // Just show the feature type
+      const featureType = Object.keys(tags).find(key =>
+        ['tourism', 'amenity', 'historic', 'building', 'man_made', 'information'].includes(key)
+      );
+      if (featureType) {
+        return `${featureType}=${tags[featureType]}`;
+      }
+
+      return 'Unknown waypoint';
+    }
+
+    // Solve TSP using Nearest Neighbor algorithm
+    function solveTSP(waypoints) {
+      if (waypoints.length <= 2) return waypoints;
+
+      // Start at a random point
+      const remaining = [...waypoints];
+      const ordered = [];
+      const startIndex = Math.floor(Math.random() * remaining.length);
+      ordered.push(remaining.splice(startIndex, 1)[0]);
+
+      // Greedily pick nearest unvisited waypoint
+      while (remaining.length > 0) {
+        const current = ordered[ordered.length - 1];
+        let nearestIndex = 0;
+        let nearestDist = Infinity;
+
+        for (let i = 0; i < remaining.length; i++) {
+          const dist = haversineDistance(
+            current.lat, current.lng,
+            remaining[i].lat, remaining[i].lng
+          );
+          if (dist < nearestDist) {
+            nearestDist = dist;
+            nearestIndex = i;
+          }
+        }
+
+        ordered.push(remaining.splice(nearestIndex, 1)[0]);
+      }
+
+      return ordered;
+    }
+
+    // Start button handler
+    function handleStart() {
+      (async () => {
+        const checkedFeatures = Array.from(
+          document.querySelectorAll('input[name="feature"]:checked')
+        ).map(checkbox => checkbox.value);
+
+        console.log(checkedFeatures);
+
+        console.log(selectedLocation);
+        console.log(selectedRadius);
+
+        // Create the request. Ex.:
+        //
+        // (
+        //     node(around: 1000.0, 48.1351, 11.5820)[tourism = artwork];
+        //     node(around: 1000.0, 48.1651, 11.5820)[historic = memorial];
+        // );
+        // out;
+
+        const overpassQlRequest = "[out:json];\n(\n" +
+          checkedFeatures
+            .map(
+              (val, idx, _) => "node(around: "
+                + selectedRadius
+                + ", "
+                + selectedLocation.lat
+                + ", "
+                + selectedLocation.lng
+                + ")["
+                + val
+                + "];")
+            .join("\n")
+          + "\n);\nout;";
+        console.log(overpassQlRequest);
+
+        try {
+          const api = await fetch('https://www.overpass-api.de/api/interpreter?', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'text/plain'
+            },
+            body: overpassQlRequest
+          });
+          const answer = await api.json();
+          console.log('Overpass API response:', answer);
+
+          // Check if we got any results
+          if (!answer.elements || answer.elements.length === 0) {
+            alert('No points of interest found in this area with the selected features. Try a different location or select more features.');
+            return;
+          }
+
+          // Step 2: Parse and assign preference scores
+          const scoredWaypoints = answer.elements.map(element => {
+            let score = 1; // default low priority
+            const tags = element.tags || {};
+
+            // High priority: tourism
+            if (tags.tourism) score = 4;
+            // Medium priority: historic, building, information
+            else if (tags.historic || tags.building || tags.information) score = 3;
+            // Low priority: amenity, man_made
+            else if (tags.amenity || tags.man_made) score = 2;
+
+            return {
+              lat: element.lat,
+              lng: element.lon,
+              name: formatWaypointDescription(element),
+              element: element, // keep full element for later reference
+              score: score
+            };
+          });
+
+          // Step 3: Weighted random selection based on hunt length
+          let minStops, maxStops;
+          if (selectedHuntLength === 'short') {
+            minStops = 4;
+            maxStops = 6;
+          } else if (selectedHuntLength === 'long') {
+            minStops = 11;
+            maxStops = 15;
+          } else { // medium
+            minStops = 7;
+            maxStops = 10;
+          }
+
+          // Random count within the range, capped by available waypoints
+          const desiredCount = Math.floor(Math.random() * (maxStops - minStops + 1)) + minStops;
+          const targetCount = Math.min(desiredCount, scoredWaypoints.length);
+          const selectedWaypoints = [];
+
+          // Create weighted pool
+          const pool = [...scoredWaypoints];
+          for (let i = 0; i < targetCount && pool.length > 0; i++) {
+            // Calculate total weight
+            const totalWeight = pool.reduce((sum, wp) => sum + wp.score, 0);
+            let random = Math.random() * totalWeight;
+
+            // Select based on weight
+            let selectedIndex = 0;
+            for (let j = 0; j < pool.length; j++) {
+              random -= pool[j].score;
+              if (random <= 0) {
+                selectedIndex = j;
+                break;
+              }
+            }
+
+            selectedWaypoints.push(pool.splice(selectedIndex, 1)[0]);
+          }
+
+          console.log('Selected waypoints:', selectedWaypoints);
+
+          // Step 4: Solve TSP
+          const orderedWaypoints = solveTSP(selectedWaypoints);
+          console.log('TSP ordered waypoints:', orderedWaypoints);
+
+          // Step 5: Create hunt state
+          const initialState = {
+            waypoints: orderedWaypoints,
+            currentWaypointIndex: 0,
+            completed: [],
+            penaltyScore: 0,
+            startTime: Date.now(),
+            huntName: "Treasure Hunt",
+            currentLocation: null,
+            distance: null,
+            bearing: null
+          };
+
+          // Start the hunt
+          updateURLWithState(initialState);
+          renderTreasureHunt(initialState);
+
+        } catch (error) {
+          console.error('Error fetching waypoints:', error);
+          alert('Failed to fetch points of interest. Please try again.');
+        }
+      })()
+    }
+
+    function updateLocationAndBearingToNextWaypoint(position) {
+      const currentLat = position.lat;
+      const currentLng = position.lng;
+
+      if (!currentState || currentState.currentWaypointIndex >= currentState.waypoints.length) {
+        return;
+      }
+
+      // Get current target waypoint
+      const targetWaypoint = currentState.waypoints[currentState.currentWaypointIndex];
+
+      // Calculate distance and bearing
+      const distance = haversineDistance(currentLat, currentLng, targetWaypoint.lat, targetWaypoint.lng);
+      const bearing = calculateBearing(currentLat, currentLng, targetWaypoint.lat, targetWaypoint.lng);
+
+      const newState = {
+        ...currentState,
+        currentLocation: { lat: currentLat, lng: currentLng },
+        distance: distance,
+        bearing: bearing
+      };
+      updateURLWithState(newState);
+      renderTreasureHunt(newState);
+    }
+
+    // Update location during hunt
+    function updateHuntLocation() {
+      if (!currentState || currentState.currentWaypointIndex >= currentState.waypoints.length) {
+        return;
+      }
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const currentLat = position.coords.latitude;
+            const currentLng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            // Get current target waypoint
+            const targetWaypoint = currentState.waypoints[currentState.currentWaypointIndex];
+
+            // Calculate distance and bearing
+            const distance = haversineDistance(currentLat, currentLng, targetWaypoint.lat, targetWaypoint.lng);
+            const bearing = calculateBearing(currentLat, currentLng, targetWaypoint.lat, targetWaypoint.lng);
+
+            // Determine auto-find threshold (10 - 20 m depending on GPS accuracy)
+            const threshold = Math.min(20, Math.max(10, accuracy));
+
+            console.log(`Distance: ${distance}m, Threshold: ${threshold}m`);
+
+            if (distance <= threshold) {
+              // Auto-found! No penalty
+              alert(`You found it! ${targetWaypoint.name}`);
+              const newState = {
+                ...currentState,
+                completed: [...currentState.completed, currentState.currentWaypointIndex],
+                currentWaypointIndex: currentState.currentWaypointIndex + 1,
+                currentLocation: { lat: currentLat, lng: currentLng },
+                distance: null,
+                bearing: null
+              };
+              updateURLWithState(newState);
+              renderTreasureHunt(newState);
+
+              // immediately display the distance and bearing towards the next waypoint from current position
+              updateLocationAndBearingToNextWaypoint({ lat: currentLat, lng: currentLng });
+            } else {
+              // Not there yet - calculate penalty
+              let penalty = 10; // default
+              if (distance < 50) penalty = 3;
+              else if (distance < 150) penalty = 5;
+              else if (distance < 300) penalty = 7;
+              else penalty = 10;
+
+              const newState = {
+                ...currentState,
+                penaltyScore: currentState.penaltyScore + penalty
+              };
+              updateURLWithState(newState);
+              renderTreasureHunt(newState);
+            }
+          },
+          (error) => {
+            alert('Could not get your location: ' + error.message);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        alert('Geolocation is not supported by your browser');
+      }
+    }
+
+    // Mark current waypoint as found (manual)
+    function foundWaypoint() {
+      if (!currentState || currentState.currentWaypointIndex >= currentState.waypoints.length) {
+        return;
+      }
+
+      const oldWaypoint = currentState.waypoints[currentState.currentWaypointIndex];
+
+      const newState = {
+        ...currentState,
+        completed: [...currentState.completed, currentState.currentWaypointIndex],
+        currentWaypointIndex: currentState.currentWaypointIndex + 1,
+        distance: null,
+        bearing: null
+      };
+      updateURLWithState(newState);
+      renderTreasureHunt(newState);
+
+      // also show location from found waypoint to next one
+      updateLocationAndBearingToNextWaypoint(oldWaypoint);
+    }
+
+    // Get current location
+    function getCurrentLocation() {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const newState = {
+              ...currentState,
+              currentLocation: {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              }
+            };
+
+            updateURLWithState(newState);
+            renderTreasureHunt(newState);
+          },
+          (error) => {
+            alert('Could not get your location: ' + error.message);
+          }
+        );
+      } else {
+        alert('Geolocation is not supported by your browser');
+      }
+    }
+
+    // Reset hunt
+    function resetHunt() {
+      if (confirm('Are you sure you want to reset the hunt?')) {
+        window.history.replaceState(null, '', window.location.pathname);
+        currentState = null;
+        map = null;
+        renderStartScreen();
+      }
+    }
+
+    // Initialize app
+    function initApp() {
+      const state = getStateFromURL();
+
+      if (state) {
+        currentState = state;
+        renderTreasureHunt(state);
+      } else {
+        renderStartScreen();
+      }
+    }
+
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+
+</html>
