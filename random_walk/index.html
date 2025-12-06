@@ -196,6 +196,7 @@
     let markers = [];
     let currentLocationMarker = null;
     let pathPolyline = null;
+    let accuracyCircle = null;
 
     // Treasure hunt parameter state (is not stored to URL GET param)
     let selectedLocationMarker = null;
@@ -207,17 +208,43 @@
     // Encode state to URL-safe string
     function encodeState(state) {
       const json = JSON.stringify(state);
-      return encodeURIComponent(btoa(json));
+      try {
+        // Encode as UTF-8 bytes, then base64
+        const utf8Bytes = new TextEncoder().encode(json);
+        const binaryString = Array.from(utf8Bytes, byte => String.fromCharCode(byte)).join('');
+        return encodeURIComponent(btoa(binaryString));
+      } catch (e) {
+        console.error('Failed to encode state:', e);
+        // Fallback: try double encoding
+        try {
+          return encodeURIComponent(btoa(unescape(encodeURIComponent(json))));
+        } catch (e2) {
+          console.error('Fallback encoding also failed:', e2);
+          return '';
+        }
+      }
     }
 
     // Decode state from URL parameter
     function decodeState(encoded) {
       try {
-        const json = atob(decodeURIComponent(encoded));
+        const binaryString = atob(decodeURIComponent(encoded));
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const json = new TextDecoder().decode(bytes);
         return JSON.parse(json);
       } catch (e) {
         console.error('Failed to decode state:', e);
-        return null;
+        // Try fallback decoding
+        try {
+          const json = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
+          return JSON.parse(json);
+        } catch (e2) {
+          console.error('Fallback decoding also failed:', e2);
+          return null;
+        }
       }
     }
 
@@ -287,9 +314,10 @@
         const center = currentLocation || { lat: 48.1651, lng: 11.5820 };
         map = L.map('map').setView([center.lat, center.lng], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-          maxZoom: 19
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          attribution: '© OpenStreetMap contributors, © CARTO',
+          subdomains: 'abcd',
+          maxZoom: 20
         }).addTo(map);
 
         // Add click handler for location selection
@@ -356,9 +384,10 @@
         const center = currentLocation || waypoints[0];
         map = L.map('map').setView([center.lat, center.lng], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-          maxZoom: 19
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          attribution: '© OpenStreetMap contributors, © CARTO',
+          subdomains: 'abcd',
+          maxZoom: 20
         }).addTo(map);
       }
 
@@ -741,19 +770,17 @@
         <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <h2>Current Target:</h2>
           <p style="font-size: 18px; margin: 10px 0;"><strong>${currentWaypoint.name}</strong></p>
-          ${state.distance !== null ? `
-            <p style="font-size: 16px; margin: 5px 0;">
-              <strong>Distance:</strong> ${Math.round(state.distance)} meters
-            </p>
-            <p style="font-size: 16px; margin: 5px 0;">
-              <strong>Bearing:</strong> ${state.bearing}° ${getCompassDirection(state.bearing)}
-            </p>
-          ` : '<p>Click "Update Location" to get distance and bearing.</p>'}
+          <p style="font-size: 16px; margin: 5px 0;">
+            <strong>Distance:</strong> ${Math.round(state.distance)} meters
+          </p>
+          <p style="font-size: 16px; margin: 5px 0;">
+            <strong>Bearing:</strong> ${state.bearing}° ${getCompassDirection(state.bearing)}
+          </p>
         </div>
 
         <div style="margin: 20px 0;">
-          <button class="start-button" onclick="updateHuntLocation()" style="margin: 5px;">Update Location</button>
-          <button class="start-button" onclick="foundWaypoint()" style="margin: 5px;">Found It!</button>
+          <button class="start-button" onclick="updateHuntLocation()" style="margin: 5px;">Check from live location</button>
+          <button class="start-button" onclick="revealWaypoint()" style="margin: 5px;">Reveal it (penalty)</button>
           <button onclick="resetHunt()" style="margin: 5px; padding: 15px 30px;">Reset Hunt</button>
         </div>
 
@@ -793,14 +820,16 @@
       // Clear existing markers
       markers = [];
       currentLocationMarker = null;
+      accuracyCircle = null;
 
       // Create new map
       const center = state.currentLocation || state.waypoints[0];
       map = L.map('map').setView([center.lat, center.lng], 15);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors, © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
       }).addTo(map);
 
       // Always show first waypoint (starting point)
@@ -872,6 +901,17 @@
           .addTo(map)
           .bindPopup('You are here');
         map.setView([state.currentLocation.lat, state.currentLocation.lng], 15);
+
+        // Add accuracy circle if available
+        if (state.currentLocation.accuracy) {
+          accuracyCircle = L.circle([state.currentLocation.lat, state.currentLocation.lng], {
+            color: 'blue',
+            fillColor: '#0066ff',
+            fillOpacity: 0.1,
+            weight: 1,
+            radius: state.currentLocation.accuracy
+          }).addTo(map);
+        }
       }
 
       // Fit map to show all markers
@@ -988,6 +1028,31 @@
       return ordered;
     }
 
+    // Format waypoint name with clustered alternates
+    function formatClusteredWaypointName(primaryWaypoint, alternates) {
+      let name = primaryWaypoint.name;
+
+      if (alternates && alternates.length > 0) {
+        // Group alternates by feature type
+        const grouped = {};
+        alternates.forEach(alt => {
+          const feature = alt.name;
+          grouped[feature] = (grouped[feature] || 0) + 1;
+        });
+
+        // Build suffix like "(+ amenity × 2, historic × 1)"
+        const additions = Object.entries(grouped)
+          .map(([feature, count]) => count > 1 ? `${feature} × ${count}` : feature)
+          .join(', ');
+
+        if (additions) {
+          name += ` (+ ${additions})`;
+        }
+      }
+
+      return name;
+    }
+
     // Start button handler
     function handleStart() {
       (async () => {
@@ -1043,7 +1108,7 @@
           }
 
           // Step 2: Parse and assign preference scores
-          const scoredWaypoints = answer.elements.map(element => {
+          let scoredWaypoints = answer.elements.map(element => {
             let score = 1; // default low priority
             const tags = element.tags || {};
 
@@ -1062,8 +1127,29 @@
               score: score
             };
           });
+          scoredWaypoints.sort((a, b) => b.score - a.score);
+          console.log(scoredWaypoints);
 
-          // Step 3: Weighted random selection based on hunt length
+          // Step 3: Cluster waypoints that are on top or very close to each other
+          let clusteredWaypoints = [];
+          scoredWaypoints.forEach((val, idx) => {
+            let added = false;
+            for (let i = 0; i < clusteredWaypoints.length; ++i) {
+              if (haversineDistance(val.lat, val.lng, clusteredWaypoints[i][0].lat, clusteredWaypoints[i][0].lng) < 5.0) {
+                clusteredWaypoints[i][1].push(val);
+                added = true;
+                break;
+              }
+            }
+            if (!added) {
+              clusteredWaypoints.push([val, []]);
+            }
+          });
+          console.log(clusteredWaypoints);
+
+          // TODO: use the alternate stops at the same location as "hints"
+
+          // Step 4: Weighted random selection based on hunt length
           let minStops, maxStops;
           if (selectedHuntLength === 'short') {
             minStops = 4;
@@ -1078,27 +1164,37 @@
 
           // Random count within the range, capped by available waypoints
           const desiredCount = Math.floor(Math.random() * (maxStops - minStops + 1)) + minStops;
-          const targetCount = Math.min(desiredCount, scoredWaypoints.length);
+          const targetCount = Math.min(desiredCount, clusteredWaypoints.length);
           const selectedWaypoints = [];
 
           // Create weighted pool
-          const pool = [...scoredWaypoints];
+          const pool = [...clusteredWaypoints];
           for (let i = 0; i < targetCount && pool.length > 0; i++) {
             // Calculate total weight
-            const totalWeight = pool.reduce((sum, wp) => sum + wp.score, 0);
+            const totalWeight = pool.reduce((sum, wp) => sum + wp[0].score, 0);
             let random = Math.random() * totalWeight;
 
             // Select based on weight
             let selectedIndex = 0;
             for (let j = 0; j < pool.length; j++) {
-              random -= pool[j].score;
+              random -= pool[j][0].score;
               if (random <= 0) {
                 selectedIndex = j;
                 break;
               }
             }
 
-            selectedWaypoints.push(pool.splice(selectedIndex, 1)[0]);
+            const cluster = pool.splice(selectedIndex, 1)[0];
+            const primaryWaypoint = cluster[0];
+            const alternates = cluster[1];
+
+            // Enhance name with cluster info
+            const enhancedWaypoint = {
+              ...primaryWaypoint,
+              name: formatClusteredWaypointName(primaryWaypoint, alternates)
+            };
+
+            selectedWaypoints.push(enhancedWaypoint);
           }
 
           console.log('Selected waypoints:', selectedWaypoints);
@@ -1134,6 +1230,7 @@
     function updateLocationAndBearingToNextWaypoint(position) {
       const currentLat = position.lat;
       const currentLng = position.lng;
+      const accuracy = position.accuracy || null;
 
       if (!currentState || currentState.currentWaypointIndex >= currentState.waypoints.length) {
         return;
@@ -1148,7 +1245,7 @@
 
       const newState = {
         ...currentState,
-        currentLocation: { lat: currentLat, lng: currentLng },
+        currentLocation: { lat: currentLat, lng: currentLng, accuracy: accuracy },
         distance: distance,
         bearing: bearing
       };
@@ -1188,15 +1285,12 @@
                 ...currentState,
                 completed: [...currentState.completed, currentState.currentWaypointIndex],
                 currentWaypointIndex: currentState.currentWaypointIndex + 1,
-                currentLocation: { lat: currentLat, lng: currentLng },
+                currentLocation: { lat: currentLat, lng: currentLng, accuracy: accuracy },
                 distance: null,
                 bearing: null
               };
               updateURLWithState(newState);
               renderTreasureHunt(newState);
-
-              // immediately display the distance and bearing towards the next waypoint from current position
-              updateLocationAndBearingToNextWaypoint({ lat: currentLat, lng: currentLng });
             } else {
               // Not there yet - calculate penalty
               let penalty = 10; // default
@@ -1212,6 +1306,9 @@
               updateURLWithState(newState);
               renderTreasureHunt(newState);
             }
+
+            // display the distance and bearing towards the next waypoint from current position
+            updateLocationAndBearingToNextWaypoint({ lat: currentLat, lng: currentLng, accuracy: accuracy });
           },
           (error) => {
             alert('Could not get your location: ' + error.message);
@@ -1228,17 +1325,23 @@
     }
 
     // Mark current waypoint as found (manual)
-    function foundWaypoint() {
+    function revealWaypoint() {
       if (!currentState || currentState.currentWaypointIndex >= currentState.waypoints.length) {
         return;
       }
 
       const oldWaypoint = currentState.waypoints[currentState.currentWaypointIndex];
 
+      const penalty = 15;
+
       const newState = {
         ...currentState,
         completed: [...currentState.completed, currentState.currentWaypointIndex],
         currentWaypointIndex: currentState.currentWaypointIndex + 1,
+        currentLocation: currentState.currentLocation ?
+          { lat: currentState.currentLocation.lat, lng: currentState.currentLocation.lng, accuracy: null } :
+          null,
+        penaltyScore: currentState.penaltyScore + penalty,
         distance: null,
         bearing: null
       };
@@ -1258,7 +1361,8 @@
               ...currentState,
               currentLocation: {
                 lat: position.coords.latitude,
-                lng: position.coords.longitude
+                lng: position.coords.longitude,
+                accuracy: position.coords.accuracy
               }
             };
 
