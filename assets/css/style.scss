@@ -1,0 +1,15 @@
+---
+---
+
+@import
+  "minima/skins/{{ site.minima.skin | default: 'classic' }}",
+  "minima/initialize";
+
+// Custom styling for pitchvis navigation link
+a.nav-item[href="/pitchvis/"] {
+  background-image: url('/assets/spiral-bg-small.jpg');
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 20px 20px;
+  padding-left: 22px;
+}
