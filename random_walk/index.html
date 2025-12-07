@@ -179,6 +179,14 @@
     .hunt-length-option input[type="radio"] {
       margin-right: 8px;
     }
+
+    .privacy {
+      font-size: 0.9em;
+      color: #666;
+      text-align: center;
+      margin-top: 30px;
+      font-style: italic;
+    }
   </style>
 </head>
 
@@ -762,6 +770,10 @@
               </div>
             </div>
           </div>
+          <div class="privacy" id="privacy">
+            Privacy:<br />The starting area you choose for your treasure hunt is sent to the OpenStreetMap Overpass API.<br />
+            No personal data is sent to this server, all is handled in the client.
+          </div>
         </div>
       `;
 
@@ -809,8 +821,8 @@
           <p style="margin: 0; font-style: italic;">
             "Oof, I had one drink too many last night and got lost. I just woke up near
             <strong>${state.waypoints[0].name}</strong> and am looking for another drink,
-            and also my way home. Luckily I remember where I live. It's a few stops, let me think...
-            First I need to find a <strong>${currentWaypoint.name}</strong>..."
+            and also my way home. Luckily I kind of remember where I live. It's a few stops, let me think...
+          ${state.currentWaypointIndex == 0 ? 'First' : 'Next'} I need to find a <strong>${currentWaypoint.name}</strong>..."
           </p>
         </div>
 
@@ -823,10 +835,10 @@
           <h2>Current Target:</h2>
           <p style="font-size: 18px; margin: 10px 0;"><strong>${currentWaypoint.name}</strong></p>
           <p style="font-size: 16px; margin: 5px 0;">
-            <strong>Distance:</strong> ${Math.round(state.distance)} meters
+            <strong>Distance:</strong> ${state.distance ? Math.round(state.distance) : '?'} meters
           </p>
           <p style="font-size: 16px; margin: 5px 0;">
-            <strong>Bearing:</strong> ${state.bearing}° ${getCompassDirection(state.bearing)}
+            <strong>Bearing:</strong> ${state.bearing ? state.bearing : '?'}° ${state.bearing ? getCompassDirection(state.bearing) : ''}
           </p>
         </div>
 
