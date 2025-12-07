@@ -5,6 +5,9 @@ date:   2023-01-11 20:35:20 +0100
 categories: bookvoyage
 ---
 
+(2025-12-07) Update: This exact thing exists already, and it's called
+[BookCrossing](https://www.bookcrossing.com/) ¯\\\_(ツ)\_/¯.
+
 ## Send it Into the Unknown?
 
 There are many people who love books. But there are even more copies of good
