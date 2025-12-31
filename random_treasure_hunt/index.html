@@ -9,11 +9,14 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
+  <!-- Comic Mono Font -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/comic-mono@0.0.1/index.min.css">
+
   <style>
     body {
       margin: 0;
       padding: 20px;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: 'Comic Mono', system-ui, -apple-system, sans-serif;
     }
 
     #app {
@@ -203,6 +206,7 @@
     let map = null;
     let markers = [];
     let currentLocationMarker = null;
+    let currentWatchId = null; // For watchPosition tracking
     let pathPolyline = null;
     let accuracyCircle = null;
 
@@ -783,6 +787,11 @@
 
     // Render treasure hunt UI
     function renderTreasureHunt(state) {
+      // Preserve UI state before rebuilding
+      const useWatchPosition = document.getElementById('use-watch-position')?.checked || false;
+      const debugVisible = document.getElementById('location-debug')?.style.display !== 'none';
+      const locationAccuracyText = document.getElementById('location-accuracy')?.textContent || '';
+
       // Check if hunt is complete
       if (state.currentWaypointIndex >= state.waypoints.length) {
         const totalTime = Math.floor((Date.now() - state.startTime) / 1000 / 60); // minutes
@@ -842,10 +851,27 @@
           </p>
         </div>
 
+        <div style="margin: 15px 0;">
+          <label style="font-size: 14px;">
+            <input type="checkbox" id="use-watch-position" style="margin-right: 5px;">
+            Use continuous tracking for up to 15 s (watchPosition). This seems to work better for Safari on iOS.
+          </label>
+        </div>
+
+        <div id="firefox-notice" style="display: none; background: #ffcdcd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0; font-size: 14px;">
+          <strong>Firefox Android users:</strong> Due to a browser bug, location accuracy may be poor.
+          Workaround: Get precise location in Google Maps first, then switch back to Firefox within 10 seconds and hit the button.
+        </div>
+
         <div style="margin: 20px 0;">
-          <button class="start-button" onclick="updateHuntLocation()" style="margin: 5px;">Check from live location</button>
+          <button id="check-location-btn" class="start-button" onclick="updateHuntLocation()" style="margin: 5px;">Check from live location</button>
           <button class="start-button" onclick="revealWaypoint()" style="margin: 5px;">Reveal it (penalty)</button>
           <button onclick="resetHunt()" style="margin: 5px; padding: 15px 30px;">Reset Hunt</button>
+        </div>
+
+        <div id="location-debug" style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; font-size: 14px; display: none;">
+          <strong>Location Accuracy Debug Info:</strong>
+          <span id="location-accuracy"></span>
         </div>
 
         <div id="map"></div>
@@ -861,6 +887,26 @@
           </ul>
         ` : ''}
       `;
+
+      // Restore UI state after rebuilding
+      const watchCheckbox = document.getElementById('use-watch-position');
+      if (watchCheckbox) {
+        watchCheckbox.checked = useWatchPosition;
+      }
+      const debugDiv = document.getElementById('location-debug');
+      if (debugDiv && debugVisible) {
+        debugDiv.style.display = 'block';
+      }
+      const accuracySpan = document.getElementById('location-accuracy');
+      if (accuracySpan && locationAccuracyText) {
+        accuracySpan.textContent = locationAccuracyText;
+      }
+
+      // Detect Firefox and show notice
+      if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+        const notice = document.getElementById('firefox-notice');
+        if (notice) notice.style.display = 'block';
+      }
 
       // Initialize map showing only completed waypoints and current location
       initHuntMap(state);
@@ -1349,103 +1395,194 @@
       renderTreasureHunt(newState);
     }
 
+    // Helper function: Display location debug info
+    function updateLocationDebug(accuracy, method) {
+      const debugDiv = document.getElementById('location-debug');
+      const accuracySpan = document.getElementById('location-accuracy');
+      if (debugDiv && accuracySpan) {
+        accuracySpan.textContent = `Accuracy: ${accuracy.toFixed(1)}m (${method})`;
+        debugDiv.style.display = 'block';
+      }
+    }
+
+    // Helper function: Clear location debug info
+    function clearLocationDebug() {
+      const debugDiv = document.getElementById('location-debug');
+      if (debugDiv) debugDiv.style.display = 'none';
+    }
+
+    // Helper function: Set button state
+    function setLocationButtonEnabled(enabled) {
+      const btn = document.getElementById('check-location-btn');
+      if (btn) {
+        btn.disabled = !enabled;
+        btn.textContent = enabled ? 'Check from live location' : 'Acquiring location...';
+      }
+    }
+
     // Update location during hunt
-    function updateHuntLocation(retryCount = 0) {
+    function updateHuntLocation() {
       if (!currentState || currentState.currentWaypointIndex >= currentState.waypoints.length) {
         return;
       }
 
-      if ('geolocation' in navigator) {
+      if (!('geolocation' in navigator)) {
+        alert('Geolocation is not supported by your browser');
+        return;
+      }
+
+      // Disable button during acquisition
+      setLocationButtonEnabled(false);
+
+      // Check if user wants to use watchPosition mode
+      const useWatchPosition = document.getElementById('use-watch-position')?.checked || false;
+
+      // Get current target waypoint
+      const targetWaypoint = currentState.waypoints[currentState.currentWaypointIndex];
+
+      // Common function to apply game logic after getting position
+      function applyGameLogic(currentLat, currentLng, accuracy) {
+        // Calculate distance and bearing
+        const distance = haversineDistance(currentLat, currentLng, targetWaypoint.lat, targetWaypoint.lng);
+        const bearing = calculateBearing(currentLat, currentLng, targetWaypoint.lat, targetWaypoint.lng);
+
+        // Determine auto-find threshold (10 - 20 m depending on GPS accuracy)
+        const threshold = Math.min(20, Math.max(10, accuracy));
+
+        console.log(`Distance: ${distance}m, Threshold: ${threshold}m`);
+
+        if (distance <= threshold) {
+          // Auto-found! No penalty
+          alert(`You found it! ${targetWaypoint.name}`);
+          const newState = {
+            ...currentState,
+            completed: [...currentState.completed, currentState.currentWaypointIndex],
+            currentWaypointIndex: currentState.currentWaypointIndex + 1,
+            currentLocation: { lat: currentLat, lng: currentLng, accuracy: accuracy },
+            distance: null,
+            bearing: null
+          };
+          updateURLWithState(newState);
+          renderTreasureHunt(newState);
+        } else {
+          // Not there yet - calculate penalty
+          let penalty = 10; // default
+          if (distance < 50) penalty = 3;
+          else if (distance < 150) penalty = 5;
+          else if (distance < 300) penalty = 7;
+          else penalty = 10;
+
+          const newState = {
+            ...currentState,
+            penaltyScore: currentState.penaltyScore + penalty
+          };
+          updateURLWithState(newState);
+          renderTreasureHunt(newState);
+        }
+
+        // Display the distance and bearing towards the next waypoint from current position
+        updateLocationAndBearingToNextWaypoint({ lat: currentLat, lng: currentLng, accuracy: accuracy });
+
+        // Re-enable button
+        setLocationButtonEnabled(true);
+      }
+
+      // Error handler
+      function handleError(error) {
+        alert('Could not get your location: ' + error.message);
+        setLocationButtonEnabled(true);
+      }
+
+      if (useWatchPosition) {
+        // watchPosition mode: continuous tracking for up to 15s, stop early if accuracy < 15m
+        console.log('Using watchPosition mode');
+
+        let watchStartTime = null;
+        const MAX_WATCH_DURATION = 15000; // 15 seconds
+        const ACCURACY_TARGET = 15; // meters
+
+        currentWatchId = navigator.geolocation.watchPosition(
+          (position) => {
+            const currentLat = position.coords.latitude;
+            const currentLng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            // Start timer on first position (after permission granted)
+            if (watchStartTime === null) {
+              watchStartTime = Date.now();
+              console.log('Started 15s watch timer');
+            }
+
+            const elapsed = Date.now() - watchStartTime;
+
+            // Update debug info
+            updateLocationDebug(accuracy, 'watchPosition');
+            console.log(`watchPosition update: ${accuracy.toFixed(1)}m accuracy (${(elapsed / 1000).toFixed(1)}s elapsed)`);
+
+            // Update visual feedback on map
+            updateLocationAndBearingToNextWaypoint({
+              lat: currentLat,
+              lng: currentLng,
+              accuracy: accuracy
+            });
+
+            // Check stop conditions
+            const shouldStop = accuracy < ACCURACY_TARGET || elapsed >= MAX_WATCH_DURATION;
+
+            if (shouldStop) {
+              if (accuracy < ACCURACY_TARGET) {
+                console.log(`Accuracy target reached: ${accuracy.toFixed(1)}m`);
+              } else {
+                console.log(`Max watch duration reached: ${(elapsed / 1000).toFixed(1)}s`);
+              }
+
+              // Clear watch
+              navigator.geolocation.clearWatch(currentWatchId);
+              currentWatchId = null;
+
+              // Apply game logic with final position
+              applyGameLogic(currentLat, currentLng, accuracy);
+            }
+          },
+          (error) => {
+            // Clear watch on error
+            if (currentWatchId !== null) {
+              navigator.geolocation.clearWatch(currentWatchId);
+              currentWatchId = null;
+            }
+            handleError(error);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        // getCurrentPosition mode: single position request, no retries
+        console.log('Using getCurrentPosition mode');
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const currentLat = position.coords.latitude;
             const currentLng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
 
-            // Get current target waypoint
-            const targetWaypoint = currentState.waypoints[currentState.currentWaypointIndex];
+            console.log(`getCurrentPosition: ${accuracy.toFixed(1)}m accuracy`);
 
-            // Retry logic for better accuracy
-            const MAX_RETRIES = 4;
-            const ACCURACY_THRESHOLD = 30; // meters
-            const RETRY_DELAY = 1000; // 1 second
+            // Update debug info
+            updateLocationDebug(accuracy, 'getCurrentPosition');
 
-            const shouldRetry = accuracy > ACCURACY_THRESHOLD && retryCount < MAX_RETRIES;
-
-            if (shouldRetry) {
-              // Still acquiring - show visual feedback but don't apply game logic
-              console.log(`Acquiring GPS... accuracy ${accuracy.toFixed(1)}m (${retryCount + 1}/${MAX_RETRIES + 1})`);
-
-              // Update map and display distance/bearing (visual feedback only)
-              updateLocationAndBearingToNextWaypoint({
-                lat: currentLat,
-                lng: currentLng,
-                accuracy: accuracy
-              });
-
-              // Retry for better accuracy
-              setTimeout(() => {
-                updateHuntLocation(retryCount + 1);
-              }, RETRY_DELAY);
-
-              return; // Don't apply game logic yet
-            }
-
-            // Acquisition complete - now apply game logic
-            console.log(`GPS acquired: ${accuracy.toFixed(1)}m accuracy`);
-
-            // Calculate distance and bearing
-            const distance = haversineDistance(currentLat, currentLng, targetWaypoint.lat, targetWaypoint.lng);
-            const bearing = calculateBearing(currentLat, currentLng, targetWaypoint.lat, targetWaypoint.lng);
-
-            // Determine auto-find threshold (10 - 20 m depending on GPS accuracy)
-            const threshold = Math.min(20, Math.max(10, accuracy));
-
-            console.log(`Distance: ${distance}m, Threshold: ${threshold}m`);
-
-            if (distance <= threshold) {
-              // Auto-found! No penalty
-              alert(`You found it! ${targetWaypoint.name}`);
-              const newState = {
-                ...currentState,
-                completed: [...currentState.completed, currentState.currentWaypointIndex],
-                currentWaypointIndex: currentState.currentWaypointIndex + 1,
-                currentLocation: { lat: currentLat, lng: currentLng, accuracy: accuracy },
-                distance: null,
-                bearing: null
-              };
-              updateURLWithState(newState);
-              renderTreasureHunt(newState);
-            } else {
-              // Not there yet - calculate penalty
-              let penalty = 10; // default
-              if (distance < 50) penalty = 3;
-              else if (distance < 150) penalty = 5;
-              else if (distance < 300) penalty = 7;
-              else penalty = 10;
-
-              const newState = {
-                ...currentState,
-                penaltyScore: currentState.penaltyScore + penalty
-              };
-              updateURLWithState(newState);
-              renderTreasureHunt(newState);
-            }
-
-            // Display the distance and bearing towards the next waypoint from current position
-            updateLocationAndBearingToNextWaypoint({ lat: currentLat, lng: currentLng, accuracy: accuracy });
+            // Apply game logic immediately
+            applyGameLogic(currentLat, currentLng, accuracy);
           },
-          (error) => {
-            alert('Could not get your location: ' + error.message);
-          },
+          handleError,
           {
             enableHighAccuracy: true,
-            timeout: 2000,
+            timeout: 10000,
             maximumAge: 0
           }
         );
-      } else {
-        alert('Geolocation is not supported by your browser');
       }
     }
 
