@@ -856,8 +856,11 @@
         </div>
 
         <div class="progress">
-          <strong>Progress:</strong> Waypoint ${state.currentWaypointIndex + 1} of ${state.waypoints.length} (${progressPercent}%)
-          <br><strong>Penalty Score:</strong> ${state.penaltyScore} points
+          <div style="background: #ddd; border-radius: 10px; height: 20px; margin: 8px 0; overflow: hidden;">
+            <div style="background: #4CAF50; height: 100%; width: ${progressPercent}%; transition: width 0.3s ease;"></div>
+          </div>
+          <strong>Progress:</strong> ${state.currentWaypointIndex} / ${state.waypoints.length} Waypoints
+          <br /><strong>Penalty Score:</strong> ${state.penaltyScore} points
         </div>
 
         <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
