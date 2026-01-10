@@ -829,7 +829,10 @@
                 </li>
               `).join('')}
             </ul>
-            <button class="start-button" onclick="resetHunt()">Start New Hunt</button>
+            <div style="margin-top: 20px;">
+              <button class="start-button" onclick="shareHunt()" style="margin: 5px;">Share This Hunt</button>
+              <button class="start-button" onclick="resetHunt()" style="margin: 5px;">Start New Hunt</button>
+            </div>
           </div>
         `;
         // Show the complete path on the map
@@ -1728,6 +1731,39 @@
       } else {
         alert('Geolocation is not supported by your browser');
       }
+    }
+
+    // Share hunt by copying a cleaned up URL to clipboard
+    function shareHunt() {
+      if (!currentState) return;
+
+      // Create a clean state with just the waypoints (no progress)
+      const cleanState = {
+        waypoints: currentState.waypoints,
+        currentWaypointIndex: 0,
+        completed: [],
+        penaltyScore: 0,
+        startTime: null,
+        huntName: currentState.huntName,
+        currentLocation: null,
+        distance: null,
+        bearing: null
+      };
+
+      // Encode and create full URL based on current URL
+      const encoded = encodeState(cleanState);
+      const url = new URL(window.location.href);
+      url.searchParams.set('state', encoded);
+      const shareURL = url.toString();
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(shareURL).then(() => {
+        alert('Hunt URL copied to clipboard!');
+      }).catch(err => {
+        // Fallback for older browsers
+        console.error('Failed to copy:', err);
+        prompt('Copy this URL to share the hunt:', shareURL);
+      });
     }
 
     // Reset hunt
