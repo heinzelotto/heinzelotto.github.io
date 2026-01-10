@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Treasure Hunt</title>
+  <title>Random Treasure Hunt</title>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -320,6 +320,9 @@
     // Use current location as play area center
     function useCurrentLocationForNewHunt() {
       if ('geolocation' in navigator) {
+        // Disable button during acquisition
+        setUseCurrentLocationButtonEnabled(false);
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             selectedLocation = {
@@ -338,9 +341,14 @@
 
             // Update marker and circle
             updateSelectedLocationDisplay();
+
+            // Re-enable button
+            setUseCurrentLocationButtonEnabled(true);
           },
           (error) => {
             alert('Could not get your location: ' + error.message);
+            // Re-enable button on error
+            setUseCurrentLocationButtonEnabled(true);
           },
           {
             enableHighAccuracy: true,
@@ -1187,6 +1195,9 @@
     // Start button handler
     function handleStart() {
       (async () => {
+        // Disable button during API call
+        setCreateHuntButtonEnabled(false);
+
         const checkedFeatures = Array.from(
           document.querySelectorAll('input[name="feature"]:checked')
         ).map(checkbox => checkbox.value);
@@ -1220,8 +1231,12 @@
           + "\n);\nout;";
         console.log(overpassQlRequest);
 
-        try {
-          const api = await fetch('https://www.overpass-api.de/api/interpreter?', {
+        const overpassServer = 'https://www.overpass-api.de/api/interpreter';
+        const overpassServerAlt = 'https://overpass.private.coffee/api/interpreter';
+
+        // Helper function to fetch from Overpass API
+        async function fetchOverpass(server) {
+          const response = await fetch(server + '?', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
@@ -1229,12 +1244,32 @@
             },
             body: overpassQlRequest
           });
+          return response;
+        }
+
+        try {
+          let api = await fetchOverpass(overpassServer);
+          console.log('Overpass API response (raw):', api);
+
+          // If 504 Gateway Timeout, retry once with alternate server
+          if (api.status === 504) {
+            console.log('Got 504 from primary server, retrying with alternate server...');
+            api = await fetchOverpass(overpassServerAlt);
+            console.log('Alternate Overpass API response (raw):', api);
+          }
+
+          // If still not ok, throw an error
+          if (!api.ok) {
+            throw new Error(`Overpass API returned status ${api.status}`);
+          }
+
           const answer = await api.json();
           console.log('Overpass API response:', answer);
 
           // Check if we got any results
           if (!answer.elements || answer.elements.length === 0) {
             alert('No points of interest found in this area with the selected features. Try a different location or select more features.');
+            setCreateHuntButtonEnabled(true);
             return;
           }
 
@@ -1365,6 +1400,7 @@
         } catch (error) {
           console.error('Error fetching waypoints:', error);
           alert('Failed to fetch points of interest. Please try again.');
+          setCreateHuntButtonEnabled(true);
         }
       })()
     }
@@ -1417,6 +1453,28 @@
       if (btn) {
         btn.disabled = !enabled;
         btn.textContent = enabled ? 'Check from live location' : 'Acquiring location...';
+      }
+    }
+
+    // Helper function: Set Use Current Location button state
+    function setUseCurrentLocationButtonEnabled(enabled) {
+      const btn = document.querySelector('.start-screen .start-button[onclick="useCurrentLocationForNewHunt()"]');
+      if (btn) {
+        btn.disabled = !enabled;
+        btn.textContent = enabled ? 'Use Current Location' : 'Acquiring location...';
+      }
+    }
+
+    // Helper function: Set Create New Hunt button state
+    function setCreateHuntButtonEnabled(enabled, text = null) {
+      const btn = document.getElementById('create-new-hunt-button');
+      if (btn) {
+        btn.disabled = !enabled;
+        if (text) {
+          btn.textContent = text;
+        } else {
+          btn.textContent = enabled ? 'Create New Hunt' : 'Creating hunt...';
+        }
       }
     }
 
