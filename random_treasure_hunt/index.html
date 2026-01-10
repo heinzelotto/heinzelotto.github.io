@@ -597,7 +597,7 @@
               </div>
             </div>
 
-            <h2>Select Features to Include:</h2>
+            <h2>Select OSM Feature Tags to Include:</h2>
 
             <div class="feature-category">
               <h3>Tourism</h3>
@@ -1414,7 +1414,7 @@
             currentWaypointIndex: 0,
             completed: [],
             penaltyScore: 0,
-            startTime: Date.now(),
+            startTime: null, // Will be set when first waypoint is completed
             huntName: "Treasure Hunt",
             currentLocation: null,
             distance: null,
@@ -1545,6 +1545,8 @@
             completed: [...currentState.completed, currentState.currentWaypointIndex],
             currentWaypointIndex: currentState.currentWaypointIndex + 1,
             currentLocation: { lat: currentLat, lng: currentLng, accuracy: accuracy },
+            // Start timer when first waypoint is completed
+            startTime: currentState.currentWaypointIndex === 0 ? Date.now() : currentState.startTime,
             distance: null,
             bearing: null
           };
@@ -1689,6 +1691,8 @@
         currentLocation: currentState.currentLocation ?
           { lat: currentState.currentLocation.lat, lng: currentState.currentLocation.lng, accuracy: null } :
           null,
+        // Start timer when first waypoint is completed
+        startTime: currentState.currentWaypointIndex === 0 ? Date.now() : currentState.startTime,
         penaltyScore: currentState.penaltyScore + penalty,
         distance: null,
         bearing: null
