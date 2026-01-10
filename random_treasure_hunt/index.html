@@ -216,6 +216,7 @@
     let selectedLocation = null;
     let selectedRadius = 500; // default 500 meters
     let selectedHuntLength = 'medium'; // default: short, medium, or long
+    let startNearCenter = true; // start from POI closest to center point
 
     // Encode state to URL-safe string
     function encodeState(state) {
@@ -585,6 +586,14 @@
                   <input type="radio" name="hunt-length" value="long" onchange="selectedHuntLength = 'long'">
                   Long (11-15 stops)
                 </label>
+              </div>
+            </div>
+
+            <div class="feature-category" style="margin-top: 20px;">
+              <div class="feature-checkbox">
+                <input type="checkbox" id="start-near-center" onchange="startNearCenter = this.checked" checked>
+                <label for="start-near-center">Start hunt at POI closest to center point (useful when starting 
+                  from your current location)</label>
               </div>
             </div>
 
@@ -1135,13 +1144,32 @@
     }
 
     // Solve TSP using Nearest Neighbor algorithm
-    function solveTSP(waypoints) {
+    // If startNearPoint is provided, start from the waypoint closest to that point
+    function solveTSP(waypoints, startNearPoint = null) {
       if (waypoints.length <= 2) return waypoints;
 
-      // Start at a random point
       const remaining = [...waypoints];
       const ordered = [];
-      const startIndex = Math.floor(Math.random() * remaining.length);
+
+      let startIndex;
+      if (startNearPoint) {
+        // Find waypoint closest to the given point
+        let nearestDist = Infinity;
+        startIndex = 0;
+        for (let i = 0; i < remaining.length; i++) {
+          const dist = haversineDistance(
+            startNearPoint.lat, startNearPoint.lng,
+            remaining[i].lat, remaining[i].lng
+          );
+          if (dist < nearestDist) {
+            nearestDist = dist;
+            startIndex = i;
+          }
+        }
+      } else {
+        // Start at a random point
+        startIndex = Math.floor(Math.random() * remaining.length);
+      }
       ordered.push(remaining.splice(startIndex, 1)[0]);
 
       // Greedily pick nearest unvisited waypoint
@@ -1376,8 +1404,8 @@
 
           console.log('Selected waypoints:', selectedWaypoints);
 
-          // Step 4: Solve TSP
-          const orderedWaypoints = solveTSP(selectedWaypoints);
+          // Step 4: Solve TSP (optionally starting from POI closest to center)
+          const orderedWaypoints = solveTSP(selectedWaypoints, startNearCenter ? selectedLocation : null);
           console.log('TSP ordered waypoints:', orderedWaypoints);
 
           // Step 5: Create hunt state
