@@ -2,10 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Page pinch-zoom disabled: the graph canvas owns pinch (d3-zoom), and on
+         Firefox Android the native page zoom fights it frame-by-frame (flicker).
+         Android's "always enable zoom" a11y setting still overrides this. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>ArgMap — v0.2 editor</title>
-    <script type="module" crossorigin src="./assets/index-Ch3dkQva.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-pTfSse-i.css">
+    <script type="module" crossorigin src="./assets/index-l9LqItGS.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-C8CYcRjw.css">
   </head>
   <body>
     <div id="root"></div>
