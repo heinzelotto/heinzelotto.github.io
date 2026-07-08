@@ -1,0 +1,13 @@
+<!-- P1 project mark (IDEAS: name will be P1, icon \mathbb{P}_1). Drawn as paths,
+     not <text>, so the favicon doesn't depend on the viewer having a font with
+     U+2119. Bench-navy ground (the headline var), white double-struck P,
+     subscript 1 in the given-bar's evidence teal. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="13" fill="#1b2a52"/>
+  <g fill="none" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 13 V51"/>
+    <path d="M26 13 V51"/>
+    <path d="M18 13 H32 a12 12 0 0 1 0 24 H26"/>
+  </g>
+  <path d="M46 41 l6 -5 v20" fill="none" stroke="#67c3d4" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
