@@ -1,4 +1,4 @@
-import{u as s,j as a}from"./index-COp-2Akw.js";import{t as l}from"./tension-tint-kk6QNdUk.js";function p({id:n}){var o;const e=s(i=>i.index.get(n));if(!e||e.solved===null)return null;const t=e.spectator===!0,r=`solved ${t?"delivered conditional (refinement)":e.kind==="statement"?"marginal":"in-force rate"} ${e.solved.toFixed(3)}`+(e.authored!==null?`
+import{u as s,j as a}from"./index-CgvLo98t.js";import{t as l}from"./tension-tint-UnezwMhC.js";function p({id:n}){var o;const e=s(i=>i.index.get(n));if(!e||e.solved===null)return null;const t=e.spectator===!0,r=`solved ${t?"delivered conditional (refinement)":e.kind==="statement"?"marginal":"in-force rate"} ${e.solved.toFixed(3)}`+(e.authored!==null?`
 authored ${e.authored.toFixed(3)} — ${t?"gap":"tension"} ${((o=e.delta)==null?void 0:o.toFixed(3))??"—"}`:`
 this line authors no number`)+(t?`
 Folded line: the solve used its refinement instead; the gap is a report, not a solver tension.`:"")+`
