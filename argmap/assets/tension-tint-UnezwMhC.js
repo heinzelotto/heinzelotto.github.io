@@ -1,1 +1,0 @@
-function r(n){if(n==null||Number.isNaN(n))return 0;const t=Math.max(0,Math.min(1,Math.abs(n)/.25));return Math.round(t*1e3)/10}function o(n){return`color-mix(in oklab, var(--warn) ${r(n)}%, var(--text-dim))`}export{o as t};
