@@ -13,9 +13,14 @@
          ArgMap name until the P1 rename is decided proper (chrome-declutter
          plan, open question 2). -->
     <link rel="icon" type="image/svg+xml" href="/argmap/favicon.svg" />
+    <!-- First-class light+dark support (dark-polish, 2026-07-19). Declaring it
+         here (pre-CSS) also tells Chrome Android's Auto Dark Theme to keep its
+         algorithmic darkening OFF — that forced filter was what blurred the
+         zoomed-out LOD labels and swallowed edge halves on phones. -->
+    <meta name="color-scheme" content="light dark" />
     <title>ArgMap — v0.2 editor</title>
-    <script type="module" crossorigin src="/argmap/assets/index-CgvLo98t.js"></script>
-    <link rel="stylesheet" crossorigin href="/argmap/assets/index-DMqmJCQ0.css">
+    <script type="module" crossorigin src="/argmap/assets/index-D1Q0jDFt.js"></script>
+    <link rel="stylesheet" crossorigin href="/argmap/assets/index-CKs1FseT.css">
   <link rel="manifest" href="/argmap/manifest.webmanifest"></head>
   <body>
     <div id="root"></div>
