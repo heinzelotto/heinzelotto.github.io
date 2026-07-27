@@ -7,7 +7,14 @@ extension is noted where relevant). Semantics: ratified D36 defaults.
 Agent-facing companion: the `argmap-author` skill
 (`.claude/skills/argmap-author/SKILL.md`) compresses this tutorial into
 the working loop; agents load it via the Skill tool, humans can read it
-as the cheat-sheet-plus.
+as the cheat-sheet-plus. Since 2026-07-27 the skill is meant to be
+**sufficient on its own** for authoring — it carries the idiom catalog,
+the label/gloss and nesting discipline, the limitations and the lint
+codes in compressed form — so the division of labour is: skill = the
+pattern, this tutorial = the rationale, the history, the reading
+chapter, and the worked example in Appendix A. A third tier,
+`examples/README.md`, indexes the example corpus by idiom for when you
+want to see a pattern in a whole file rather than as a fragment.
 
 This tutorial distills the project's design docs and the accumulated
 authoring experience into one document. It never overrides them: on any
@@ -595,12 +602,28 @@ undercut of the undercut and let the graph do the discounting. q' = 0 is
 inert, q' = 1 eliminates the target in context, values between
 interpolate.
 
-Note that an undercut is still an ordinary evidence line: besides
-disabling its target, its own conclusion side pushes. An undercut of a
-rebuttal concludes the original claim, so it contributes positive
-support to that claim on top of neutralizing the rebuttal. Budget your
-support accordingly; if the hub ends up over-delivered, this is one of
-the places to look.
+An undercut does **not**, however, push its own conclusion. This
+paragraph said the opposite until 2026-07-27, when the skill-only
+sufficiency eval authored a cluster on the strength of it and produced a
+0.61 statement gap; the claim is wrong and the correction matters for
+authoring. An undercut-shaped line compiles as a pure **inhibitor** of
+its target: per the factored-A compile (SOLVER_SEMANTICS §1.2),
+"inhibitors carry no zero-set of their own", so the negated conclusion
+the line names receives no independent floor from it. Measured on the
+ratified defaults: an undercut whose target is unstrengthed leaves its
+conclusion at 0.500, exactly as if the line were absent; and an undercut
+of a rebuttal recovers the claim monotonically toward the value it would
+hold with the rebuttal absent (0.500 → 0.866 against a rebuttal-free
+0.898), never past it — which is what T13's "recovers monotonically to
+≈p" records.
+
+The authoring consequence: when the source both raises an objection to
+an inference *and* asserts the fact that objection rests on, the
+undercut carries only the first. If you want the fact to bear on the
+claim as well, give it its own ordinary evidence line beside the
+undercut. That is not double-counting — the inhibitor acts on the
+inference, the plain line acts on the claim — and without it the fact
+the source actually reports is silently absent from the solve.
 
 ### 4.6 Solved values, tension, and 0/1 pins
 
@@ -784,6 +807,12 @@ The patterns below carry most of the flagship map
 numbers are as of 2026-07-25 and may drift, so each entry also names the
 anchor to search for). Excerpts are trimmed; open the real file for the
 full context. All excerpts are fragments, not standalone files.
+
+The same catalog appears in compressed form in the skill's
+`## Structural idioms` section, numbered to match these subsections
+(7.1 = idiom 1, and so on). For a pattern in a complete small file
+rather than as a fragment, `examples/README.md` maps each example to the
+idioms it demonstrates.
 
 ### 7.1 The objection/response triple
 
@@ -1144,6 +1173,8 @@ Zero errors is mandatory. The codes (full table in `tools/README.md`):
 | E4 | probability outside [0,1] | fix |
 | E5 | v0.3 pair without `argmap-version: 0.3` | declare the version |
 | E6 | malformed pair (`0.9/`, `/0.2`) | write both members |
+| E7 | `::id` in an expression (3.11) | a group takes no part in inference; reference a member |
+| E8 | a probability on a `::` line (3.11) | groups have no credence slot; delete the number |
 | W1 | evidence-in-premise, not undercut-shaped | usually a polarity slip; legitimate only for deliberate conditioning-on-an-inference (7.8), then say so in a comment |
 | W2 | directed cycle | usually fine (mutual rebuttal); check it is not a zero-negation support cycle |
 | W3 | prose line resembling a node | you lost a sigil; fix it |
