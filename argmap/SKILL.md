@@ -1,6 +1,6 @@
 ---
 name: argmap-author
-description: Recipe for reading and authoring .argmap (v0.3) maps — syntax crib incl. declared groups, the D36 number rules, label/gloss discipline, the structural-idiom catalog, nesting discipline, the extraction workflow, and the lint + solve verification loop.
+description: Recipe for reading and authoring .argmap (v0.3) maps — syntax crib incl. declared groups and source quote lines, the D36 number rules, label/gloss discipline, the structural-idiom catalog, nesting discipline, the extraction workflow, and the lint + solve verification loop.
 ---
 
 # Authoring .argmap maps
@@ -33,7 +33,8 @@ python3 + numpy + scipy + node):
 
 ## Syntax crib
 
-The block below is a complete, lint-clean file:
+The block below is a complete, lint-clean file (given
+`argmap-version: 0.3` in the frontmatter — the last two lines need it):
 
 ```
 @prem1 [First premise] 0.9?: gloss; a deeper-indented prose line folds in [^src]
@@ -49,7 +50,9 @@ $step 0.7? @concl | @root: coarse summary; the indented block replaces it unfold
   @mid [Intermediate claim] 0.8?:
   $fine 0.8? @concl | @root AND @mid:
 ::topic [A named box]: v0.3 declared group; its block is MEMBERSHIP, not refinement
-  @side [An unrelated topic in the same file] 0.4?:
+  @side [An unrelated topic in the same file] 0.4?: a claim of its own
+    #[note: an annotation comment - free per file in the parity check]
+    > a verbatim span from the source, attached to @side [^src]
 [^src]: Author, "Title," venue, year, URL.
 ```
 
@@ -67,9 +70,10 @@ unconditional floor on its conclusion — no slab, nothing to be in force
 against — and it accumulates with the other lines concluding there under
 the same independence assumption as any convergent sibling.
 
-**Indentation is sigil-keyed (D58):** it always means "belongs to the
+**Indentation is sigil-keyed (D58/D59):** it always means "belongs to the
 line above"; the PARENT's sigil says how. Under `@`/`$` = refinement.
-Under `::` = membership in a declared group.
+Under `::` = membership in a declared group. Sigil-less prose folds into
+the gloss; a `>` child is a quote line (below).
 
 Optional YAML frontmatter carries `title`, `author`, `date`,
 `description`, `source`, `scope` (which part of the source the map
@@ -77,9 +81,10 @@ claims to cover — state it, it is review checklist item 6),
 `focus: [id, id]` (D57; declare only when topology misreads intent, e.g.
 a goal guard), and `argmap-version`. Unknown keys are preserved, which
 makes frontmatter the extension point for provenance notes. The version
-gate is about **pairs only**: `0.3` is required iff the file writes
-slash pairs (`0.9/0.2`, E5/W10). Declared groups are not gated, though a
-`::`-using file conventionally declares 0.3.
+gate covers **pairs and quote lines**: `0.3` is required if the file
+writes slash pairs (`0.9/0.2`, E5/W10) or `>` quote lines (W19).
+Declared groups are not gated, though a `::`-using file conventionally
+declares 0.3.
 
 Two-sided pairs (v0.3, D52/D53): `$e 0.9/0.2 @c | @a` adds an opposed
 floor in the same slab; `@s 0.8/0.1` bounds P(s) to [0.8, 0.9] instead
@@ -109,6 +114,64 @@ the mistake worth catching), **W14** an empty group. Only document-level
 groups are checked; nested ones subdivide their parent. Membership does
 NOT suppress the isolate note I1. **I2** lists the derived blocks for any
 multi-block file — read it to confirm the split you intended.
+
+## Source quotes (`>`, v0.3/D59)
+
+`> verbatim text [^locator]` under a node carries a **verbatim** span of
+source material plus its footnote locator (tut 3.12). The gloss goes
+back to being a claim a reader can parse cold; the quotes sit beneath it
+as its evidence. Replaces the retired `~"…"` in-gloss convention, which
+no tool could see.
+
+```
+@no-honor [Honor is a contingent evolved hack an AI won't carry] 0.9?: an
+  evolutionarily contingent shortcut, not a convergent feature of minds
+  #[de: ein seltsamer Hack, auf den die Menschheit gestossen ist]
+  > a specific weird hack that humanity stumbled into [^supp-ch5]
+  > quite skeptical that gradient descent will stumble across the same shortcut [^supp-ch5]
+```
+
+Rules: **verbatim, never paraphrased**; **always give a locator** (W15 —
+chapter, supplement page, or transcript timestamp, whatever the source
+allows); **only a trailing `[^id]` is the locator**, anything else on the
+line is verbatim text including a mid-line `[^…]` (W16); **no trailing
+`#` comment** — the one line kind without one, because source text cannot
+be reworded to dodge the splitter (W17 flags a ` # ` inside a quote);
+**no wrapping**, one line however long; **placement is positional** — a
+quote attaches to the node above and must sit in that node's *annotation
+block*, the span before its first child, so a `>` at top level or after a
+child node is E9, never a re-attachment outward; **gloss first, then
+quotes** (W18 — the serializer rewrites to that order anyway); declare
+`argmap-version: 0.3` (W19).
+
+**Which spans become `>` lines — the three-way test.** *Is this the
+node's own wording, or support for it?*
+
+1. **Supporting quote** (most of them) — evidence for the claim: lift to
+   a `>` line.
+2. **Load-bearing inline fragment** — a verbatim phrase that is a
+   grammatical constituent of the gloss sentence (`Kelvin's "infinitely
+   beyond…" fell to DNA`): keep it in the gloss in **plain quotation
+   marks**, the node's own phrasing borrowing the source's words. Add an
+   **echo** when provenance matters — a `>` line with the full verbatim
+   sentence + locator, gloss fragment unchanged.
+3. **Quote-is-the-claim** (the gloss is nothing but the quote): the
+   degenerate case of 2 — plain marks in the gloss, `>` echo underneath.
+
+**Quotes are never translated.** In a multilingual set the whole `>`
+line is byte-identical across languages (`translation-parity.py` enforces
+it); a translated "verbatim" quote is false and breaks the tie to the
+source. The echo pattern is what makes case 2 honest across languages:
+the translated gloss quotes ordinary prose, the `>` line stays in the
+source language.
+
+**Annotation comments.** Per-quote side data goes on a full-line
+`#[key: …]` comment (no space between `#` and `[`) above the quote, at
+its indent. An ordinary comment to the parser; **free per file** in the
+parity check (every other comment must match byte-for-byte); and the
+reserved surface for real attributes in a later version, so the
+convention promotes without a rewrite. Current tenant: `#[de: …]`,
+parking a quote's translation until quotes get a real translation field.
 
 ## Labels and glosses
 
@@ -382,11 +445,14 @@ meets a wall of top-level nodes and the fold control does nothing.
 4. Mechanical smoke: lint, parse (editor), solve (below).
 
 Quoting discipline: verbatim spans of at most one sentence (~25 words),
-normally one per node, exact span in double quotes with a `[^ref]`
-footnote on the same node; never alter a quote silently; never reproduce
-a self-contained creative unit (a parable, a poem) whole — retell and
+normally one per node; never alter a quote silently; never reproduce a
+self-contained creative unit (a parable, a poem) whole — retell and
 compress. Whole-map budget from one work: low hundreds of words, and
-proportionally less for a short source.
+proportionally less for a short source. Where the span goes is the
+three-way test above: supporting quotes become `>` lines with a
+`[^locator]`; a fragment that is grammatically part of the gloss sentence
+stays inline in plain double quotes, optionally echoed by a `>` line. The
+budget counts both.
 
 ## Gotchas
 
@@ -397,7 +463,13 @@ proportionally less for a short source.
 3. `AND` only if no conjunct alone suffices; overdetermined routes are
    separate convergent lines.
 4. A sigil forgotten on a node line silently becomes gloss text — heed
-   lint W3. A whitespace-preceded `#` inside a gloss starts a comment,
+   lint W3. The **inverse has no diagnostic and cannot get one**: a gloss
+   continuation line that *begins* `@`, `$`, `#`, `::` or `>` is consumed
+   as that construct, because dispatch is a first-character switch and by
+   then the parser has built a node with no idea prose was meant. Never
+   start a continuation line with a sigil character — begin with a word.
+   (Quote lines cannot wrap, which is what keeps the exposure small.)
+   A whitespace-preceded `#` inside a gloss starts a comment,
    and the split is **silent**: `…memory cell #2 is protected` parses as
    gloss `…memory cell` plus trailing comment `2 is protected`, losing
    the rest of the sentence from the display with no diagnostic. The
@@ -467,6 +539,8 @@ deliberate W1s).
 | E6 | malformed pair (`0.9/`, `/0.2`) | write both members |
 | E7 | `::id` used in an expression | a group takes no part in inference; reference a member instead |
 | E8 | a probability on a `::` line | groups have no credence slot; delete the number |
+| E9 | `>` outside an annotation block | move it under its node, before that node's first child |
+| E10 | `>` with no quote text | write the quote or delete the line |
 | W1 | evidence-in-premise, not undercut-shaped | usually a polarity slip; legitimate only for idiom 8, then comment it |
 | W2 | directed cycle | usually fine (mutual rebuttal); check it is not a zero-negation support cycle |
 | W3 | prose line resembling a node | you lost a sigil |
@@ -479,6 +553,12 @@ deliberate W1s).
 | W10 | pair syntax under a declared version < 0.3 (validator only) | declare `argmap-version: 0.3` |
 | W11 | authored 0 strength | you probably mean an unstrengthed line |
 | W12/W13/W14 | group vs block mismatch | see the groups section |
+| W15 | quote line with no `[^locator]` | add it; provenance is the point |
+| W16 | leftover `[^` inside quote text | only a trailing ref is the locator; fix the stray/doubled one |
+| W17 | ` # ` inside quote text | quote lines have no trailing comment; move the note to `#[…]` |
+| W18 | quotes before the end of the gloss prose | reorder: gloss first, then quotes |
+| W19 | `>` under a declared version < 0.3 | declare `argmap-version: 0.3` |
+| W20 | retired `~"…"` still in a gloss | migrate it (`>` line / plain marks / echo) |
 | I1 | isolated statements | connect or delete |
 | I2 | block inventory | read it; confirm the split you intended |
 

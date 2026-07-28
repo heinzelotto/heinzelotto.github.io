@@ -272,6 +272,16 @@ The hazard: if you forget a sigil on a node line, the line silently
 becomes gloss text of the node above. The lint warns when a prose line
 looks like a node declaration (W3); take that warning seriously.
 
+**The inverse hazard has no warning, and cannot get one.** A continuation
+line that *begins* with `@`, `$`, `#`, `::` or `>` is read as that
+construct, not as prose, because line dispatch is a first-character
+switch — and by the time anything could complain, the parser has built a
+node and has no idea prose was intended. So never start a continuation
+line with a sigil character: begin with a word, or rephrase. The exposure
+is small because quote lines (3.12) cannot wrap and the corpus barely
+uses continuation lines at all, but when it bites there is no diagnostic
+— you find it by reading the rendered gloss.
+
 Two lexical restrictions: a gloss cannot contain a `#` preceded by
 whitespace (that always starts a trailing comment), and a label cannot
 contain square brackets.
@@ -351,7 +361,7 @@ that every used footnote is defined and every defined footnote is used
 Optional YAML frontmatter between `---` fences carries metadata: `title`,
 `author`, `date`, `description`, `source`, `scope` (what part of the
 source the map claims to cover, checklist item 6), and `argmap-version`
-(declare `0.3` if and only if the file uses slash pairs). Unknown keys
+(declare `0.3` if the file uses slash pairs or quote lines). Unknown keys
 are preserved, which makes frontmatter the extension point for
 provenance notes.
 
@@ -435,6 +445,101 @@ with none of the authored meaning that makes refinement safe.)
 Groups are allowed anywhere: any depth, inside each other, inside
 refinements. Membership does **not** suppress the isolated-statement note
 — a context shelf of standalone facts still reports each one as isolated.
+
+### 3.12 v0.3: source quote lines (`>`)
+
+A line beginning `>` under a node carries a **verbatim** span from your
+source, plus the footnote locator it came from:
+
+```
+# fragment - not standalone
+@no-honor [Honor is a contingent evolved hack an AI won't carry] 0.9?: honor is
+  an evolutionarily contingent shortcut, not a convergent feature of minds
+  > a specific weird hack that humanity stumbled into [^supp-ch5]
+  > quite skeptical that gradient descent will happen to stumble across the
+```
+
+(the last line is shown truncated only for the page width — see "no
+wrapping" below.)
+
+The gloss goes back to being a claim a reader can parse cold; the quotes
+sit under it as its evidence. Before `>`, a quote could only live inside
+the gloss, where no tool could see it — which meant no display
+affordance, and, in a translated map, nothing stopping a *paraphrase*
+from being presented as verbatim.
+
+**Rules, all short:**
+
+1. **The text is verbatim.** Never paraphrase it, never silently repair
+   it. If you need to trim, trim at the ends.
+2. **Always give a locator.** `[^ref]` at the end of the line, defined at
+   top level like any footnote (3.8). A quote without provenance is
+   almost always an authoring slip, and the lint says so (W15). Locators
+   are as coarse or fine as your source allows: a chapter
+   (`[^epub-ch7]`), a supplement page (`[^supp-ch5-promises]`), a
+   transcript timestamp (`[^t001734]`).
+3. **Only a locator at the very end of the line counts.** Everything else
+   on the line is verbatim text, including a `[^…]` in the middle of it
+   (W16 flags that as a probable stray or doubled ref).
+4. **No trailing `#` comment** — the one line kind that has none. Source
+   text cannot be reworded to dodge the comment splitter, so a real ` # `
+   in a quote would be silently truncated; instead the whole line is
+   verbatim and the lint warns if it spots ` # ` inside one (W17). Put
+   per-quote notes on an annotation comment instead (below).
+5. **No wrapping.** A quote is exactly one line, however long; the editor
+   soft-wraps it.
+6. **Placement is positional.** A quote attaches to the node above it and
+   must be indented deeper. It has to sit in that node's *annotation
+   block* — the span before the node's first child. A `>` at top level,
+   or after a child node, is an error (E9), not a re-attachment to some
+   outer node. Order quotes after the gloss prose; interleaving parses,
+   but the lint prefers the canonical order (W18) and the serializer
+   rewrites to it anyway.
+7. **Declare `argmap-version: 0.3`** in a file that uses `>` (W19).
+
+**Which quotes become `>` lines — the three-way test.** Ask: *is this the
+node's own wording, or support for it?*
+
+1. **Supporting quote** — a fragment stacked next to the claim as
+   evidence for it. Lift it to a `>` line. This is most of them.
+2. **Load-bearing inline fragment** — a verbatim phrase that is a
+   grammatical constituent of the gloss sentence (`Kelvin's "infinitely
+   beyond…" fell to DNA`). Leave it in the gloss, in plain quotation
+   marks: it is the node's own phrasing, borrowing the source's words.
+   When the provenance is worth keeping, add an **echo** — a `>` line
+   carrying the full verbatim sentence and its locator, while the gloss
+   keeps its fragment.
+3. **The quote *is* the claim** — the gloss is nothing but the quote.
+   Degenerate case of 2: write the gloss in plain marks and echo the
+   verbatim on a `>` line.
+
+The echo pattern also keeps translations honest: a translated gloss
+renders the fragment as ordinary quoted prose (claiming nothing about
+verbatimness), while the `>` line stays in the source language.
+
+**Quotes are never translated.** In a multilingual map set the whole `>`
+line — sigil, indent, text, locator — is byte-identical across all
+language versions, and `tools/translation-parity.py` enforces that. A
+translated "verbatim" quote is false on its face and destroys the tie
+back to the source.
+
+**Annotation comments (`#[…]`).** Per-quote side data goes on a full-line
+comment of the form `#[key: …]` — no space between `#` and `[` — on the
+line above the quote, at the same indent:
+
+```
+# fragment - not standalone
+  #[de: schwer, der Schlussfolgerung zu entgehen]
+  > hard to avoid the conclusion [^supp-ch5]
+```
+
+To the parser this is an ordinary comment. Two things make the form
+worth using rather than a plain `#`: the parity tool treats `#[…]` lines
+as free per file (every other comment must match byte-for-byte across
+translations), and it is the reserved surface for real attributes in a
+later format version, so today's convention promotes without a rewrite.
+Its current tenant is the parked translation of a quote, waiting for a
+real translation field.
 
 ## 4. What the numbers mean
 
@@ -755,12 +860,18 @@ Two additions from later passes:
 ### 5.4 Quoting and citation discipline
 
 Keep verbatim spans to at most one sentence, roughly 25 words, normally
-one per node, with the exact span in double quotes and a `[^ref]`
-footnote on the same node; never alter a quote silently; never reproduce
-a self-contained creative unit (a parable, a poem) whole; retell and
+one per node; never alter a quote silently; never reproduce a
+self-contained creative unit (a parable, a poem) whole; retell and
 compress instead. Whole-map verbatim budget from any single work: low
 hundreds of words, and for a short source proportionally less (a
 tenth of the source is far too much regardless of the absolute count).
+
+Where the span goes is the 3.12 test. A quote that *supports* the claim
+belongs on its own `>` line with a `[^ref]` locator; a verbatim phrase
+that is a grammatical part of the gloss sentence stays in the gloss in
+plain double quotes, optionally echoed by a `>` line carrying the full
+sentence. The budget above counts both. (The older convention of marking
+in-gloss quotes `~"…"` is retired — W20 flags any survivors.)
 
 ## 6. Labels and glosses
 
@@ -1175,6 +1286,8 @@ Zero errors is mandatory. The codes (full table in `tools/README.md`):
 | E6 | malformed pair (`0.9/`, `/0.2`) | write both members |
 | E7 | `::id` in an expression (3.11) | a group takes no part in inference; reference a member |
 | E8 | a probability on a `::` line (3.11) | groups have no credence slot; delete the number |
+| E9 | `>` outside an annotation block (3.12) | move the quote under its node, before that node's first child |
+| E10 | `>` with no quote text | write the quote or delete the line |
 | W1 | evidence-in-premise, not undercut-shaped | usually a polarity slip; legitimate only for deliberate conditioning-on-an-inference (7.8), then say so in a comment |
 | W2 | directed cycle | usually fine (mutual rebuttal); check it is not a zero-negation support cycle |
 | W3 | prose line resembling a node | you lost a sigil; fix it |
@@ -1184,6 +1297,12 @@ Zero errors is mandatory. The codes (full table in `tools/README.md`):
 | W8 | pair `0/0` | drop it |
 | W9 | pair entangled with undercut shape | check what the opposed side actually asserts |
 | W11 | authored 0 strength | you probably mean an unstrengthed line |
+| W15 | quote line with no `[^locator]` (3.12) | add the locator; provenance is the point |
+| W16 | leftover `[^` inside quote text (3.12) | only a trailing ref is the locator; fix the stray or doubled one |
+| W17 | ` # ` inside quote text (3.12) | quote lines have no trailing comment; move the note to a `#[…]` line |
+| W18 | quotes before the end of the gloss prose (3.12) | reorder: gloss first, then quotes |
+| W19 | `>` under a declared version below 0.3 | declare `argmap-version: 0.3` |
+| W20 | retired `~"…"` still in a gloss (3.12) | migrate it: `>` line, plain marks, or the echo pattern |
 | I1 | stats; isolated statements | connect or delete isolates |
 
 Two caveats: the stranded-node check (W6) lives only in the TypeScript
@@ -1345,11 +1464,13 @@ AND / OR                                  linked / convergent; parens to mix
   indented node lines                     under @/$: refinement (replaces parent unfolded)
                                           under ::: membership in the group
   indented prose                          folds into the gloss above
+  > verbatim text [^locator]              quote line; one line, no trailing comment
 # comment                                 full-line or trailing
+#[key: ...]                               annotation comment (per-file free in parity)
 # check: p                                display-only credence (derived stmts)
 # gate: q($e) >= t => @c                  threshold audit (comment layer)
 [^ref] ... [^ref]: source                 footnote citation
----: argmap-version: 0.3                  required for slash pairs (s+/s-, p+/p-)
+---: argmap-version: 0.3                  required for slash pairs (s+/s-, p+/p-) and > lines
 ```
 
 Number rules: elicit as "assume the premises; how likely is the
