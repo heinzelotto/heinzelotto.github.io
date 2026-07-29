@@ -1,32 +1,18 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <link rel="preload" as="font" type="font/woff2" href="/argmap/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2" crossorigin="">
-    <link rel="preload" as="font" type="font/woff2" href="/argmap/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2" crossorigin="">
-    <link rel="preload" as="font" type="font/woff2" href="/argmap/assets/ibm-plex-sans-latin-700-normal-Bxkt5Cjx.woff2" crossorigin="">
-
-    <meta charset="UTF-8" />
-    <!-- Page pinch-zoom disabled: the graph canvas owns pinch (d3-zoom), and on
-         Firefox Android the native page zoom fights it frame-by-frame (flicker).
-         Android's "always enable zoom" a11y setting still overrides this. -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <!-- ℙ₁ mark (drawn as paths — no font dependency). The page title keeps the
-         ArgMap name until the P1 rename is decided proper (chrome-declutter
-         plan, open question 2). -->
-    <link rel="icon" type="image/svg+xml" href="/argmap/favicon.svg" />
-    <!-- First-class light+dark support (dark-polish, 2026-07-19). Declaring it
-         here (pre-CSS) also tells Chrome Android's Auto Dark Theme to keep its
-         algorithmic darkening OFF — that forced filter was what blurred the
-         zoomed-out LOD labels and swallowed edge halves on phones. -->
-    <meta name="color-scheme" content="light dark" />
-    <title>ArgMap — v0.2 editor</title>
-    <script type="module" crossorigin src="/argmap/assets/index-JsRu9SU2.js"></script>
-    <link rel="stylesheet" crossorigin href="/argmap/assets/index-CzQvlOqu.css">
-  <link rel="manifest" href="/argmap/manifest.webmanifest"></head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+<meta charset="utf-8">
+<title>ArgMap has moved to p1graph.org</title>
+<link rel="canonical" href="/">
+<!-- Query and fragment are carried over: share links already in the wild look
+     like /argmap/?sel=…&unfold=…&cam=…, and dropping the query would strand
+     them on the default view. The meta refresh below is the no-JS fallback and
+     is the only path that loses them. -->
+<script>location.replace('/' + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="0; url=/">
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:4rem auto;max-width:32rem;padding:0 1rem}</style>
+</head>
+<body>
+<p>ArgMap has moved to the site root — <a href="/">p1graph.org</a>.</p>
+</body>
 </html>

@@ -18,14 +18,14 @@ checkout — `.claude/skills/argmap-author/SKILL.md` and
 `AUTHORING_TUTORIAL.md` at its root; the user-level pointer skill in
 `~/.claude/skills/` carries the local path to it. For machines without
 the checkout, the deployed webapp serves the tutorial at
-p1graph.org/argmap/AUTHORING_TUTORIAL.md and this skill card from
-p1graph.org/argmap/authoring-tutorial.html (the "download SKILL.md" link
+p1graph.org/AUTHORING_TUTORIAL.md and this skill card from
+p1graph.org/authoring-tutorial.html (the "download SKILL.md" link
 — the host renders raw `.md` with front matter to HTML, so the page
 hands over the exact bytes as a download instead).
 
 ## Reading only
 
-Maps render at p1graph.org/argmap (text / outline / graph panes; solved
+Maps render at p1graph.org (text / outline / graph panes; solved
 values behind the Controls toggle, `authored -> solved` with the gap
 tinted). Headless query, from `experiments/solver-prototypes/` (needs
 python3 + numpy + scipy + node):

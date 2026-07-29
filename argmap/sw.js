@@ -1,1 +1,23 @@
-if(!self.define){let s,e={};const l=(l,n)=>(l=new URL(l+".js",n).href,e[l]||new Promise(e=>{if("document"in self){const s=document.createElement("script");s.src=l,s.onload=e,document.head.appendChild(s)}else s=l,importScripts(l),e()}).then(()=>{let s=e[l];if(!s)throw new Error(`Module ${l} didn’t register its module`);return s}));self.define=(n,i)=>{const r=s||("document"in self?document.currentScript.src:"")||location.href;if(e[r])return;let o={};const a=s=>l(s,r),u={module:{uri:r},exports:o,require:a};e[r]=Promise.all(n.map(s=>u[s]||a(s))).then(s=>(i(...s),o))}}define(["./workbox-9c191d2f"],function(s){"use strict";self.addEventListener("message",s=>{s.data&&"SKIP_WAITING"===s.data.type&&self.skipWaiting()}),s.clientsClaim(),s.precacheAndRoute([{url:"index.html",revision:"1becbd7478fb92e904645639d07ead8e"},{url:"favicon.svg",revision:"a5940caeba10da716c6fed8ecc0c4760"},{url:"authoring-tutorial.html",revision:"59481af853e75aed20017f6e1143485c"},{url:"AUTHORING_TUTORIAL.md",revision:"38ade0c4dc77f559b44c9a7f4ae80878"},{url:"assets/workbox-window.prod.es5-BqEJf4Xk.js",revision:null},{url:"assets/solver_kernel_bg-C2PhbdKX.wasm",revision:null},{url:"assets/prod-solver-C4VVtfHK.js",revision:null},{url:"assets/kernel-worker-1thGEapC.js",revision:null},{url:"assets/index-JsRu9SU2.js",revision:null},{url:"assets/index-CzQvlOqu.css",revision:null},{url:"assets/ibm-plex-sans-latin-700-normal-Bxkt5Cjx.woff2",revision:null},{url:"assets/ibm-plex-sans-latin-700-normal-Bth3BMcD.woff",revision:null},{url:"assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2",revision:null},{url:"assets/ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff",revision:null},{url:"assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff",revision:null},{url:"assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2",revision:null},{url:"assets/ibm-plex-mono-latin-600-normal-DWFSQ4vo.woff",revision:null},{url:"assets/ibm-plex-mono-latin-600-normal-BgSNZQsw.woff2",revision:null},{url:"assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2",revision:null},{url:"assets/ibm-plex-mono-latin-400-normal-CvHOgSBP.woff",revision:null},{url:"assets/elk.bundled-D0cokKyD.js",revision:null},{url:"assets/elk-worker.min-DMFTsBAZ.js",revision:null},{url:"assets/TensionLegend-C9AAwLiD.js",revision:null},{url:"assets/SolverValuesToggle-TfDECMps.js",revision:null},{url:"assets/SolverReadout-C83orDRz.js",revision:null},{url:"assets/SolverGraphLabels-Dd9BQExX.js",revision:null},{url:"assets/SolverGates-DCaqz2uL.js",revision:null},{url:"assets/SolverChip-D_ur7vX7.js",revision:null},{url:"assets/SolveStatus-BfXcPiWm.js",revision:null},{url:"assets/SketchReplay-DLnWZGc4.js",revision:null},{url:"assets/LearnPage-BRbutBzf.js",revision:null},{url:"assets/FeedbackOverlay-B_swWU0h.js",revision:null},{url:"favicon.svg",revision:"a5940caeba10da716c6fed8ecc0c4760"},{url:"pwa-192x192.png",revision:"962be0851483963654ad7fe13850953f"},{url:"pwa-512x512-maskable.png",revision:"2ccf80bb5ec86d555cf9b7146119c95a"},{url:"pwa-512x512.png",revision:"4506acde09dd15daa1fdbbab830ca01a"},{url:"manifest.webmanifest",revision:"fe07c01dcf2d15285659240779e3ac59"}],{}),s.cleanupOutdatedCaches(),s.registerRoute(new s.NavigationRoute(s.createHandlerBoundToURL("index.html")))});
+// Tombstone for the pre-2026-07-29 service worker at /argmap/sw.js (D61).
+// Purges the old scope's caches, unregisters itself, and walks open tabs over
+// to the root — preserving their share-link state.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil((async () => {
+  // Load-bearing: skipWaiting() activates this worker but does not hand it the
+  // open pages. Without claim(), matchAll({type:'window'}) lists only
+  // CONTROLLED clients (none) and WindowClient.navigate() rejects on
+  // uncontrolled ones — the migration loop below would be dead code.
+  await self.clients.claim();
+  for (const k of await caches.keys()) {
+    // NOT a blanket sweep. Old and new workers share an origin, and workbox
+    // names its precache `workbox-precache-v2-<registration.scope>` — so the
+    // old one ends in …/argmap/ and the new one in the bare origin. Deleting
+    // every cache here would wipe the ROOT worker's precache and break offline
+    // for everyone who has already migrated.
+    if (k.includes('/argmap/')) await caches.delete(k);
+  }
+  await self.registration.unregister();
+  for (const c of await self.clients.matchAll({ type: 'window' })) {
+    c.navigate('/' + new URL(c.url).search + new URL(c.url).hash);
+  }
+})()));

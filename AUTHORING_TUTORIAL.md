@@ -53,7 +53,7 @@ wants. The motivating use case is AI safety argumentation, where the
 arguments are long, branching, and full of objections that attack specific
 inference steps rather than conclusions. The flagship content is a
 comprehensive map of the book "If Anyone Builds It, Everyone Dies"
-(IABIED), deployed at p1graph.org/argmap.
+(IABIED), deployed at p1graph.org.
 
 An `.argmap` file describes a bipartite factor graph with two node kinds:
 
@@ -89,7 +89,7 @@ anything from the authoring chapters.
 
 ### 2.1 The viewer
 
-The editor/viewer at p1graph.org/argmap has three synchronized panes: the
+The editor/viewer at p1graph.org has three synchronized panes: the
 text (the `.argmap` source), the outline (a collapsible tree of the same
 content), and the graph. Reader and focus views present single nodes and
 their neighborhoods in a more article-like form. The graph starts

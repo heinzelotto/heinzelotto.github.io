@@ -1,0 +1,39 @@
+{%- comment -%}
+Local override of minima's header (fetched from jekyll/minima master 2026-07-29
+and changed in two places). The site root now serves the ArgMap app, not the
+blog, so:
+
+  1. the site title links to /blog/ — following it from a post used to land on
+     the blog index and must keep doing so, rather than dropping the reader
+     into the app;
+  2. an explicit Arg|Map nav item points at the root. The nav is generated from
+     site.pages, and the page that used to produce that entry (argmap.md, whose
+     permalink collided with the new redirect stub) is gone — without this the
+     blog would have no link to the app at all.
+
+Everything else is the theme's, verbatim. `nav-items.html` still comes from the
+remote theme. Re-sync this file if minima's header changes upstream.
+{%- endcomment -%}
+<header class="site-header">
+
+  <div class="wrapper">
+    {%- assign default_paths = site.pages | map: "path" -%}
+    {%- assign page_paths = site.minima.nav_pages | default: default_paths -%}
+    {%- assign page_titles = site.pages | map: 'title' | compact %}
+    <a class="site-title" rel="author" href="{{ '/blog/' | relative_url }}">{{ site.title | escape }}</a>
+
+    {%- unless page_titles == empty %}
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon"></span>
+        </label>
+
+        <div class="nav-items">
+          <a class="nav-item" href="{{ '/' | relative_url }}">Arg|Map explorable arguments</a>
+        </div>
+        {% include nav-items.html paths = page_paths %}
+      </nav>
+    {%- endunless %}
+  </div>
+</header>
