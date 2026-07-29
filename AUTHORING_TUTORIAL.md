@@ -21,6 +21,9 @@ authoring experience into one document. It never overrides them: on any
 point of doubt, `FORMAT_DESIGN.md` (syntax), `GRAMMAR_DRAFT.md` (grammar),
 `SOLVER_SEMANTICS.md` (semantics), and `GLOSSARY.md` (terminology) are
 authoritative, and `DECISIONS.md` records why things are the way they are.
+`MATH.md` is the readable account of the mathematics the semantics rests
+on — what the numbers mean formally, what has been proved about them, and
+what is still open — and is the right next stop after chapter 4.
 `AUTHORING_NOTES.md` is the dated log this tutorial condenses; new
 learnings continue to land there first.
 
@@ -117,7 +120,8 @@ Conventions worth knowing when reading:
 ### 2.2 Solved values and tension
 
 The viewer can compute what all the authored numbers jointly imply. Under
-"Show solved values" (in the Controls popover; off by default), an
+"Show solved values" (in the Controls popover; **on by default** since
+D40 — an explicitly persisted opt-out still wins), an
 in-browser solver treats every authored number as a constraint and finds
 the maximum-entropy distribution that honors them. Each node then shows an
 `authored -> solved` readout. The gap between the two is called tension,
@@ -547,6 +551,13 @@ The numbers are the part of the format most worth getting right and the
 part where intuition most often misleads. The ratified semantics
 (DECISIONS.md D36, full treatment in SOLVER_SEMANTICS.md) reduce to a
 small set of rules an author can hold in their head.
+
+This chapter gives those rules operationally — what to write, and why it
+behaves as it does. If you want the model underneath them (what the map
+compiles to, why the solve is a maximum-entropy problem, and which of
+these rules are theorems rather than conventions), that is `MATH.md`,
+published as *The mathematics behind ArgMap*. Nothing here depends on
+reading it.
 
 ### 4.1 Evidence strength
 

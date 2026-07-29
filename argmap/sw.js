@@ -1,4 +1,4 @@
-// Tombstone for the pre-2026-07-29 service worker at /argmap/sw.js (D61).
+// Tombstone for the pre-2026-07-29 service worker at /argmap/sw.js (D62).
 // Purges the old scope's caches, unregisters itself, and walks open tabs over
 // to the root — preserving their share-link state.
 self.addEventListener('install', () => self.skipWaiting());

@@ -12,6 +12,8 @@ reading chapter, and a complete worked example with its solver readout
 (`AUTHORING_TUTORIAL.md` Appendix A). Pointers below read `tut 7.4`
 (= that tutorial's section 7.4). `examples/README.md` indexes the
 example corpus by idiom, and is the place to read a whole real file.
+`MATH.md` is the model underneath the numbers — read it when a *why*
+question about solved values or tension comes up; nothing here needs it.
 
 Outside this repo: the canonical copies live in the **argmap** repo
 checkout — `.claude/skills/argmap-author/SKILL.md` and

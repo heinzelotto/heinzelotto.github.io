@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The mathematics behind ArgMap</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fdfdfc;
+    --surface: #f1f1ee;
+    --border: #d8d8d2;
+    --text: #23272f;
+    --dim: #5c6470;
+    --accent: #3559c7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191d24;
+      --surface: #232833;
+      --border: #3a4150;
+      --text: #dde1e8;
+      --dim: #97a0ae;
+      --accent: #8fb0f5;
+    }
+  }
+  html { background: var(--bg); }
+  body {
+    margin: 0 auto;
+    max-width: 46rem;
+    padding: 1.5rem 1.25rem 4rem;
+    color: var(--text);
+    font: 400 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    /* Long ids, URLs and Unicode formulas must wrap rather than widen the page. */
+    overflow-wrap: break-word;
+  }
+  nav {
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--dim);
+  }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  h1, h2, h3 { line-height: 1.25; }
+  h2 { margin-top: 2.2em; border-bottom: 1px solid var(--border); padding-bottom: 0.2em; }
+  h3 { margin-top: 1.8em; }
+  code, pre {
+    /* The family list ends in the generic on purpose: the display-math blocks
+       carry Unicode operators (Σ ⫫ ⋀ ∇² λ) that a fixed first choice may not
+       cover, and per-glyph substitution needs a generic tail to fall back to.
+       No webfont — the notation ruling forbids one. */
+    font-family: ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    background: var(--surface);
+  }
+  code { padding: 0 3px; border-radius: 4px; }
+  pre {
+    /* Display math rides in indented/fenced blocks (the notation ruling), so
+       these get a little more air than a run of prose would want. */
+    margin: 1.1em 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  pre code { padding: 0; background: none; }
+  table { border-collapse: collapse; margin: 1em 0; }
+  th, td { border: 1px solid var(--border); padding: 4px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--surface); }
+  /* Wide tables scroll inside their own box (wrapTables); the PAGE never does. */
+  .table-scroll { margin: 1em 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-scroll > table { margin: 0; }
+  blockquote { margin: 1em 0; padding-left: 1em; border-left: 3px solid var(--border); color: var(--dim); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="./">&larr; ArgMap editor</a> &middot;
+  <a href="authoring-tutorial.html">authoring tutorial</a><span id="math-source"></span>
+</nav>
+<h1>The mathematics behind ArgMap</h1>
+<p>An argument map in this project is not a diagram with numbers sprinkled on
+it. It is a <strong>probability model</strong>, and the numbers a reader sees are the
+output of solving that model. This document explains what the model is, how
+it is solved, what has been proved about it, and — just as importantly —
+what has not.</p>
+<p>It is written for someone who is comfortable with probability but has never
+seen this project. No prior reading required. Where a claim rests on a
+derivation, the derivation is cited rather than reproduced; §9 maps every
+citation to its home document.</p>
+<blockquote>
+<p><strong>On honesty.</strong> Every quantitative claim below is either (a) proved, with a
+pointer to the proof, (b) measured, with a pointer to the script that
+reproduces it, or (c) explicitly open. The tags <strong>[proved]</strong>,
+<strong>[measured]</strong>, <strong>[standard]</strong> and <strong>[open]</strong> are used consistently and
+mean exactly that. Section 7 is the full ledger. Two results in this
+project&#39;s history were <em>refuted</em> rather than confirmed; both are stated
+below, in the places where a reader would otherwise assume the convenient
+thing.</p>
+</blockquote>
+<hr>
+<h2>1. The one-paragraph version</h2>
+<p>A document declares <strong>statements</strong> (claims that can be true or false) and
+<strong>evidence lines</strong> (reasoning steps between them). Each carries a number the
+author asserts. The document compiles into a joint probability space over
+possible worlds, where each authored number the solver takes as input becomes
+a <strong>linear constraint</strong> and each strengthed, non-undercutting reasoning step
+additionally deletes the worlds it rules out. (Both restrictions are real and
+§3 states them: undercut lines delete nothing, unstrengthed lines are inert,
+and a check credence is displayed without ever constraining the solve.) The
+solver then picks the <strong>maximum-entropy</strong> distribution — the least-committal
+one — fitting those constraints as well as they can jointly be fit. Every
+<em>solved</em> number a reader sees is a marginal, or a ratio of marginals, of that
+one joint distribution; authored values, check credences and the credal band
+are shown beside them and deliberately are not. Where the
+authored numbers cannot all hold at once, the solve does not fail: by default
+each constraint is held by a spring rather than a clamp (§4.2), so the solve
+settles at a compromise and the residual disagreement is displayed per node
+as <strong>tension</strong>.</p>
+<p>That last property is the design goal the whole construction serves. An
+argument map written by a human being will not be globally coherent. The
+semantics is built so that local honesty is enough, and incoherence becomes
+a readout instead of an error.</p>
+<h2>2. Design constraints (why not something off the shelf)</h2>
+<p>The semantics was designed backwards from <em>authorability</em>. Three constraints
+drove it, and each rules out an otherwise-obvious choice:</p>
+<ol>
+<li><strong>Local elicitability.</strong> An author must be able to write a number for one
+reasoning step while looking only at that step — not at the whole
+document. This is what makes a large map writable at all.</li>
+<li><strong>Survival.</strong> A number the author asserts should still be there after
+solving, unless something else in the document actively contradicts it.
+An author who writes 0.8 and reads back 0.8636 — the figure the material
+placement actually produces, measured below — has been silently overruled
+by bookkeeping.</li>
+<li><strong>Local honesty without global coherence.</strong> The author is never required
+to make the document consistent. Inconsistency is a legitimate end state.</li>
+</ol>
+<p>These are more restrictive than they look. Constraint 2 in particular
+<strong>[proved]</strong> rules out the natural reading in which the authored number is a
+prior on a rule-activation variable: any such placement makes the achieved
+conditional depend on the rest of the model, so no document-local number
+yields a fixed authored conditional (Prop A8, <code>SOLVER_PROOFS</code> §4.8). The
+same proposition shows the &quot;material implication&quot; placement fails survival
+outright: on the base case an authored strength of 0.8 reads back as an
+achieved conditional P(c|a) = 0.8636 <strong>[measured]</strong> (<code>toy_run.py</code>, case &quot;T2
+material hard (regression)&quot;, verified 2026-07-29) — the author has been silently
+overruled by the encoding.</p>
+<p>Existing frameworks each give up one of the three. Abstract argumentation
+(Dung; Pollock) has defeat structure but no calibrated uncertainty.
+Probabilistic logic programming (Sato&#39;s distribution semantics, ProbLog)
+does give each rule a local number — but as a <em>switch prior</em>, the very
+placement Prop A8 shows cannot survive solving: the conditional it induces
+depends on the rest of the model, so constraint 2 fails. Markov logic
+networks fail constraint 1 instead: a weight is globally normalized and has
+no document-local meaning. Probabilistic
+argumentation (Hunter, Thimm) typically stops at abstract graphs. What is
+new here is not a technique; it is the <em>contract</em>, and the specific
+compile that satisfies it.</p>
+<h2>3. The model</h2>
+<h3>3.1 Worlds</h3>
+<p>The solver works over a joint truth table — the <strong>CTT</strong>, for <em>conditional
+truth table</em> — whose coordinates are the statement variables, plus one
+<strong>base switch</strong> <code>E₀</code> for every evidence line that carries a strength (plus
+compile-internal auxiliaries).</p>
+<p>A switch is read as <em>&quot;this rule is in force&quot;</em>: a world where <code>E₀</code> holds is a
+world where that inference actually carries. Making in-force-ness a random
+variable, rather than a property of the graph, is what lets a reasoning step
+be probabilistic without being a mere correlation.</p>
+<p>Every authored construct compiles to one or both of:</p>
+<ul>
+<li><strong>structural zeros</strong> — worlds deleted outright, and</li>
+<li><strong>linear constraints</strong> on the distribution over the survivors.</li>
+</ul>
+<h3>3.2 Evidence lines: the symmetric floor</h3>
+<p>A <em>support</em> line <code>$E p ψ | π</code> — &quot;ψ, given π, with strength p&quot; — compiles to
+three things (two carve-outs follow: an undercutting line gets no zero-set,
+§3.4, and a line with no strength compiles to nothing at all, being
+display-only):</p>
+<ol>
+<li><p>a base switch <code>E₀</code>;</p>
+</li>
+<li><p>the <strong>zero-set</strong>: worlds satisfying <code>E_eff ∧ π ∧ ¬ψ</code> are structurally
+dead. Where the rule is in force and its premises hold, worlds
+contradicting its conclusion do not exist. (<code>E_eff</code> is the <em>effective</em>
+in-force variable of §3.4; absent any undercut it is just <code>E₀</code>.)</p>
+</li>
+<li><p>the <strong>mirror</strong>:</p>
+<pre><code>P(E₀ | π) = P(E₀ | ¬π) = p     equivalently   E₀ ⫫ π,  P(E₀) = p
+</code></pre>
+<p>(<code>SOLVER_SEMANTICS</code> §1.1 writes this as &quot;mirror / floor pair&quot;, but
+GLOSSARY reserves <strong>floor pair</strong> for the <em>statement</em> device of §3.3.
+This document uses &quot;mirror&quot; throughout to keep the two apart.)</p>
+</li>
+</ol>
+<p>The mirror is the subtle part, and it is what the constraint of §2.2 forces.
+Its content is: <em>an inference&#39;s in-force rate is a property of the rule, not
+of whether its premises happen to obtain.</em> Without it, the act of asserting
+a conditional silently shifts the antecedent&#39;s probability by an amount that
+depends on nothing but bookkeeping. With it, that channel closes exactly:
+a strength-0 line is provably inert, and the arbitrary reference rate of the
+switch cancels out of the answer <strong>[proved]</strong> (CJ1/Prop C8, <code>SOLVER_PROOFS</code>
+§3.1 — a hand proof; the separately-stated CJ6 residual cancellation over
+the theory coordinate is the piece that is machine-checked, in
+<code>lean/ArgmapProofs/Basic.lean</code>).</p>
+<p><strong>The number is a floor, not a point value.</strong> This is the single most
+consequential thing to understand about reading a solved map, and the most
+common source of surprise, so it is worth stating on its own. The line
+guarantees its conclusion <em>at least</em> this much and says nothing about the
+rest: where the rule is in force the conclusion holds, and in the remaining
+worlds the line is simply silent. The reference measure fills that silence,
+so the <em>achieved</em> conditional lands above the authored strength — at
+p + (1−p)·½ in the base case. Two things follow. Nothing has been overruled:
+the rule is in force in exactly the fraction of worlds the author wrote
+(§2.2&#39;s survival constraint is intact, and is checked directly in §5). And
+evidence can <strong>accumulate</strong> — two independent lines for the same claim add
+up instead of one capping the other, which a point value would forbid.</p>
+<p>What remains after the mirror is not a bug but a theorem. Asserting a
+conditional still lowers its antecedent, by a principled and
+reference-independent amount — the <strong>drift tax</strong>:</p>
+<pre><code>odds(π) = odds_ref(π) × P_ref(ψ|π)^p
+</code></pre>
+<p>This is the Judy–Benjamin phenomenon, familiar from the philosophical
+literature on conditional constraint updating, arriving here as an exact law
+<strong>[proved]</strong>. It is not an artifact to be removed: an author who <em>does</em> want
+the antecedent pinned can simply author it, and doing so cancels the drift
+exactly (<strong>Adams restoration</strong>, Thm C2, <code>SOLVER_PROOFS</code> §6.2 — verified in
+§5 below).</p>
+<h3>3.3 Statements: floor pairs and intervals</h3>
+<p>The primary device for authoring a claim&#39;s own credence is a <strong>floor pair</strong>:
+a residual mass <code>p⁺</code> for the statement and <code>p⁻</code> for its negation, which
+compile to two premise-less evidence lines and constrain</p>
+<pre><code>P(s) ∈ [p⁺, 1 − p⁻]
+</code></pre>
+<p><strong>[proved]</strong> (Prop A6, <code>SOLVER_PROOFS</code> §4.6). A single point credence
+<code>@s p</code> is read as the degenerate coinciding pair <code>p⁺ = p = 1 − p⁻</code>.</p>
+<p>Two further slots matter for reading a map:</p>
+<ul>
+<li>The <strong>balancing prior</strong> is the reference tilt that selects a point inside
+a non-degenerate interval. It is named in the ratified model but has <strong>no
+formalization beyond &quot;engine-chosen&quot;</strong> and no elicitation practice. On the
+flagship map this is masked by the authored pins; on maps authored without
+statement credences it becomes load-bearing. This is the single most
+significant open item on the authoring side (see §8).</li>
+<li>The <strong>check credence</strong> is the author&#39;s all-things-considered number,
+displayed against the computed posterior but <em>never constraining the
+solve</em>. It is how a map can say &quot;the argument delivers 0.7, and I believe
+0.9&quot; without one silently overwriting the other.</li>
+</ul>
+<p>Pairs are authored under a <strong>residual rule</strong>: a statement&#39;s own mass should
+be evidence <em>not already present elsewhere in the map</em>, since double-counting
+the same consideration is exactly what the accumulation machinery assumes
+away. Frontier roots are exempt — their residual mass is the map&#39;s interface
+to the unmapped world.</p>
+<h3>3.4 Undercuts: attacking the inference itself</h3>
+<p>An objection can attack a claim, or it can attack a <em>step</em> — Pollock&#39;s
+undercutting defeat. The latter is first-class here, because evidence lines
+are nodes and can therefore be referenced.</p>
+<p>A line whose premises carry <code>$X</code> as a positive conjunct and whose conclusion
+negates X&#39;s conclusion is the <strong>inhibitor</strong> of X. Effective in-force is then
+defined recursively over the (acyclic) reference graph:</p>
+<pre><code>E_eff(X) = E₀_X ∧ ⋀ ¬( γ_L ∧ E_eff(L) )    over all L inhibiting X
+</code></pre>
+<p>where <code>γ_L</code> is the inhibitor&#39;s remaining premises (its <em>guard</em>). Inhibitors
+carry no zero-set of their own; they take a single unconditional constraint
+on their own operative rate, exactly as §3.2 does for support.</p>
+<p>Two structural properties fall out. Undercuts-of-undercuts — reinstatement,
+in the argumentation literature&#39;s sense — are just the recursion, no new
+machinery. And defeat only ever <em>revives</em> worlds that the target&#39;s zero-set
+had killed; it never kills new ones. This <strong>world-revival principle</strong> makes
+a class of pathology impossible by construction rather than by check.</p>
+<p>Strength q′ = 0 is exactly inert and q′ = 1 is exact in-context elimination
+<strong>[measured]</strong> (the latter immediate from E_eff = E₀ ∧ ¬(γ∧U)); the
+behaviour between them is monotone <strong>[proved for the flat form under the
+ratified compile]</strong>, with the general-graph statement <strong>[open]</strong> (D1,
+<code>SOLVER_PROOFS</code> §7.1 — and see §7 for the refutation this claim survived).</p>
+<h3>3.5 Refinement: the same argument at two grains</h3>
+<p>A reasoning step can be <em>refined</em> — replaced by a finer subgraph that says
+how it works. The maximally-unfolded map is the canonical model; only leaf
+evidences carry switches. A refined line&#39;s in-force variable is defined by
+its <strong>delivery function</strong>: whether the refinement&#39;s own lines, composed,
+actually deliver the conclusion.</p>
+<p>Three consequences, all <strong>[proved]</strong> (<code>SOLVER_PROOFS</code> §8):</p>
+<ul>
+<li>Folding and unfolding are a <strong>readout</strong>, never a re-solve. Every folded
+quantity is a marginal of the same joint distribution, so the numbers
+cannot change just because a reader collapsed a box (R3).</li>
+<li>Coarse and fine agree <em>structurally</em>; only their numbers can disagree, and
+that disagreement is precisely the tension readout (R2).</li>
+<li>An authored coarse strength on a refined line is <strong>not a solve input at
+all</strong>. It compiles as a zero-force <em>spectator</em> observable, compared
+against the rate the refinement actually delivers (D38). The obvious
+alternative — carry it as a soft summary constraint — was proposed and
+then <strong>rejected on measurement</strong>: it manufactures correlation between the
+fine switches, which is precisely the double-count the residual rule
+exists to prevent (<code>SOLVER_REFINEMENT_DELIVERY</code> §4). D51 fixed a related
+channel where a reference to a refined line resurrected the coarse row,
+inflating one flagship node by ≈0.106.</li>
+</ul>
+<h2>4. The solve</h2>
+<h3>4.1 Maximum entropy</h3>
+<p>Given the live worlds and the linear constraints, the solver picks the
+distribution maximizing entropy — equivalently, minimizing KL divergence to
+the uniform counting reference.</p>
+<p>The justification is not aesthetic. For inference from a <em>consistent</em> set of
+linear constraints, maximum entropy is characterized axiomatically as the
+unique rule meeting a short list of consistency requirements <strong>[standard]</strong>
+(Shore &amp; Johnson, <em>IEEE Trans. Inf. Theory</em> 26(1), 1980; Paris &amp; Vencovská,
+<em>Int. J. Approx. Reasoning</em> 4, 1990 — the axiomatic case that it is <em>the</em>
+common-sense completion). Picking some other member of the feasible set
+requires a reason the document does not contain. Two honest caveats: the
+Shore–Johnson axioms have been contested and refined in the later
+literature, and the characterization is for the consistent case — the
+default solve is the penalized relaxation of §4.2, which is where
+inconsistent documents actually land. The choice does carry a
+commitment: entropy is measured against a reference measure, and the uniform
+one is a semantic choice, deliberately exposed rather than hidden (§8).</p>
+<p>Accounting is <strong>F1</strong>: entropy is measured over the full joint, switches
+included. Quotient variants that measure only over statements were
+implemented and are retired to comparison oracles.</p>
+<h3>4.2 Two modes, and why the penalized one is the default</h3>
+<p>Authored numbers frequently cannot all hold at once — two conclusive
+evidences for opposite conclusions is the minimal case. There are two modes:</p>
+<ul>
+<li><p><strong>Hard</strong>: constraints exact. Infeasible sets are then genuinely
+infeasible, and the dual problem has no stationary point. The failure is
+not graceful: on a family of opposing floors with feasibility gap γ, the
+exact dual&#39;s multipliers grow like ln(C/γ) and its Hessian conditioning
+like Θ(1/γ), diverging as the gap closes <strong>[proved, with the constants
+derived]</strong> (Prop B5, <code>SOLVER_PROOFS</code> §5.5).</p>
+</li>
+<li><p><strong>Ridge</strong> (the default): each constraint gets a weight w, and the problem
+becomes a quadratic-penalized max-ent whose Fenchel dual is a
+ridge-regularized log-partition minimization,</p>
+<pre><code>min_λ  log Z(λ) + Σᵢ λᵢ² / (2wᵢ)
+</code></pre>
+<p>with multipliers bounded by construction and the solution smooth
+(C^∞) in the authored numbers, straight through the point where the hard
+problem breaks <strong>[proved]</strong> (B1, B3, B4, B5).</p>
+</li>
+</ul>
+<p>This is the mathematical content of &quot;incoherence is a readout, not an
+error&quot;. The penalized problem is <em>always</em> solvable; conflicting authored
+numbers produce a compromise plus a per-line residual, rather than a failure.
+And the two modes are continuously connected: as w → ∞ the penalized
+solution converges to the hard max-ent solution when one exists, and
+otherwise to the max-ent point of the minimizers of the violation
+functional <strong>[proved]</strong> (Thm B6, §5.6) — so the default is a principled
+relaxation of the exact problem, not a different problem.</p>
+<p>The corpus default is w = 400. Softness re-admits a little of the drift the
+mirror removed, at order 1/w: on T2 the reopened slab gap is −0.0291 at
+w = 100, <strong>−0.0083 at w = 400</strong>, and −0.0022 at w = 1600 — decaying to zero
+as w grows, with P(a) climbing to the hard-limit 1/(1+2^p) = 0.3648
+<strong>[measured]</strong> (<code>factored_followup_probe.py</code>, probe F5, verified
+2026-07-29). <strong>w = 400 is the floor</strong>: the corpus default is chosen so the
+reopened gap stays around 0.008, and the weight should not go below it.</p>
+<h3>4.3 Tension</h3>
+<p><strong>Tension</strong> on a node is |authored − solved|: the distance between what the
+author asserted and what the whole document jointly implies. Rules get two
+readouts — the authored reliability held by constraint, and the <em>computed
+effective in-force</em>, which is the Pollockian &quot;is this rule standing, here,
+given everything attacking it&quot; number.</p>
+<p>Tension is the reader-facing payoff of the entire construction. On the
+flagship map, whose numbers are derived from the book authors&#39; own
+confidence language by a rubric fixed before any number was assigned, a
+tension badge is the book disagreeing with itself — not the mapmaker
+disagreeing with the book.</p>
+<h2>5. A worked example</h2>
+<p>The smallest interesting document is one implication with nothing else:</p>
+<pre><code>@a
+@c
+$imp 0.8 @c | @a
+</code></pre>
+<p>No credence on either statement; one reasoning step of strength 0.8. Under
+the ratified semantics — symmetric floor, F1 accounting — solving gives:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>quantity</th>
+<th>value</th>
+<th>reading</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>P(c | a)</code></td>
+<td><strong>0.9000</strong></td>
+<td>the <em>achieved</em> conditional, above the floor</td>
+</tr>
+<tr>
+<td><code>P(E | ¬a)</code></td>
+<td><strong>0.8000</strong></td>
+<td>the mirror: the rule&#39;s rate holds even where its premise fails</td>
+</tr>
+<tr>
+<td><code>P(a)</code></td>
+<td><strong>0.3648</strong></td>
+<td>the drift tax (§3.2), exactly 1/(1+2^p)</td>
+</tr>
+</tbody></table></div>
+<p><em>(Reproduce: <code>cd experiments/solver-prototypes &amp;&amp; python3 toy_run.py</code>, case
+&quot;CJ1 T2 floor-F1 SYM hard&quot;. These are the suite&#39;s pinned anchors, verified
+live 2026-07-29.)</em></p>
+<blockquote>
+<p><strong>Read the case name.</strong> The suite also carries a case called plainly &quot;T2
+floor-F1 hard&quot;, which returns <code>P(a) = 0.3214</code>. That is the <strong>legacy
+asymmetric arm</strong> — the pre-mirror compile, retained as a regression
+contrast. It is not the ratified semantics, and its numbers should never
+be quoted as such. The <code>symmetric=&quot;all&quot;</code> flag is what selects the model
+this document describes. (An earlier draft of this section made exactly
+that mistake.)</p>
+</blockquote>
+<p>All three numbers are worth reading carefully, because each is a place where
+a plausible expectation is wrong.</p>
+<p><strong>P(E|¬a) = 0.8</strong> is the mirror, and with it survival. The rule is in force
+at exactly the authored rate <em>even in the worlds where its premise fails</em> —
+being in force is a property of the rule, not of whether the premise
+obtains (§3.2). The number the author wrote is the number the model holds,
+which is constraint §2.2, and §2 lists two natural alternative placements
+that both fail it.</p>
+<p><strong>P(c|a) = 0.9, not 0.8.</strong> The authored strength is a <em>floor</em>, not a point:
+it guarantees <code>c</code> in <strong>at least</strong> 80% of the worlds where the premise holds
+(Prop A4&#39;s Q(ψ∧φ) ≥ p·Q(φ)). It buys that by being in force in 80% of
+worlds, and wherever it is in force the zero-set forces <code>c</code> outright — 100%,
+not 80%. In the other 20% the line says nothing, and the reference measure
+fills that silence at ½. So 0.8 + 0.2 × 0.5 = 0.9. This is the F1 fill identity
+<strong>[proved]</strong> (<code>SOLVER_PROOFS</code> §6.8), and it is the single most common source
+of surprise when reading a solved map: <em>achieved conditionals sit above
+authored strengths, by exactly the unclaimed residual times the reference.</em></p>
+<p><strong>P(a) = 0.3648, not 0.5.</strong> The antecedent was never authored, and asserting
+a conditional taxes it (§3.2). The drift-tax law gives this one in closed
+form: at a uniform reference, odds(a) = 1 × (½)^0.8, so
+P(a) = 1/(1+2^0.8) = 0.3648 — the arithmetic §3.2 invites, landing exactly
+on the measured value. Author the antecedent — add <code>@a 0.5</code> — and the drift
+cancels: the suite&#39;s &quot;T4 floor-F1 SYM hard (Adams restored)&quot; returns
+<code>P(a) = 0.5000</code> with <code>P(c|a)</code> unchanged at 0.9. That is Adams restoration
+<strong>[proved]</strong> (Thm C2), verified live 2026-07-29.</p>
+<h2>6. Computing it</h2>
+<p>Naively the joint is exponential in the number of statements. In practice it
+is not, for a structural reason:</p>
+<ul>
+<li>The dual objective and its exact gradient are computable in
+O(n_cliques · 2^(w+1)) per iteration by junction-tree calibration, where w
+is the induced width of the moralized constraint graph <strong>[standard]</strong>.</li>
+<li>Argument maps are <strong>narrow</strong>. If deleting c &quot;escaping&quot; cross-references
+leaves scopes admitting a join tree, then w ≤ (a+1) + c for premise arity
+a <strong>[proved]</strong> (Prop E2′, §9.2). Whether real corpora have that shape with
+small c is an empirical claim — and on this project&#39;s corpus the measured
+induced width runs <strong>1–5 on the small files and 11 on the four
+599-variable comprehensive maps</strong> <strong>[measured]</strong> (<code>jt_check.py</code>, run
+2026-07-29). The point is the <em>scaling</em>, not the constant: width 11 on 599
+variables is a joint of ~2^12 rather than 2^599.</li>
+<li>Ridge-Newton coordinate updates need only clique-local quantities, so one
+update touches O(diameter) messages <strong>[proved]</strong> (E4). This is what makes
+interactive re-solving feasible.</li>
+</ul>
+<p>The shipped implementation is a Rust junction-tree kernel compiled to WASM,
+running <strong>in the reader&#39;s browser</strong> — no server, and it works offline. A
+warm re-solve after a reader changes one number is tens of milliseconds
+<strong>[measured]</strong> (~21 ms desktop, DECISIONS D48); the 599-variable flagship
+map solves cold in ~3 s via the Python CLI <strong>[measured]</strong> (<code>jt_check.py</code>,
+2026-07-29 — machine-dependent). The
+document is block-partitioned, so editing one topic re-solves that topic at
+its own standalone cost rather than the whole document&#39;s.</p>
+<p>Correctness is pinned three ways, all reproducible, all re-run 2026-07-29
+<strong>[measured]</strong>: an explicit-joint oracle over 21 corpus files (worst gradient
+difference 9.99e-16, worst marginal difference 4.42e-08 — <code>jt_check.py</code>); a
+suite of hand-derived closed-form anchors, 47 cases carrying 55 assertions,
+of which §5&#39;s three are one case (<code>toy_run.py</code>, ending &quot;ALL ANCHORS PASS&quot;);
+and a differential test between the TypeScript compiler and the Python
+oracle, worst 5.2e-7 on <code>iabied-unfold</code> and 1.4e-7 on the comprehensive maps
+against a 1e-6 gate (<code>solver-compile/tests/differential.test.ts</code>).</p>
+<h2>7. What is proved, what is measured, what is open</h2>
+<p>The full ledger is <code>SOLVER_PROOFS-2026-07-16.md</code> §13 — 42 rows covering 43
+result IDs (CJ1 and C8 are the same result), each with its own verdict.
+Summary:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>cluster</th>
+<th>status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The eight standing conjectures CJ1–CJ8</td>
+<td><strong>all discharged</strong>; CJ6 also machine-checked in Lean, CJ4 only in part (structural layer; the variational step is not formalized — <code>lean/README.md</code>)</td>
+</tr>
+<tr>
+<td>Authoring contract (A-series)</td>
+<td>proved, incl. floor realization, interval semantics, and the non-authorability of switch priors</td>
+</tr>
+<tr>
+<td>Penalized max-ent (B-series)</td>
+<td>proved: convexity, ridge duality, smoothness, pinch asymptotics, hardening limit. One partial: KL-penalty well-posedness holds for the mass-weighted variant, bare variant open</td>
+</tr>
+<tr>
+<td>Accounting and drift (C-series)</td>
+<td>mostly proved, incl. the drift tax and Adams restoration. <strong>One refutation</strong> — see below. Accumulation ordering partially open (CJ9)</td>
+</tr>
+<tr>
+<td>Undercuts (D-series)</td>
+<td>monotonicity proved for the flat form under the ratified compile; general graph open. Reinstatement open</td>
+</tr>
+<tr>
+<td>Refinement (R-series)</td>
+<td>proved</td>
+</tr>
+<tr>
+<td>Algorithms (E-series)</td>
+<td>proved, except the empirical narrowness clause, which is measured on one corpus</td>
+</tr>
+</tbody></table></div>
+<p><strong>Two results were refuted, and both matter for how the project describes
+itself:</strong></p>
+<ol>
+<li><strong>Documents are not generative models</strong> (Conj C3, refuted 2026-07-16). It
+is tempting to say that an argument map with fully-authored conditionals
+<em>is</em> a Bayesian network. That is false in general: a v-structure
+counterexample has max-ent placing covariance +0.045 between parents
+where the BN puts zero, at strictly higher entropy. What is <strong>proved</strong> is
+the sufficient direction: for <strong>forest</strong> DAGs (in-degree ≤ 1) with full
+CPTs and root marginals, max-ent equals the BN (Thm C3′). Necessity is
+<em>not</em> proved — agreement outside the forest case is not guaranteed but
+also not excluded, and symmetric two-parent configurations exist where
+the two coincide. The philosophical
+payload sharpens rather than vanishes: authorship defuses the
+Judy–Benjamin problem exactly as far as the authored structure is
+tree-shaped, and no further.</li>
+<li><strong>Undercut strength-monotonicity failed under the pre-2026-07 asymmetric
+compile</strong> — a non-monotone bump traceable to the undercut&#39;s own
+bookkeeping drift. The ratified compile dissolves it (proved for the flat
+form), but the refutation is why the general-graph claim is still marked
+open rather than assumed.</li>
+</ol>
+<p>Named open problems (the ordering is this document&#39;s editorial judgement, not
+a ranking any source makes):</p>
+<ul>
+<li><strong>CJ9</strong> — the accumulation-ordering inequality. FKG-type arguments fail
+because the zero-set-masked Gibbs measure is not log-supermodular; needs a
+new idea.</li>
+<li><strong>CJ10 / D1 general</strong> — undercut monotonicity on general graphs.</li>
+<li><strong>C5c / CJ12</strong> — the general floor algebra for mixed premise contexts.</li>
+<li><strong>B2 bare / CJ11</strong> — well-posedness of the unweighted KL penalty.</li>
+<li><strong>D2</strong> — reinstatement fixed-point structure on undercut chains.</li>
+<li><strong>The balancing prior</strong> (§3.3) — not a conjecture but a genuine gap: named
+in the ratified model, unformalized, and load-bearing on credence-free
+maps.
+Not on that list, though earlier drafts of this document put it there: the
+<strong>undercut channel split</strong> — how defeat divides between suppressing a rule
+and denying its antecedent. <code>PAPER_OUTLINE</code> §7 states it as an open problem
+the formalism &quot;exposes but does not decide&quot;, and that wording is
+pre-ratification: the measured splits it cites are from the retired
+asymmetric compile, and D36 <em>did</em> decide the question by ratifying the
+factored-A compile (§3.4). It is recorded here as settled, not open.</li>
+</ul>
+<h2>8. Limitations</h2>
+<p>Stated plainly, because a reader who finds these on their own will trust
+everything else less:</p>
+<ul>
+<li><strong>Statements are binary.</strong> No categorical or continuous variables.</li>
+<li><strong>The reference measure is a choice.</strong> Uniform counting is not neutral in
+any absolute sense; it is a commitment, and results like the drift tax are
+stated relative to it. The mirror was introduced precisely because the
+<em>arbitrary</em> part of that choice (the switch rate) was contaminating
+answers; it now provably cancels. What remains is intentional.</li>
+<li><strong>The numbers are only as good as the rubric that produced them.</strong> On the
+flagship map they derive from the source authors&#39; own confidence language
+by a pre-registered rubric. That makes tensions auditable — but a
+verbal-to-probability rubric is itself a modeling decision, and a
+different rubric would move most of them. (Not quite all: a handful of
+residuals sit at role defaults precisely because the source says nothing
+to score, and a revised rubric would leave those where they are.)</li>
+<li><strong>The narrowness result is empirical on one corpus.</strong> Width ≤ 11 across
+this corpus is real evidence, and it is not a theorem about argument maps
+in general — a map with many cross-references between refinement groups
+would be wider, and nothing prevents one. Note also that the constant
+moved: it was ≤ 7 before the 2026-07 factored-undercut compile, which
+adds auxiliary coordinates. The <em>bound</em> (Prop E2′) is what is proved; the
+constant is a property of the corpus and of the current compile.</li>
+<li><strong>This is not a truth oracle.</strong> The solve says what a set of authored
+numbers jointly implies. It has no view on whether they are right.</li>
+</ul>
+<h2>9. Where to go deeper</h2>
+<p>Reading order, by what you want:</p>
+<p><strong>The ratified model, compactly</strong> — <code>SOLVER_SEMANTICS.md</code>. The authoritative
+statement of D36: the compile, the objective, the display rules, the known
+problems (<code>Pn</code>) and open questions (<code>Sn</code>). Start here for anything normative.</p>
+<p><strong>Why it is built this way</strong> — <code>SOLVER_FAQ-2026-07-14.md</code> answers the
+eleven questions that recur: why penalize max-ent at all, whether the method
+is standard, what the dual is, which optimizer runs where.</p>
+<p><strong>The derivations:</strong></p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>document</th>
+<th>what is in it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SOLVER_THEORY-2026-07-12.md</code></td>
+<td>the theory hub — worlds, accountings, the contract analysis. <strong>Pre-ratification</strong>: it predates D36, and its F2/F3 duals programme was cancelled by D36 item 4. Read it for the reasoning, not for current doctrine</td>
+</tr>
+<tr>
+<td><code>SOLVER_F1_DERIVATION-2026-07-14.md</code></td>
+<td>the F1 objective from first principles</td>
+</tr>
+<tr>
+<td><code>SOLVER_SYMMETRIC_FLOOR-2026-07-15.md</code></td>
+<td>the mirror: motivation, and the equivalence that turned out to be false</td>
+</tr>
+<tr>
+<td><code>SOLVER_FACTORED_UNDERCUT-2026-07-16.md</code></td>
+<td>the normative undercut compile</td>
+</tr>
+<tr>
+<td><code>SOLVER_AUTHORING_SEMANTICS-2026-07-16.md</code></td>
+<td>statement slots: pairs, balancing prior, check credence</td>
+</tr>
+<tr>
+<td><code>SOLVER_REFINEMENT_DELIVERY-2026-07-17.md</code></td>
+<td>delivery functions and fold invariance</td>
+</tr>
+<tr>
+<td><code>SOLVER_CREDAL_THRESHOLD-2026-07-18.md</code></td>
+<td>credal links, world-facts vs. Q, policy encoding</td>
+</tr>
+</tbody></table></div>
+<p><strong>The proof ledger</strong> — <code>SOLVER_CONJECTURES-2026-07-16.md</code> states the
+obligations (CJn, append-only, now running to CJ12);
+<code>SOLVER_PROOFS-2026-07-16.md</code> discharges CJ1–CJ8 — CJ9–CJ12 are the open
+residue that proof pass itself surfaced — and carries the §13 status
+table that §7 above summarizes. §13 is the <strong>sole authority on verdicts</strong>:
+where any other document disagrees with it, it wins.</p>
+<p><strong>Probe and session records</strong>, read for provenance rather than doctrine:
+<code>SOLVER_UNDERCUT_PROBE-2026-07-16.md</code> and <code>SOLVER_SCALING-2026-07-16.md</code>
+(probe records), <code>SOLVER_REVIEW-2026-07-16.md</code> (a review whose findings were
+folded in), and <code>SOLVER_SESSION_NOTES-2026-07-12.md</code> /
+<code>SOLVER_SESSION_PREP-2026-07-11.md</code> (<strong>historical</strong> — superseded by D36;
+the latter&#39;s decision chain stops at D24). Every solver doc now declares its
+<code>kind:</code> in its frontmatter — see GLOSSARY <em>solver-doc kind</em> — so this
+classification is checkable at the file rather than only here.</p>
+<p><strong>Machine-checked fragments</strong> — <code>lean/</code>. A Lean 4 pilot against Mathlib
+covering the CTT multiplicity count (CJ6), the structural layer of
+contraposition symmetry (CJ4), and the finite Gibbs variational principle
+that the slab lemma rests on. <strong>This is a pilot, not a formalized theory:
+one ledger row of 42 is fully machine-checked (≈2%; ≈7% counting partials),
+and 39 rows have no Lean content at all.</strong> <code>lean/README.md</code> carries the
+row-by-row status and the roadmap; do not read the pilot&#39;s existence as a
+claim about the ledger as a whole.</p>
+<p><strong>The paper</strong> — <code>paper/</code> drafts the publishable treatment; its outline and
+formal-claim inventory is <code>PAPER_OUTLINE-2026-07-12.md</code>.</p>
+<p><strong>Run it yourself</strong> — <code>experiments/solver-prototypes/</code> is the reference
+implementation. Every solver number in §§3–6 reproduces there, with two
+exceptions that live in the shipped stack instead: the TypeScript↔oracle
+differential is <code>npm test</code> in <code>mvp/</code>, and the ~21 ms warm re-solve is a
+browser/WASM figure recorded at DECISIONS D48. The §4.2 knob sweep is
+<code>factored_followup_probe.py</code>.</p>
+<pre><code>cd experiments/solver-prototypes
+python3 toy_run.py                        # the closed-form anchor suite (§5)
+python3 jt_check.py                       # the whole-corpus oracle harness
+python3 solve_map.py &lt;file.argmap&gt; --top 10   # largest gaps and tensions
+</code></pre>
+<p><strong>Terminology</strong> — <code>GLOSSARY.md</code> is canonical for every term used above
+(<em>given bar</em>, <em>drift tax</em>, <em>tension</em>, <em>solved value</em>, <em>in-force</em>, …).</p>
+<hr>
+<p><em>This document is the keystone rung of a deliberate ladder (DECISIONS D61):
+the in-app &quot;How this works&quot; panel introduces the ideas without notation, the
+authoring tutorial gives the rules operationally, this document gives the
+model and the status, and the <code>SOLVER_*</code> docs, <code>paper/</code> and <code>lean/</code> carry the
+derivations, the publishable treatment and the machine-checked fragments. If
+you find a claim here that its cited source does not support, that is a bug
+— the citation is the contract.</em></p>
+
+<script>
+(function () {
+  var SRC = "---\nstatus: living doc — the front door to the mathematics. Authoritative for *orientation and status*; the derivations it summarizes stay in the dated `SOLVER_*.md` docs it points into, and `SOLVER_SEMANTICS.md` remains authoritative for the ratified model (D36).\npurpose: one readable account of what the numbers in an `.argmap` mean and how they are computed — sized for a curious technical reader — plus an honest status ledger and a map of where every derivation lives. Published as `mathematics.html` alongside the editor.\n---\n\n# The mathematics behind ArgMap\n\nAn argument map in this project is not a diagram with numbers sprinkled on\nit. It is a **probability model**, and the numbers a reader sees are the\noutput of solving that model. This document explains what the model is, how\nit is solved, what has been proved about it, and — just as importantly —\nwhat has not.\n\nIt is written for someone who is comfortable with probability but has never\nseen this project. No prior reading required. Where a claim rests on a\nderivation, the derivation is cited rather than reproduced; §9 maps every\ncitation to its home document.\n\n> **On honesty.** Every quantitative claim below is either (a) proved, with a\n> pointer to the proof, (b) measured, with a pointer to the script that\n> reproduces it, or (c) explicitly open. The tags **[proved]**,\n> **[measured]**, **[standard]** and **[open]** are used consistently and\n> mean exactly that. Section 7 is the full ledger. Two results in this\n> project's history were *refuted* rather than confirmed; both are stated\n> below, in the places where a reader would otherwise assume the convenient\n> thing.\n\n---\n\n## 1. The one-paragraph version\n\nA document declares **statements** (claims that can be true or false) and\n**evidence lines** (reasoning steps between them). Each carries a number the\nauthor asserts. The document compiles into a joint probability space over\npossible worlds, where each authored number the solver takes as input becomes\na **linear constraint** and each strengthed, non-undercutting reasoning step\nadditionally deletes the worlds it rules out. (Both restrictions are real and\n§3 states them: undercut lines delete nothing, unstrengthed lines are inert,\nand a check credence is displayed without ever constraining the solve.) The\nsolver then picks the **maximum-entropy** distribution — the least-committal\none — fitting those constraints as well as they can jointly be fit. Every\n*solved* number a reader sees is a marginal, or a ratio of marginals, of that\none joint distribution; authored values, check credences and the credal band\nare shown beside them and deliberately are not. Where the\nauthored numbers cannot all hold at once, the solve does not fail: by default\neach constraint is held by a spring rather than a clamp (§4.2), so the solve\nsettles at a compromise and the residual disagreement is displayed per node\nas **tension**.\n\nThat last property is the design goal the whole construction serves. An\nargument map written by a human being will not be globally coherent. The\nsemantics is built so that local honesty is enough, and incoherence becomes\na readout instead of an error.\n\n## 2. Design constraints (why not something off the shelf)\n\nThe semantics was designed backwards from *authorability*. Three constraints\ndrove it, and each rules out an otherwise-obvious choice:\n\n1. **Local elicitability.** An author must be able to write a number for one\n   reasoning step while looking only at that step — not at the whole\n   document. This is what makes a large map writable at all.\n2. **Survival.** A number the author asserts should still be there after\n   solving, unless something else in the document actively contradicts it.\n   An author who writes 0.8 and reads back 0.8636 — the figure the material\n   placement actually produces, measured below — has been silently overruled\n   by bookkeeping.\n3. **Local honesty without global coherence.** The author is never required\n   to make the document consistent. Inconsistency is a legitimate end state.\n\nThese are more restrictive than they look. Constraint 2 in particular\n**[proved]** rules out the natural reading in which the authored number is a\nprior on a rule-activation variable: any such placement makes the achieved\nconditional depend on the rest of the model, so no document-local number\nyields a fixed authored conditional (Prop A8, `SOLVER_PROOFS` §4.8). The\nsame proposition shows the \"material implication\" placement fails survival\noutright: on the base case an authored strength of 0.8 reads back as an\nachieved conditional P(c|a) = 0.8636 **[measured]** (`toy_run.py`, case \"T2\nmaterial hard (regression)\", verified 2026-07-29) — the author has been silently\noverruled by the encoding.\n\nExisting frameworks each give up one of the three. Abstract argumentation\n(Dung; Pollock) has defeat structure but no calibrated uncertainty.\nProbabilistic logic programming (Sato's distribution semantics, ProbLog)\ndoes give each rule a local number — but as a *switch prior*, the very\nplacement Prop A8 shows cannot survive solving: the conditional it induces\ndepends on the rest of the model, so constraint 2 fails. Markov logic\nnetworks fail constraint 1 instead: a weight is globally normalized and has\nno document-local meaning. Probabilistic\nargumentation (Hunter, Thimm) typically stops at abstract graphs. What is\nnew here is not a technique; it is the *contract*, and the specific\ncompile that satisfies it.\n\n## 3. The model\n\n### 3.1 Worlds\n\nThe solver works over a joint truth table — the **CTT**, for *conditional\ntruth table* — whose coordinates are the statement variables, plus one\n**base switch** `E₀` for every evidence line that carries a strength (plus\ncompile-internal auxiliaries).\n\nA switch is read as *\"this rule is in force\"*: a world where `E₀` holds is a\nworld where that inference actually carries. Making in-force-ness a random\nvariable, rather than a property of the graph, is what lets a reasoning step\nbe probabilistic without being a mere correlation.\n\nEvery authored construct compiles to one or both of:\n\n- **structural zeros** — worlds deleted outright, and\n- **linear constraints** on the distribution over the survivors.\n\n### 3.2 Evidence lines: the symmetric floor\n\nA *support* line `$E p ψ | π` — \"ψ, given π, with strength p\" — compiles to\nthree things (two carve-outs follow: an undercutting line gets no zero-set,\n§3.4, and a line with no strength compiles to nothing at all, being\ndisplay-only):\n\n1. a base switch `E₀`;\n2. the **zero-set**: worlds satisfying `E_eff ∧ π ∧ ¬ψ` are structurally\n   dead. Where the rule is in force and its premises hold, worlds\n   contradicting its conclusion do not exist. (`E_eff` is the *effective*\n   in-force variable of §3.4; absent any undercut it is just `E₀`.)\n3. the **mirror**:\n\n       P(E₀ | π) = P(E₀ | ¬π) = p     equivalently   E₀ ⫫ π,  P(E₀) = p\n\n   (`SOLVER_SEMANTICS` §1.1 writes this as \"mirror / floor pair\", but\n   GLOSSARY reserves **floor pair** for the *statement* device of §3.3.\n   This document uses \"mirror\" throughout to keep the two apart.)\n\nThe mirror is the subtle part, and it is what the constraint of §2.2 forces.\nIts content is: *an inference's in-force rate is a property of the rule, not\nof whether its premises happen to obtain.* Without it, the act of asserting\na conditional silently shifts the antecedent's probability by an amount that\ndepends on nothing but bookkeeping. With it, that channel closes exactly:\na strength-0 line is provably inert, and the arbitrary reference rate of the\nswitch cancels out of the answer **[proved]** (CJ1/Prop C8, `SOLVER_PROOFS`\n§3.1 — a hand proof; the separately-stated CJ6 residual cancellation over\nthe theory coordinate is the piece that is machine-checked, in\n`lean/ArgmapProofs/Basic.lean`).\n\n**The number is a floor, not a point value.** This is the single most\nconsequential thing to understand about reading a solved map, and the most\ncommon source of surprise, so it is worth stating on its own. The line\nguarantees its conclusion *at least* this much and says nothing about the\nrest: where the rule is in force the conclusion holds, and in the remaining\nworlds the line is simply silent. The reference measure fills that silence,\nso the *achieved* conditional lands above the authored strength — at\np + (1−p)·½ in the base case. Two things follow. Nothing has been overruled:\nthe rule is in force in exactly the fraction of worlds the author wrote\n(§2.2's survival constraint is intact, and is checked directly in §5). And\nevidence can **accumulate** — two independent lines for the same claim add\nup instead of one capping the other, which a point value would forbid.\n\nWhat remains after the mirror is not a bug but a theorem. Asserting a\nconditional still lowers its antecedent, by a principled and\nreference-independent amount — the **drift tax**:\n\n    odds(π) = odds_ref(π) × P_ref(ψ|π)^p\n\nThis is the Judy–Benjamin phenomenon, familiar from the philosophical\nliterature on conditional constraint updating, arriving here as an exact law\n**[proved]**. It is not an artifact to be removed: an author who *does* want\nthe antecedent pinned can simply author it, and doing so cancels the drift\nexactly (**Adams restoration**, Thm C2, `SOLVER_PROOFS` §6.2 — verified in\n§5 below).\n\n### 3.3 Statements: floor pairs and intervals\n\nThe primary device for authoring a claim's own credence is a **floor pair**:\na residual mass `p⁺` for the statement and `p⁻` for its negation, which\ncompile to two premise-less evidence lines and constrain\n\n    P(s) ∈ [p⁺, 1 − p⁻]\n\n**[proved]** (Prop A6, `SOLVER_PROOFS` §4.6). A single point credence\n`@s p` is read as the degenerate coinciding pair `p⁺ = p = 1 − p⁻`.\n\nTwo further slots matter for reading a map:\n\n- The **balancing prior** is the reference tilt that selects a point inside\n  a non-degenerate interval. It is named in the ratified model but has **no\n  formalization beyond \"engine-chosen\"** and no elicitation practice. On the\n  flagship map this is masked by the authored pins; on maps authored without\n  statement credences it becomes load-bearing. This is the single most\n  significant open item on the authoring side (see §8).\n- The **check credence** is the author's all-things-considered number,\n  displayed against the computed posterior but *never constraining the\n  solve*. It is how a map can say \"the argument delivers 0.7, and I believe\n  0.9\" without one silently overwriting the other.\n\nPairs are authored under a **residual rule**: a statement's own mass should\nbe evidence *not already present elsewhere in the map*, since double-counting\nthe same consideration is exactly what the accumulation machinery assumes\naway. Frontier roots are exempt — their residual mass is the map's interface\nto the unmapped world.\n\n### 3.4 Undercuts: attacking the inference itself\n\nAn objection can attack a claim, or it can attack a *step* — Pollock's\nundercutting defeat. The latter is first-class here, because evidence lines\nare nodes and can therefore be referenced.\n\nA line whose premises carry `$X` as a positive conjunct and whose conclusion\nnegates X's conclusion is the **inhibitor** of X. Effective in-force is then\ndefined recursively over the (acyclic) reference graph:\n\n    E_eff(X) = E₀_X ∧ ⋀ ¬( γ_L ∧ E_eff(L) )    over all L inhibiting X\n\nwhere `γ_L` is the inhibitor's remaining premises (its *guard*). Inhibitors\ncarry no zero-set of their own; they take a single unconditional constraint\non their own operative rate, exactly as §3.2 does for support.\n\nTwo structural properties fall out. Undercuts-of-undercuts — reinstatement,\nin the argumentation literature's sense — are just the recursion, no new\nmachinery. And defeat only ever *revives* worlds that the target's zero-set\nhad killed; it never kills new ones. This **world-revival principle** makes\na class of pathology impossible by construction rather than by check.\n\nStrength q′ = 0 is exactly inert and q′ = 1 is exact in-context elimination\n**[measured]** (the latter immediate from E_eff = E₀ ∧ ¬(γ∧U)); the\nbehaviour between them is monotone **[proved for the flat form under the\nratified compile]**, with the general-graph statement **[open]** (D1,\n`SOLVER_PROOFS` §7.1 — and see §7 for the refutation this claim survived).\n\n### 3.5 Refinement: the same argument at two grains\n\nA reasoning step can be *refined* — replaced by a finer subgraph that says\nhow it works. The maximally-unfolded map is the canonical model; only leaf\nevidences carry switches. A refined line's in-force variable is defined by\nits **delivery function**: whether the refinement's own lines, composed,\nactually deliver the conclusion.\n\nThree consequences, all **[proved]** (`SOLVER_PROOFS` §8):\n\n- Folding and unfolding are a **readout**, never a re-solve. Every folded\n  quantity is a marginal of the same joint distribution, so the numbers\n  cannot change just because a reader collapsed a box (R3).\n- Coarse and fine agree *structurally*; only their numbers can disagree, and\n  that disagreement is precisely the tension readout (R2).\n- An authored coarse strength on a refined line is **not a solve input at\n  all**. It compiles as a zero-force *spectator* observable, compared\n  against the rate the refinement actually delivers (D38). The obvious\n  alternative — carry it as a soft summary constraint — was proposed and\n  then **rejected on measurement**: it manufactures correlation between the\n  fine switches, which is precisely the double-count the residual rule\n  exists to prevent (`SOLVER_REFINEMENT_DELIVERY` §4). D51 fixed a related\n  channel where a reference to a refined line resurrected the coarse row,\n  inflating one flagship node by ≈0.106.\n\n## 4. The solve\n\n### 4.1 Maximum entropy\n\nGiven the live worlds and the linear constraints, the solver picks the\ndistribution maximizing entropy — equivalently, minimizing KL divergence to\nthe uniform counting reference.\n\nThe justification is not aesthetic. For inference from a *consistent* set of\nlinear constraints, maximum entropy is characterized axiomatically as the\nunique rule meeting a short list of consistency requirements **[standard]**\n(Shore & Johnson, *IEEE Trans. Inf. Theory* 26(1), 1980; Paris & Vencovská,\n*Int. J. Approx. Reasoning* 4, 1990 — the axiomatic case that it is *the*\ncommon-sense completion). Picking some other member of the feasible set\nrequires a reason the document does not contain. Two honest caveats: the\nShore–Johnson axioms have been contested and refined in the later\nliterature, and the characterization is for the consistent case — the\ndefault solve is the penalized relaxation of §4.2, which is where\ninconsistent documents actually land. The choice does carry a\ncommitment: entropy is measured against a reference measure, and the uniform\none is a semantic choice, deliberately exposed rather than hidden (§8).\n\nAccounting is **F1**: entropy is measured over the full joint, switches\nincluded. Quotient variants that measure only over statements were\nimplemented and are retired to comparison oracles.\n\n### 4.2 Two modes, and why the penalized one is the default\n\nAuthored numbers frequently cannot all hold at once — two conclusive\nevidences for opposite conclusions is the minimal case. There are two modes:\n\n- **Hard**: constraints exact. Infeasible sets are then genuinely\n  infeasible, and the dual problem has no stationary point. The failure is\n  not graceful: on a family of opposing floors with feasibility gap γ, the\n  exact dual's multipliers grow like ln(C/γ) and its Hessian conditioning\n  like Θ(1/γ), diverging as the gap closes **[proved, with the constants\n  derived]** (Prop B5, `SOLVER_PROOFS` §5.5).\n- **Ridge** (the default): each constraint gets a weight w, and the problem\n  becomes a quadratic-penalized max-ent whose Fenchel dual is a\n  ridge-regularized log-partition minimization,\n\n      min_λ  log Z(λ) + Σᵢ λᵢ² / (2wᵢ)\n\n  with multipliers bounded by construction and the solution smooth\n  (C^∞) in the authored numbers, straight through the point where the hard\n  problem breaks **[proved]** (B1, B3, B4, B5).\n\nThis is the mathematical content of \"incoherence is a readout, not an\nerror\". The penalized problem is *always* solvable; conflicting authored\nnumbers produce a compromise plus a per-line residual, rather than a failure.\nAnd the two modes are continuously connected: as w → ∞ the penalized\nsolution converges to the hard max-ent solution when one exists, and\notherwise to the max-ent point of the minimizers of the violation\nfunctional **[proved]** (Thm B6, §5.6) — so the default is a principled\nrelaxation of the exact problem, not a different problem.\n\nThe corpus default is w = 400. Softness re-admits a little of the drift the\nmirror removed, at order 1/w: on T2 the reopened slab gap is −0.0291 at\nw = 100, **−0.0083 at w = 400**, and −0.0022 at w = 1600 — decaying to zero\nas w grows, with P(a) climbing to the hard-limit 1/(1+2^p) = 0.3648\n**[measured]** (`factored_followup_probe.py`, probe F5, verified\n2026-07-29). **w = 400 is the floor**: the corpus default is chosen so the\nreopened gap stays around 0.008, and the weight should not go below it.\n\n### 4.3 Tension\n\n**Tension** on a node is |authored − solved|: the distance between what the\nauthor asserted and what the whole document jointly implies. Rules get two\nreadouts — the authored reliability held by constraint, and the *computed\neffective in-force*, which is the Pollockian \"is this rule standing, here,\ngiven everything attacking it\" number.\n\nTension is the reader-facing payoff of the entire construction. On the\nflagship map, whose numbers are derived from the book authors' own\nconfidence language by a rubric fixed before any number was assigned, a\ntension badge is the book disagreeing with itself — not the mapmaker\ndisagreeing with the book.\n\n## 5. A worked example\n\nThe smallest interesting document is one implication with nothing else:\n\n    @a\n    @c\n    $imp 0.8 @c | @a\n\nNo credence on either statement; one reasoning step of strength 0.8. Under\nthe ratified semantics — symmetric floor, F1 accounting — solving gives:\n\n| quantity | value | reading |\n|---|---|---|\n| `P(c \\| a)` | **0.9000** | the *achieved* conditional, above the floor |\n| `P(E \\| ¬a)` | **0.8000** | the mirror: the rule's rate holds even where its premise fails |\n| `P(a)` | **0.3648** | the drift tax (§3.2), exactly 1/(1+2^p) |\n\n*(Reproduce: `cd experiments/solver-prototypes && python3 toy_run.py`, case\n\"CJ1 T2 floor-F1 SYM hard\". These are the suite's pinned anchors, verified\nlive 2026-07-29.)*\n\n> **Read the case name.** The suite also carries a case called plainly \"T2\n> floor-F1 hard\", which returns `P(a) = 0.3214`. That is the **legacy\n> asymmetric arm** — the pre-mirror compile, retained as a regression\n> contrast. It is not the ratified semantics, and its numbers should never\n> be quoted as such. The `symmetric=\"all\"` flag is what selects the model\n> this document describes. (An earlier draft of this section made exactly\n> that mistake.)\n\nAll three numbers are worth reading carefully, because each is a place where\na plausible expectation is wrong.\n\n**P(E|¬a) = 0.8** is the mirror, and with it survival. The rule is in force\nat exactly the authored rate *even in the worlds where its premise fails* —\nbeing in force is a property of the rule, not of whether the premise\nobtains (§3.2). The number the author wrote is the number the model holds,\nwhich is constraint §2.2, and §2 lists two natural alternative placements\nthat both fail it.\n\n**P(c|a) = 0.9, not 0.8.** The authored strength is a *floor*, not a point:\nit guarantees `c` in **at least** 80% of the worlds where the premise holds\n(Prop A4's Q(ψ∧φ) ≥ p·Q(φ)). It buys that by being in force in 80% of\nworlds, and wherever it is in force the zero-set forces `c` outright — 100%,\nnot 80%. In the other 20% the line says nothing, and the reference measure\nfills that silence at ½. So 0.8 + 0.2 × 0.5 = 0.9. This is the F1 fill identity\n**[proved]** (`SOLVER_PROOFS` §6.8), and it is the single most common source\nof surprise when reading a solved map: *achieved conditionals sit above\nauthored strengths, by exactly the unclaimed residual times the reference.*\n\n**P(a) = 0.3648, not 0.5.** The antecedent was never authored, and asserting\na conditional taxes it (§3.2). The drift-tax law gives this one in closed\nform: at a uniform reference, odds(a) = 1 × (½)^0.8, so\nP(a) = 1/(1+2^0.8) = 0.3648 — the arithmetic §3.2 invites, landing exactly\non the measured value. Author the antecedent — add `@a 0.5` — and the drift\ncancels: the suite's \"T4 floor-F1 SYM hard (Adams restored)\" returns\n`P(a) = 0.5000` with `P(c|a)` unchanged at 0.9. That is Adams restoration\n**[proved]** (Thm C2), verified live 2026-07-29.\n\n## 6. Computing it\n\nNaively the joint is exponential in the number of statements. In practice it\nis not, for a structural reason:\n\n- The dual objective and its exact gradient are computable in\n  O(n_cliques · 2^(w+1)) per iteration by junction-tree calibration, where w\n  is the induced width of the moralized constraint graph **[standard]**.\n- Argument maps are **narrow**. If deleting c \"escaping\" cross-references\n  leaves scopes admitting a join tree, then w ≤ (a+1) + c for premise arity\n  a **[proved]** (Prop E2′, §9.2). Whether real corpora have that shape with\n  small c is an empirical claim — and on this project's corpus the measured\n  induced width runs **1–5 on the small files and 11 on the four\n  599-variable comprehensive maps** **[measured]** (`jt_check.py`, run\n  2026-07-29). The point is the *scaling*, not the constant: width 11 on 599\n  variables is a joint of ~2^12 rather than 2^599.\n- Ridge-Newton coordinate updates need only clique-local quantities, so one\n  update touches O(diameter) messages **[proved]** (E4). This is what makes\n  interactive re-solving feasible.\n\nThe shipped implementation is a Rust junction-tree kernel compiled to WASM,\nrunning **in the reader's browser** — no server, and it works offline. A\nwarm re-solve after a reader changes one number is tens of milliseconds\n**[measured]** (~21 ms desktop, DECISIONS D48); the 599-variable flagship\nmap solves cold in ~3 s via the Python CLI **[measured]** (`jt_check.py`,\n2026-07-29 — machine-dependent). The\ndocument is block-partitioned, so editing one topic re-solves that topic at\nits own standalone cost rather than the whole document's.\n\nCorrectness is pinned three ways, all reproducible, all re-run 2026-07-29\n**[measured]**: an explicit-joint oracle over 21 corpus files (worst gradient\ndifference 9.99e-16, worst marginal difference 4.42e-08 — `jt_check.py`); a\nsuite of hand-derived closed-form anchors, 47 cases carrying 55 assertions,\nof which §5's three are one case (`toy_run.py`, ending \"ALL ANCHORS PASS\");\nand a differential test between the TypeScript compiler and the Python\noracle, worst 5.2e-7 on `iabied-unfold` and 1.4e-7 on the comprehensive maps\nagainst a 1e-6 gate (`solver-compile/tests/differential.test.ts`).\n\n## 7. What is proved, what is measured, what is open\n\nThe full ledger is `SOLVER_PROOFS-2026-07-16.md` §13 — 42 rows covering 43\nresult IDs (CJ1 and C8 are the same result), each with its own verdict.\nSummary:\n\n| cluster | status |\n|---|---|\n| The eight standing conjectures CJ1–CJ8 | **all discharged**; CJ6 also machine-checked in Lean, CJ4 only in part (structural layer; the variational step is not formalized — `lean/README.md`) |\n| Authoring contract (A-series) | proved, incl. floor realization, interval semantics, and the non-authorability of switch priors |\n| Penalized max-ent (B-series) | proved: convexity, ridge duality, smoothness, pinch asymptotics, hardening limit. One partial: KL-penalty well-posedness holds for the mass-weighted variant, bare variant open |\n| Accounting and drift (C-series) | mostly proved, incl. the drift tax and Adams restoration. **One refutation** — see below. Accumulation ordering partially open (CJ9) |\n| Undercuts (D-series) | monotonicity proved for the flat form under the ratified compile; general graph open. Reinstatement open |\n| Refinement (R-series) | proved |\n| Algorithms (E-series) | proved, except the empirical narrowness clause, which is measured on one corpus |\n\n**Two results were refuted, and both matter for how the project describes\nitself:**\n\n1. **Documents are not generative models** (Conj C3, refuted 2026-07-16). It\n   is tempting to say that an argument map with fully-authored conditionals\n   *is* a Bayesian network. That is false in general: a v-structure\n   counterexample has max-ent placing covariance +0.045 between parents\n   where the BN puts zero, at strictly higher entropy. What is **proved** is\n   the sufficient direction: for **forest** DAGs (in-degree ≤ 1) with full\n   CPTs and root marginals, max-ent equals the BN (Thm C3′). Necessity is\n   *not* proved — agreement outside the forest case is not guaranteed but\n   also not excluded, and symmetric two-parent configurations exist where\n   the two coincide. The philosophical\n   payload sharpens rather than vanishes: authorship defuses the\n   Judy–Benjamin problem exactly as far as the authored structure is\n   tree-shaped, and no further.\n2. **Undercut strength-monotonicity failed under the pre-2026-07 asymmetric\n   compile** — a non-monotone bump traceable to the undercut's own\n   bookkeeping drift. The ratified compile dissolves it (proved for the flat\n   form), but the refutation is why the general-graph claim is still marked\n   open rather than assumed.\n\nNamed open problems (the ordering is this document's editorial judgement, not\na ranking any source makes):\n\n- **CJ9** — the accumulation-ordering inequality. FKG-type arguments fail\n  because the zero-set-masked Gibbs measure is not log-supermodular; needs a\n  new idea.\n- **CJ10 / D1 general** — undercut monotonicity on general graphs.\n- **C5c / CJ12** — the general floor algebra for mixed premise contexts.\n- **B2 bare / CJ11** — well-posedness of the unweighted KL penalty.\n- **D2** — reinstatement fixed-point structure on undercut chains.\n- **The balancing prior** (§3.3) — not a conjecture but a genuine gap: named\n  in the ratified model, unformalized, and load-bearing on credence-free\n  maps.\nNot on that list, though earlier drafts of this document put it there: the\n**undercut channel split** — how defeat divides between suppressing a rule\nand denying its antecedent. `PAPER_OUTLINE` §7 states it as an open problem\nthe formalism \"exposes but does not decide\", and that wording is\npre-ratification: the measured splits it cites are from the retired\nasymmetric compile, and D36 *did* decide the question by ratifying the\nfactored-A compile (§3.4). It is recorded here as settled, not open.\n\n## 8. Limitations\n\nStated plainly, because a reader who finds these on their own will trust\neverything else less:\n\n- **Statements are binary.** No categorical or continuous variables.\n- **The reference measure is a choice.** Uniform counting is not neutral in\n  any absolute sense; it is a commitment, and results like the drift tax are\n  stated relative to it. The mirror was introduced precisely because the\n  *arbitrary* part of that choice (the switch rate) was contaminating\n  answers; it now provably cancels. What remains is intentional.\n- **The numbers are only as good as the rubric that produced them.** On the\n  flagship map they derive from the source authors' own confidence language\n  by a pre-registered rubric. That makes tensions auditable — but a\n  verbal-to-probability rubric is itself a modeling decision, and a\n  different rubric would move most of them. (Not quite all: a handful of\n  residuals sit at role defaults precisely because the source says nothing\n  to score, and a revised rubric would leave those where they are.)\n- **The narrowness result is empirical on one corpus.** Width ≤ 11 across\n  this corpus is real evidence, and it is not a theorem about argument maps\n  in general — a map with many cross-references between refinement groups\n  would be wider, and nothing prevents one. Note also that the constant\n  moved: it was ≤ 7 before the 2026-07 factored-undercut compile, which\n  adds auxiliary coordinates. The *bound* (Prop E2′) is what is proved; the\n  constant is a property of the corpus and of the current compile.\n- **This is not a truth oracle.** The solve says what a set of authored\n  numbers jointly implies. It has no view on whether they are right.\n\n## 9. Where to go deeper\n\nReading order, by what you want:\n\n**The ratified model, compactly** — `SOLVER_SEMANTICS.md`. The authoritative\nstatement of D36: the compile, the objective, the display rules, the known\nproblems (`Pn`) and open questions (`Sn`). Start here for anything normative.\n\n**Why it is built this way** — `SOLVER_FAQ-2026-07-14.md` answers the\neleven questions that recur: why penalize max-ent at all, whether the method\nis standard, what the dual is, which optimizer runs where.\n\n**The derivations:**\n\n| document | what is in it |\n|---|---|\n| `SOLVER_THEORY-2026-07-12.md` | the theory hub — worlds, accountings, the contract analysis. **Pre-ratification**: it predates D36, and its F2/F3 duals programme was cancelled by D36 item 4. Read it for the reasoning, not for current doctrine |\n| `SOLVER_F1_DERIVATION-2026-07-14.md` | the F1 objective from first principles |\n| `SOLVER_SYMMETRIC_FLOOR-2026-07-15.md` | the mirror: motivation, and the equivalence that turned out to be false |\n| `SOLVER_FACTORED_UNDERCUT-2026-07-16.md` | the normative undercut compile |\n| `SOLVER_AUTHORING_SEMANTICS-2026-07-16.md` | statement slots: pairs, balancing prior, check credence |\n| `SOLVER_REFINEMENT_DELIVERY-2026-07-17.md` | delivery functions and fold invariance |\n| `SOLVER_CREDAL_THRESHOLD-2026-07-18.md` | credal links, world-facts vs. Q, policy encoding |\n\n**The proof ledger** — `SOLVER_CONJECTURES-2026-07-16.md` states the\nobligations (CJn, append-only, now running to CJ12);\n`SOLVER_PROOFS-2026-07-16.md` discharges CJ1–CJ8 — CJ9–CJ12 are the open\nresidue that proof pass itself surfaced — and carries the §13 status\ntable that §7 above summarizes. §13 is the **sole authority on verdicts**:\nwhere any other document disagrees with it, it wins.\n\n**Probe and session records**, read for provenance rather than doctrine:\n`SOLVER_UNDERCUT_PROBE-2026-07-16.md` and `SOLVER_SCALING-2026-07-16.md`\n(probe records), `SOLVER_REVIEW-2026-07-16.md` (a review whose findings were\nfolded in), and `SOLVER_SESSION_NOTES-2026-07-12.md` /\n`SOLVER_SESSION_PREP-2026-07-11.md` (**historical** — superseded by D36;\nthe latter's decision chain stops at D24). Every solver doc now declares its\n`kind:` in its frontmatter — see GLOSSARY *solver-doc kind* — so this\nclassification is checkable at the file rather than only here.\n\n**Machine-checked fragments** — `lean/`. A Lean 4 pilot against Mathlib\ncovering the CTT multiplicity count (CJ6), the structural layer of\ncontraposition symmetry (CJ4), and the finite Gibbs variational principle\nthat the slab lemma rests on. **This is a pilot, not a formalized theory:\none ledger row of 42 is fully machine-checked (≈2%; ≈7% counting partials),\nand 39 rows have no Lean content at all.** `lean/README.md` carries the\nrow-by-row status and the roadmap; do not read the pilot's existence as a\nclaim about the ledger as a whole.\n\n**The paper** — `paper/` drafts the publishable treatment; its outline and\nformal-claim inventory is `PAPER_OUTLINE-2026-07-12.md`.\n\n**Run it yourself** — `experiments/solver-prototypes/` is the reference\nimplementation. Every solver number in §§3–6 reproduces there, with two\nexceptions that live in the shipped stack instead: the TypeScript↔oracle\ndifferential is `npm test` in `mvp/`, and the ~21 ms warm re-solve is a\nbrowser/WASM figure recorded at DECISIONS D48. The §4.2 knob sweep is\n`factored_followup_probe.py`.\n\n    cd experiments/solver-prototypes\n    python3 toy_run.py                        # the closed-form anchor suite (§5)\n    python3 jt_check.py                       # the whole-corpus oracle harness\n    python3 solve_map.py \u003cfile.argmap> --top 10   # largest gaps and tensions\n\n**Terminology** — `GLOSSARY.md` is canonical for every term used above\n(*given bar*, *drift tax*, *tension*, *solved value*, *in-force*, …).\n\n---\n\n*This document is the keystone rung of a deliberate ladder (DECISIONS D61):\nthe in-app \"How this works\" panel introduces the ideas without notation, the\nauthoring tutorial gives the rules operationally, this document gives the\nmodel and the status, and the `SOLVER_*` docs, `paper/` and `lean/` carry the\nderivations, the publishable treatment and the machine-checked fragments. If\nyou find a claim here that its cited source does not support, that is a bug\n— the citation is the contract.*\n";
+  var slot = document.getElementById('math-source');
+  if (!slot || typeof Blob !== 'function' || !window.URL || !URL.createObjectURL) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([SRC], { type: 'text/markdown;charset=utf-8' }));
+  a.setAttribute('download', 'MATH.md');
+  a.textContent = 'download MATH.md';
+  a.title = 'The exact source of this page (' + SRC.length + ' characters)';
+  slot.appendChild(document.createTextNode(' · source: '));
+  slot.appendChild(a);
+})();
+</script>
+</body>
+</html>
