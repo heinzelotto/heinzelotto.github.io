@@ -8,9 +8,9 @@ Agent-facing companion: the `argmap-author` skill
 (`.claude/skills/argmap-author/SKILL.md`) compresses this tutorial into
 the working loop; agents load it via the Skill tool, humans can read it
 as the cheat-sheet-plus. Since 2026-07-27 the skill is meant to be
-**sufficient on its own** for authoring — it carries the idiom catalog,
+**sufficient on its own** for authoring (it carries the idiom catalog,
 the label/gloss and nesting discipline, the limitations and the lint
-codes in compressed form — so the division of labour is: skill = the
+codes in compressed form), so the division of labour is: skill = the
 pattern, this tutorial = the rationale, the history, the reading
 chapter, and the worked example in Appendix A. A third tier,
 `examples/README.md`, indexes the example corpus by idiom for when you
@@ -22,8 +22,8 @@ point of doubt, `FORMAT_DESIGN.md` (syntax), `GRAMMAR_DRAFT.md` (grammar),
 `SOLVER_SEMANTICS.md` (semantics), and `GLOSSARY.md` (terminology) are
 authoritative, and `DECISIONS.md` records why things are the way they are.
 `MATH.md` is the readable account of the mathematics the semantics rests
-on — what the numbers mean formally, what has been proved about them, and
-what is still open — and is the right next stop after chapter 4.
+on (what the numbers mean formally, what has been proved about them, and
+what is still open), and is the right next stop after chapter 4.
 `AUTHORING_NOTES.md` is the dated log this tutorial condenses; new
 learnings continue to land there first.
 
@@ -121,7 +121,7 @@ Conventions worth knowing when reading:
 
 The viewer can compute what all the authored numbers jointly imply. Under
 "Show solved values" (in the Controls popover; **on by default** since
-D40 — an explicitly persisted opt-out still wins), an
+D40, though an explicitly persisted opt-out still wins), an
 in-browser solver treats every authored number as a constraint and finds
 the maximum-entropy distribution that honors them. Each node then shows an
 `authored -> solved` readout. The gap between the two is called tension,
@@ -279,12 +279,12 @@ looks like a node declaration (W3); take that warning seriously.
 **The inverse hazard has no warning, and cannot get one.** A continuation
 line that *begins* with `@`, `$`, `#`, `::` or `>` is read as that
 construct, not as prose, because line dispatch is a first-character
-switch — and by the time anything could complain, the parser has built a
+switch, and by the time anything could complain, the parser has built a
 node and has no idea prose was intended. So never start a continuation
 line with a sigil character: begin with a word, or rephrase. The exposure
 is small because quote lines (3.12) cannot wrap and the corpus barely
-uses continuation lines at all, but when it bites there is no diagnostic
-— you find it by reading the rendered gloss.
+uses continuation lines at all, but when it bites there is no
+diagnostic: you find it by reading the rendered gloss.
 
 Two lexical restrictions: a gloss cannot contain a `#` preceded by
 whitespace (that always starts a trailing comment), and a label cannot
@@ -323,7 +323,7 @@ A line beginning with `#` is a comment; a whitespace-preceded `#` starts
 a trailing comment. Comments are preserved by the parser and serializer.
 Section headings in large maps are full-line comments by convention. Use
 one when the heading is only for a human reading the source. When you want
-the heading to be *checked and drawn* — a named box around those nodes —
+the heading to be *checked and drawn*, a named box around those nodes,
 use a declared group instead (3.11): no tool can see a comment.
 
 Two trailing-comment conventions carry meaning to the solver tooling
@@ -370,7 +370,7 @@ are preserved, which makes frontmatter the extension point for
 provenance notes.
 
 One key is tooling-visible: `focus: [id, id]` (D57) declares the map's
-focus nodes — the statements influence readouts measure deltas on. Omit
+focus nodes, the statements influence readouts measure deltas on. Omit
 it and the tooling derives them from topology (statements concluded by
 top-level evidence and premised by none). Declare it only when topology
 misreads your intent: the known case is a goal guard, a world-layer
@@ -403,17 +403,17 @@ A third sigil declares a **group**: a named box drawn around nodes.
   $scaling 0.7 @agi-soon | @compute-grows: the trend argument
 ```
 
-Its indented block is **membership**, not refinement — the one place the
-indentation rule is keyed on the parent's sigil (3.4). Otherwise the head
+Its indented block is **membership**, not refinement (the one place the
+indentation rule is keyed on the parent's sigil, 3.4). Otherwise the head
 reads exactly like a node line: required id, optional `[label]`, optional
 gloss, and the same continuation-line folding.
 
-Three properties define it, and they are the whole point:
+Three properties define it:
 
 1. **No credence.** There is no probability slot on a `::` line, now or
    later. A number there is an error.
 2. **Not referenceable.** `::id` in any expression is a parse error. A
-   group takes no part in inference — you cannot argue from it or
+   group takes no part in inference: you cannot argue from it or
    against it.
 3. **Transparent.** Deleting every `::` line changes nothing about the
    map: same graph, same roles, same solve. A group is display only.
@@ -429,9 +429,9 @@ to one block, or spanning several *whole* blocks ("two topics under one
 heading"), is silent. Two shapes warn, because your claim and the graph
 disagree:
 
-- a group covering only **part** of a connected block (W12) — edges cross
+- a group covering only **part** of a connected block (W12): edges cross
   its boundary, so the layout distorts and the box cannot fold;
-- one block **split across** two groups (W13) — usually an accidental
+- one block **split across** two groups (W13): usually an accidental
   cross-topic premise silently merged two topics while your headings still
   assert they are separate. This is the mistake worth catching.
 
@@ -439,16 +439,16 @@ Only *document-level* groups are checked. A group nested inside another
 group, or inside a refinement, is subdividing its parent, not claiming a
 block.
 
-**Folding.** A **closed** group — no edge crosses its boundary — folds to
-a card showing its label and member counts. A non-closed group does not
+**Folding.** A **closed** group, one where no edge crosses its boundary,
+folds to a card showing its label and member counts. A non-closed group does not
 fold; the control stays visible but disabled, with the reason. (Folding it
 would mean redrawing the crossing edges as summary edges, at which point
-the box starts standing in for its members — the thing refinement does,
-with none of the authored meaning that makes refinement safe.)
+the box starts standing in for its members, which is what refinement
+does, with none of the authored meaning that makes refinement safe.)
 
 Groups are allowed anywhere: any depth, inside each other, inside
-refinements. Membership does **not** suppress the isolated-statement note
-— a context shelf of standalone facts still reports each one as isolated.
+refinements. Membership does **not** suppress the isolated-statement note: a context
+shelf of standalone facts still reports each one as isolated.
 
 ### 3.12 v0.3: source quote lines (`>`)
 
@@ -463,14 +463,14 @@ source, plus the footnote locator it came from:
   > quite skeptical that gradient descent will happen to stumble across the
 ```
 
-(the last line is shown truncated only for the page width — see "no
+(the last line is shown truncated only for the page width, see "no
 wrapping" below.)
 
 The gloss goes back to being a claim a reader can parse cold; the quotes
 sit under it as its evidence. Before `>`, a quote could only live inside
-the gloss, where no tool could see it — which meant no display
-affordance, and, in a translated map, nothing stopping a *paraphrase*
-from being presented as verbatim.
+the gloss, where no tool could see it. That meant no display affordance,
+and, in a translated map, nothing stopping a *paraphrase* from being
+presented as verbatim.
 
 **Rules, all short:**
 
@@ -485,7 +485,7 @@ from being presented as verbatim.
 3. **Only a locator at the very end of the line counts.** Everything else
    on the line is verbatim text, including a `[^…]` in the middle of it
    (W16 flags that as a probable stray or doubled ref).
-4. **No trailing `#` comment** — the one line kind that has none. Source
+4. **No trailing `#` comment**, the one line kind that has none. Source
    text cannot be reworded to dodge the comment splitter, so a real ` # `
    in a quote would be silently truncated; instead the whole line is
    verbatim and the lint warns if it spots ` # ` inside one (W17). Put
@@ -494,26 +494,26 @@ from being presented as verbatim.
    soft-wraps it.
 6. **Placement is positional.** A quote attaches to the node above it and
    must be indented deeper. It has to sit in that node's *annotation
-   block* — the span before the node's first child. A `>` at top level,
+   block*, the span before the node's first child. A `>` at top level,
    or after a child node, is an error (E9), not a re-attachment to some
    outer node. Order quotes after the gloss prose; interleaving parses,
    but the lint prefers the canonical order (W18) and the serializer
    rewrites to it anyway.
 7. **Declare `argmap-version: 0.3`** in a file that uses `>` (W19).
 
-**Which quotes become `>` lines — the three-way test.** Ask: *is this the
+**Which quotes become `>` lines: the three-way test.** Ask: *is this the
 node's own wording, or support for it?*
 
-1. **Supporting quote** — a fragment stacked next to the claim as
+1. **Supporting quote**: a fragment stacked next to the claim as
    evidence for it. Lift it to a `>` line. This is most of them.
-2. **Load-bearing inline fragment** — a verbatim phrase that is a
+2. **Load-bearing inline fragment**: a verbatim phrase that is a
    grammatical constituent of the gloss sentence (`Kelvin's "infinitely
    beyond…" fell to DNA`). Leave it in the gloss, in plain quotation
    marks: it is the node's own phrasing, borrowing the source's words.
-   When the provenance is worth keeping, add an **echo** — a `>` line
+   When the provenance is worth keeping, add an **echo**, a `>` line
    carrying the full verbatim sentence and its locator, while the gloss
    keeps its fragment.
-3. **The quote *is* the claim** — the gloss is nothing but the quote.
+3. **The quote *is* the claim**: the gloss is nothing but the quote.
    Degenerate case of 2: write the gloss in plain marks and echo the
    verbatim on a `>` line.
 
@@ -522,13 +522,13 @@ renders the fragment as ordinary quoted prose (claiming nothing about
 verbatimness), while the `>` line stays in the source language.
 
 **Quotes are never translated.** In a multilingual map set the whole `>`
-line — sigil, indent, text, locator — is byte-identical across all
+line (sigil, indent, text, locator) is byte-identical across all
 language versions, and `tools/translation-parity.py` enforces that. A
 translated "verbatim" quote is false on its face and destroys the tie
 back to the source.
 
 **Annotation comments (`#[…]`).** Per-quote side data goes on a full-line
-comment of the form `#[key: …]` — no space between `#` and `[` — on the
+comment of the form `#[key: …]` (no space between `#` and `[`) on the
 line above the quote, at the same indent:
 
 ```
@@ -552,7 +552,7 @@ part where intuition most often misleads. The ratified semantics
 (DECISIONS.md D36, full treatment in SOLVER_SEMANTICS.md) reduce to a
 small set of rules an author can hold in their head.
 
-This chapter gives those rules operationally — what to write, and why it
+This chapter gives those rules operationally: what to write, and why it
 behaves as it does. If you want the model underneath them (what the map
 compiles to, why the solve is a maximum-entropy problem, and which of
 these rules are theorems rather than conventions), that is `MATH.md`,
@@ -730,15 +730,15 @@ ratified defaults: an undercut whose target is unstrengthed leaves its
 conclusion at 0.500, exactly as if the line were absent; and an undercut
 of a rebuttal recovers the claim monotonically toward the value it would
 hold with the rebuttal absent (0.500 → 0.866 against a rebuttal-free
-0.898), never past it — which is what T13's "recovers monotonically to
+0.898), never past it, which is what T13's "recovers monotonically to
 ≈p" records.
 
 The authoring consequence: when the source both raises an objection to
 an inference *and* asserts the fact that objection rests on, the
 undercut carries only the first. If you want the fact to bear on the
 claim as well, give it its own ordinary evidence line beside the
-undercut. That is not double-counting — the inhibitor acts on the
-inference, the plain line acts on the claim — and without it the fact
+undercut. That is not double-counting (the inhibitor acts on the
+inference, the plain line acts on the claim), and without it the fact
 the source actually reports is silently absent from the solve.
 
 ### 4.6 Solved values, tension, and 0/1 pins
@@ -882,7 +882,7 @@ belongs on its own `>` line with a `[^ref]` locator; a verbatim phrase
 that is a grammatical part of the gloss sentence stays in the gloss in
 plain double quotes, optionally echoed by a `>` line carrying the full
 sentence. The budget above counts both. (The older convention of marking
-in-gloss quotes `~"…"` is retired — W20 flags any survivors.)
+in-gloss quotes `~"…"` is retired, and W20 flags any survivors.)
 
 ## 6. Labels and glosses
 
@@ -1208,7 +1208,7 @@ Three tests turn the debt into structure:
 Sometimes all three tests fail and the heading is still real. That
 happens when the section is a **topic**, not a fold unit: two arguments
 that share a file but not a single premise, or a shelf of background
-facts. Nesting them under a wrapper evidence would be a lie — there is
+facts. Nesting them under a wrapper evidence would be a lie: there is
 no inference there to summarize. That is what a declared group is for
 (3.11): write `::id [Label]` and indent them under it. The heading stops
 being debt and becomes a checked, drawn box, and the validator will tell
