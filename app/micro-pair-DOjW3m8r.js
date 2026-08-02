@@ -1,0 +1,1 @@
+function i(o,n,l,e){return{from:n===null?null:`${o.authored} ${n} ${e?"⇢":"→"}`,solved:`${o.solved} ${l}`}}function u(o,n,l,e){const r=i(o,n,l,e);return r.from===null?r.solved:`${r.from} ${r.solved}`}export{i as a,u as m};
