@@ -767,27 +767,60 @@ same way with yourself as the source.
 
 Extract structure only. Statements, evidences, refinement nesting,
 labels, glosses, citations; no numbers (unstrengthed lines are legal and
-compile-inert). Decisions you are making in this pass, and should make
-deliberately:
+compile-inert).
 
-1. Statement granularity: what gets to be a claim. A statement label
-   must be a proposition. If a source item is not a premise-to-conclusion
-   step (a meta-principle, a design artifact, pure framing), keep it as a
-   folded gloss or one node with a comment, not as a conjunct in the
-   inference chain.
-2. Linked vs convergent: `AND` only where the step genuinely needs all
-   conjuncts (test: does the inference fail if this conjunct alone is
-   false?). Independent routes are separate evidence lines. If a comment
-   says "independent paths" and the factor says `AND`, one of them is
-   wrong.
-3. What each objection targets. For every objection ask: **which
-   inference does this grant, and which does it deny?** An objection to
-   an inference is an undercut conditioning on that `$id`; an objection
-   to a claim is a rebuttal concluding `~@id`. Mis-typing this is the
-   most common structural error in first passes.
-4. Nesting: fold objection/response clusters as refinements under their
-   target; keep shared grounds at an outer level so they do not fold
-   away with one cluster (see chapter 8).
+Work in three sub-passes, in this order, because the two extraction
+directions fail differently: pure top-down *invents* structure (hub
+statements the source never asserted, which then solve near-tautologous),
+while pure bottom-up extracts each section faithfully and never authors
+the connective tissue: a buried spine (W21) and shared grounds
+double-counted across clusters. The 2026-08-03 He-essay extraction hit
+both in one day.
+
+1. **Spine first, top-down: transcribed, never invented.** If the source
+   draws its own overview (a section-2 diagram, an abstract's roadmap, a
+   title conditional), transcribe it: the top tier, the declared foci
+   (`focus:`), the region list and prefix scheme, recorded as the
+   manifest comment (chapter 8). Where the source *asserts* its own
+   structure ("this is not a conjunction", "either route suffices"),
+   that assertion is quotable content and belongs to this sub-pass, not
+   to your judgment. Genre flip: a debate or interview asserts no
+   overview up front; there, extract bottom-up first and write the spine
+   once the meta-shape emerges (usually in the wrap-up). Never fake a
+   spine the source did not assert: an invented spine is the top-down
+   failure mode wearing a checklist.
+2. **Regions bottom-up, in source order.** Local links under local
+   conclusions, each step citing its sentence; this is where source
+   fidelity lives. The decisions to make deliberately:
+   - Statement granularity: what gets to be a claim. A statement label
+     must be a proposition. If a source item is not a
+     premise-to-conclusion step (a meta-principle, a design artifact,
+     pure framing), keep it as a folded gloss or one node with a
+     comment, not as a conjunct in the inference chain.
+   - Linked vs convergent: `AND` only where the step genuinely needs all
+     conjuncts (test: does the inference fail if this conjunct alone is
+     false?). Independent routes are separate evidence lines. If a
+     comment says "independent paths" and the factor says `AND`, one of
+     them is wrong.
+   - What each objection targets. For every objection ask: **which
+     inference does this grant, and which does it deny?** An objection
+     to an inference is an undercut conditioning on that `$id`; an
+     objection to a claim is a rebuttal concluding `~@id`. Mis-typing
+     this is the most common structural error in first passes.
+   - Nest each cluster's internal traffic (grounds, caveats, objection
+     pairs) under its target.
+3. **Reconcile: where the real work is.** Shared grounds are
+   *discovered* in sub-pass 2, not planned in 1; promote each to the
+   home the burial test picks, which is the nearest container covering
+   every consumer, not blindly the document top (a ground consumed only
+   inside one case block homes at that block's top rank). Merge or
+   partition lines that turn out to share grounds (chapter 7's overlap
+   repairs). Set the tier per chapter 8's spine test: the source's
+   disclosure order is the guide (the He map's depth 0 is its abstract,
+   depth 1 its section-2 overview, depth 2+ its detail sections), with
+   cross-tier edges kept visible as top-level evidences or coarse
+   hulls. Then run the lint, and the nest-audit readout for fold
+   candidates you missed.
 
 ### 5.2 Pass 2: numbers, blind, by rubric
 
@@ -1015,6 +1048,12 @@ against what the refinement delivers. Recommended practice: author the
 coarse strength as your holistic judgment of the whole implication
 before trusting the steps; the comparison is a free audit.
 
+A layout-driven special case is the **coarse hull** (see the spine test,
+8): when the fine conjunction mixes one cross-region premise with hubs
+that belong inside the region's fold, condition the coarse line on just
+the cross-region premise. The refinement holds the fine line and the
+local clusters; the collapsed view keeps the cross-region edge.
+
 ### 7.6 The complementary partition ("even if")
 
 Two routes that would overlap are made disjoint by conjoining the
@@ -1201,9 +1240,51 @@ Three tests turn the debt into structure:
    but it renders as a cross-reference burial and, in the worst case, a
    stranded node (W6). Home shared nodes above every cluster that uses
    them.
-3. **Spine test.** The headline claims and their direct evidences stay
-   top-level, always: a folded evidence contributes no edges, so a
-   buried spine disappears from the collapsed view.
+3. **Spine test.** The collapsed view must already show the argument's
+   shape: a folded evidence contributes no edges, so a buried spine
+   disappears from it, and the validator says so (W21, with the linking
+   evidences to lift named in the message). But do not over-correct
+   into lifting every sub-conclusion to top level: that trades a wall
+   of disconnected cards for a crowded one (the He extraction did both
+   in one day: first zero top-level evidences, then fifty top-level
+   cards). Author the top *tier* deliberately, and keep it coarse: the
+   headline, the sinks, the major route hubs, and the shared grounds
+   the burial test already forces up, roughly 15-30 cards on a large
+   map; every statement hub consumed only within its own region lives
+   one fold down, inside that region. If the source draws its own
+   overview map (a section-2 diagram, an abstract's roadmap), the flat
+   view should *be* that overview.
+
+   The mechanics rest on a folding asymmetry: a *statement* block folds
+   to nothing, an *evidence* refinement folds to a visible coarse line
+   with its edges intact (7.5). So an edge between two top-level
+   statements must never sink into a statement block. When all its
+   premises are top-level, the evidence simply stays top-level. When it
+   mixes one cross-region premise with region-local hubs (the shape
+   that otherwise forces those hubs to stay top-level and crowds the
+   tier), write it as a **coarse hull**: a coarse line conditioning on
+   just the cross-region premise, with the fine conjunction and the
+   local clusters in its refinement (`$takeover-ev @takeover-doom |
+   @unaligned-asi` in the He map, fine five-way conjunction one level
+   down). The spine edge stays visible collapsed, the detail unfolds
+   in place, and the solve runs on the fine line while the hull becomes
+   a spectator readout (D38), whose coarse-vs-delivered gap is then an
+   audit of the summary, not an error to tune away.
+
+   Quick checks: `grep -c '^\$'` returning zero on a multi-statement
+   map means no spine at all (W21 fires); a top rank past ~40 cards
+   means the tier is set too fine (nothing fires; this one is on you).
+   One or two free-standing exhibit nodes beside a visible spine are
+   fine (W21 stays silent then); fifteen are not a view, they are a
+   deck of unshuffled cards.
+
+   Run `argmap-query nest-audit` once the skeleton stands, and again
+   after any restructuring pass: it counts the top tier for you, names
+   the boxes whose opened view is a wide and deep wall, and lists the
+   statements whose support cone is ready to fold, each with the edges
+   that block the fold (reference in `mvp/README.md`). It is advice, not
+   a check: nothing it prints is a diagnostic, and declining a fold it
+   proposes is a normal outcome.
 
 Sometimes all three tests fail and the heading is still real. That
 happens when the section is a **topic**, not a fold unit: two arguments
