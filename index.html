@@ -27,8 +27,54 @@
          spec revision, build date) is VERSION_LINE in the ⋯ menu, which is
          maintained; a name that encodes a version only rots. -->
     <title>ArgMap: explorable argument maps</title>
-    <script type="module" crossorigin src="/app/index-o-lgSurL.js"></script>
-    <link rel="stylesheet" crossorigin href="/app/index-dTVBciUV.css">
+    <!-- Link previews (messengers, Slack, LessWrong). Scrapers do not run JS and
+         the host is static, so ONE set of tags serves every share of the origin:
+         `?doc=iabied-comprehensive-de` unfurls in English too. Per-language
+         previews would need real per-language PATHS, each with its own tags,
+         which also means widening the service worker's navigateFallbackAllowlist
+         (see vite.config.ts, D62) - deliberately not done.
+         Absolute URLs are required: no scraper resolves a relative og:image.
+         The card is generated, not hand-captured: `npm run og-image` (its
+         staleness is checked by refresh-pins.sh and by the deploy pre-flight). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.p1graph.org/" />
+    <!-- The card is CONTENT-forward: the bold line is the book, and the
+         description carries the product name, because between them they get
+         about two lines and repeating one idea in both wastes it. This does
+         mean the browser tab (ArgMap) and the shared card (the book) say
+         different things, which is the deliberate trade. It also means this
+         title is tied to the flagship map: if the flagship ever stops being
+         IABIED, THIS LINE ROTS and nothing in the repo can see that.
+         The description spends its second sentence on the SOLVER rather than
+         on more nouns, because that is the part no other argument-mapping tool
+         has: it is the onboarding card's line ("the most coherent picture is
+         calculated, it updates live when you change probabilities") cut down.
+         Kept at 119 characters on purpose. Clients truncate the END, and the
+         end here is the payoff, so the budget is not a style preference: every
+         word added pushes "watch conclusions move" closer to being the part
+         nobody reads. If it ever needs to grow, INVERT it (payoff first)
+         rather than trimming the front. -->
+    <meta property="og:title" content="If Anyone Builds It, Everyone Dies, mapped" />
+    <meta
+      property="og:description"
+      content="ArgMap makes arguments explorable: every claim &amp; objection mapped. Disagree with a number and see the conclusions move."
+    />
+    <meta property="og:image" content="https://www.p1graph.org/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="An argument map: three claims combine into an evidence node that concludes everyone dies, with a second branch concluding that frontier AI development should be globally shut down."
+    />
+    <!-- X falls back to the og: tags for content, but without this it renders the
+         small square card instead of the wide one. -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="description"
+      content="ArgMap makes arguments explorable: every claim &amp; objection mapped. Disagree with a number and see the conclusions move."
+    />
+    <script type="module" crossorigin src="/app/index-DZhuNxyu.js"></script>
+    <link rel="stylesheet" crossorigin href="/app/index-DlKskP1k.css">
   <link rel="manifest" href="/manifest.webmanifest"></head>
   <body>
     <div id="root"></div>
