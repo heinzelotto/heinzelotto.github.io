@@ -1,4 +1,4 @@
-import{w as l,j as d,Q as u}from"./index-Dd-kWj0v.js";import{m as c}from"./micro-pair-DOjW3m8r.js";const h={authored:"authored",solved:"solved"};function v({id:n,vocab:r}){var o;const e=l(a=>a.index.get(n));if(!e||e.solved===null)return null;const t=e.spectator===!0,i=t?"delivered conditional (refinement)":e.kind==="statement"?"marginal":"in-force rate",s=`${c(r??h,e.authored!==null?e.authored.toFixed(2):null,e.solved.toFixed(2),t)}
+import{w as l,j as d,R as u}from"./index-iTFcD6fy.js";import{m as c}from"./micro-pair-DOjW3m8r.js";const h={authored:"authored",solved:"solved"};function v({id:n,vocab:r}){var o;const e=l(a=>a.index.get(n));if(!e||e.solved===null)return null;const t=e.spectator===!0,i=t?"delivered conditional (refinement)":e.kind==="statement"?"marginal":"in-force rate",s=`${c(r??h,e.authored!==null?e.authored.toFixed(2):null,e.solved.toFixed(2),t)}
 solved ${i} ${e.solved.toFixed(3)}`+(e.authored!==null?`
 authored ${e.authored.toFixed(3)}, ${t?"gap":"tension"} ${((o=e.delta)==null?void 0:o.toFixed(3))??"—"}`:`
 this line authors no number`)+(t?`
