@@ -1,10 +1,5 @@
-<!-- P1 project mark (IDEAS: name will be P1, icon \mathbb{P}_1). Drawn as paths,
-     not <text>, so the favicon doesn't depend on the viewer having a font with
-     U+2119. Inverted 2026-08-03 (was a white P on a bench-navy ground): light
-     bench ground (--surface-2), bench-navy double-struck P (--headline), and the
-     subscript 1 in the given-bar's evidence teal — darkened from #67c3d4 to the
-     light-scheme --evidence so it holds contrast on a light ground. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>P1</title>
   <rect width="64" height="64" rx="13" fill="#eaeef4"/>
   <g fill="none" stroke="#1b2a52" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M18 13 V51"/>
