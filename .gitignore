@@ -1,2 +1,6 @@
 _site
 .sass-cache
+
+# local-only, deliberately untracked
+CLAUDE.md
+_drafts/
