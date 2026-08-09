@@ -28,8 +28,8 @@ hands over the exact bytes as a download instead).
 ## Reading only
 
 Maps render at p1graph.org (text / outline / graph panes; solved
-values behind the Controls toggle, `authored -> solved` with the gap
-tinted). Headless query, from `experiments/solver-prototypes/` (needs
+values, "implied" in the UI, behind the "Show what the map implies"
+Controls toggle, `authored -> implied` with the gap tinted). Headless query, from `experiments/solver-prototypes/` (needs
 python3 + numpy + scipy + node):
 `python3 solve_map.py FILE @node '$edge' --band` or `--top 10`.
 
@@ -222,7 +222,8 @@ junctions.
    get `# check: p` trailing comments, never pins, because authoring
    both the support and the conclusion double-counts. Never both on one
    line: a pin + check pair on a concluded-into statement fights your
-   own counter-evidence and contradicts itself. This holds inside
+   own counter-evidence and contradicts itself, and the lint flags any
+   head line carrying both as **W23**. This holds inside
    refinements too: a hinge with internal incoming lines takes a check;
    if the source also asserts it directly, add a premise-less attributed
    evidence at that register (the direct-assertion pattern), not a pin.
@@ -498,9 +499,11 @@ meets a wall of top-level nodes and the fold control does nothing.
    shared ground, not the downstream conclusion). After the skeleton and
    after any restructuring pass, run `argmap-query nest-audit` (add
    `--rank` for the fold-as-detail vs coarse-hull call): it sizes the top
-   tier, names the boxes whose opened view is a wide and deep wall, and
-   lists cones ready to fold with the edges that block them. Advice, not
-   a check; declining a proposed fold is a normal outcome.
+   tier against its genre (the ~40 bound is per group on an atlas map, per
+   tier on a spine map), names the boxes whose opened view is a wide and
+   deep wall, and lists cones ready to fold with the edges that block them,
+   counting each cone by what still stands at the statement's own tier.
+   Advice, not a check; declining a proposed fold is a normal outcome.
 4. Mechanical smoke: lint, parse (editor), solve (below).
 
 Quoting discipline: verbatim spans of at most one sentence (~25 words),

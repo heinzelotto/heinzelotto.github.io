@@ -117,18 +117,20 @@ Conventions worth knowing when reading:
    disagreements the display surfaces are audits of the source's
    coherence, not the map maker's opinions.
 
-### 2.2 Solved values and tension
+### 2.2 Implied values and tension
 
 The viewer can compute what all the authored numbers jointly imply. Under
-"Show solved values" (in the Controls popover; **on by default** since
-D40, though an explicitly persisted opt-out still wins), an
+"Show what the map implies" (in the Controls popover; **on by default**
+since D40, though an explicitly persisted opt-out still wins), an
 in-browser solver treats every authored number as a constraint and finds
 the maximum-entropy distribution that honors them. Each node then shows an
-`authored -> solved` readout. The gap between the two is called tension,
+`authored -> implied` readout; the editor calls the computed number the
+implied value, and the technical documents call the same number the
+solved value. The gap between the two is called tension,
 and the display tints it: a large gap on a node means the map's stated
 argument does not deliver the stated belief at that node. Some statements
 carry a check credence (a displayed comparison value that does not
-constrain the solve); the badge comparing it to the solved value has the
+constrain the solve); the badge comparing it to the implied value has the
 same meaning.
 
 ### 2.3 The headless readout
@@ -651,7 +653,11 @@ double-counts the mapped support and, worse, fights the very evidence
 you authored against it (the pin holds the solved value where the
 counter-evidence should have moved it), while the check silently
 disagrees with the pin. Concluded-into statements take a check or
-nothing; only frontier roots take pins.
+nothing; only frontier roots take pins. The lint and the editor both
+flag the pair as **W23** since 2026-08-08, on any statement line,
+because it is wrong wherever it appears: one extraction wrote both on
+28 nodes, and the only visible symptom was that the gaps looked
+suspiciously small.
 
 The rule is topological and does not change inside refinement boxes. A
 hinge statement that sibling lines inside a refinement conclude into is
@@ -1274,6 +1280,10 @@ Three tests turn the debt into structure:
    Quick checks: `grep -c '^\$'` returning zero on a multi-statement
    map means no spine at all (W21 fires); a top rank past ~40 cards
    means the tier is set too fine (nothing fires; this one is on you).
+   The ~40 bound assumes one argument. If the map is an atlas, several
+   blocks with `::` groups organizing them, read the bound per group:
+   a table of contents is wide on purpose, and `nest-audit` says so
+   rather than calling it a crowd.
    One or two free-standing exhibit nodes beside a visible spine are
    fine (W21 stays silent then); fifteen are not a view, they are a
    deck of unshuffled cards.
@@ -1282,7 +1292,10 @@ Three tests turn the debt into structure:
    after any restructuring pass: it counts the top tier for you, names
    the boxes whose opened view is a wide and deep wall, and lists the
    statements whose support cone is ready to fold, each with the edges
-   that block the fold (reference in `mvp/README.md`). It is advice, not
+   that block the fold (reference in `mvp/README.md`). It counts a cone
+   by what still stands at the statement's own tier, so once you fold
+   part of a cone under one of its own members the suggestion goes
+   quiet instead of repeating itself. It is advice, not
    a check: nothing it prints is a diagnostic, and declining a fold it
    proposes is a normal outcome.
 
