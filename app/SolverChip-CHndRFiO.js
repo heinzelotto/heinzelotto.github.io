@@ -1,4 +1,4 @@
-import{A as l,aM as d,j as u,aI as c,aN as p}from"./index-BIJH5za_.js";import{m as h}from"./micro-pair-Dbqf27rG.js";const m=p.en;function f({id:n,vocab:i}){var o;const e=l(a=>a.index.get(n));if(!e||e.solved===null)return null;const t=e.spectator===!0,s=t?"delivered conditional (refinement)":e.kind==="statement"?"marginal":"in-force rate",r=`${h(i??m,e.authored!==null?e.authored.toFixed(2):null,e.solved.toFixed(2),t)}
+import{A as l,aN as d,j as u,aJ as c,aO as p}from"./index-BUErK_Yb.js";import{m as h}from"./micro-pair-Dbqf27rG.js";const m=p.en;function f({id:n,vocab:i}){var o;const e=l(a=>a.index.get(n));if(!e||e.solved===null)return null;const t=e.spectator===!0,s=t?"delivered conditional (refinement)":e.kind==="statement"?"marginal":"in-force rate",r=`${h(i??m,e.authored!==null?e.authored.toFixed(2):null,e.solved.toFixed(2),t)}
 implied ${s} ${e.solved.toFixed(3)}`+(e.authored!==null?`
 authored ${e.authored.toFixed(3)}, ${t?"gap":"tension"} ${((o=e.delta)==null?void 0:o.toFixed(3))??"—"}`:`
 this line authors no number`)+(t?`
