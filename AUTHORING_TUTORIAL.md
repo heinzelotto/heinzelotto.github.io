@@ -813,6 +813,22 @@ both in one day.
      to an inference is an undercut conditioning on that `$id`; an
      objection to a claim is a rebuttal concluding `~@id`. Mis-typing
      this is the most common structural error in first passes.
+   - **Objections travel with their answers.** A response cites its
+     objection, never the reverse, so a map loses rebuttals more easily
+     than it loses attacks: skim extraction, later trimming, and source
+     prose itself (objections are stated loudly, answers quietly) all
+     bias toward attacks left standing unanswered, and the solve then
+     prices an unanswered attack at its full authored strength. Measured
+     on the settled-question benchmark (the H. pylori map,
+     `experiments/solver-prototypes/GROUND_TRUTH_PROBE-2026-08-13.md`):
+     deleting map lines at random flipped the known-true conclusion in a
+     majority of orders, and the flips were driven by responses dying
+     before their objections. So when you record an objection, hunt for
+     the source's answer with the same diligence you gave the objection,
+     and when you must cut for scope, cut the objection and response as
+     a pair rather than the response alone. The answered-attack audit
+     (`argmap-query`, reference in `mvp/README.md`) lists every attack
+     and who answers it.
    - Nest each cluster's internal traffic (grounds, caveats, objection
      pairs) under its target.
 3. **Reconcile: where the real work is.** Shared grounds are

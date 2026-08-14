@@ -28,8 +28,9 @@ hands over the exact bytes as a download instead).
 ## Reading only
 
 Maps render at p1graph.org (text / outline / graph panes; solved
-values, "implied" in the UI, behind the "Show what the map implies"
-Controls toggle, `authored -> implied` with the gap tinted). Headless query, from `experiments/solver-prototypes/` (needs
+values, "implied" in the UI, are on by default and the "Show what the
+map implies" Controls toggle turns them off, `authored -> implied` with
+the gap tinted). Headless query, from `experiments/solver-prototypes/` (needs
 python3 + numpy + scipy + node):
 `python3 solve_map.py FILE @node '$edge' --band` or `--top 10`.
 
