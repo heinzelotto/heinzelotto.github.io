@@ -432,7 +432,8 @@ heading"), is silent. Two shapes warn, because your claim and the graph
 disagree:
 
 - a group covering only **part** of a connected block (W12): edges cross
-  its boundary, so the layout distorts and the box cannot fold;
+  its boundary, so the open box distorts the layout and a fold can only
+  summarize the crossings;
 - one block **split across** two groups (W13): usually an accidental
   cross-topic premise silently merged two topics while your headings still
   assert they are separate. This is the mistake worth catching.
@@ -441,12 +442,32 @@ Only *document-level* groups are checked. A group nested inside another
 group, or inside a refinement, is subdividing its parent, not claiming a
 block.
 
-**Folding.** A **closed** group, one where no edge crosses its boundary,
-folds to a card showing its label and member counts. A non-closed group does not
-fold; the control stays visible but disabled, with the reason. (Folding it
-would mean redrawing the crossing edges as summary edges, at which point
-the box starts standing in for its members, which is what refinement
-does, with none of the authored meaning that makes refinement safe.)
+**Folding.** Every group folds to a card. A **closed** group (no edge
+crosses its boundary) folds with nothing to redraw; a non-closed group
+folds too, and its boundary edges become dashed **summary edges** bundled
+by direction and kind, so a battery of twelve objections folds to one
+card with one bundled attack edge. The card shows the label, a tally of
+what its hidden edges do to the surrounding claim, and never a credence:
+the summary vocabulary is the guard here, since the card only reports
+where hidden traffic goes and takes no part in the argument itself. A
+group nested inside a refinement starts folded, so opening a box shows
+its groups as cards first; a document-level group starts open.
+
+**When to group.** The workhorse case, measured on the flagship map, is
+the **objection battery inside a box**: several answered attacks on the
+box's claim, each objection paired with its response. Grouping them
+turns a wall of interleaved nodes into one labeled card next to the
+claim, and the claim's supports become findable again. Guidance from
+that campaign: keep a family's lines contiguous so the group is a pure
+wrapper; put a ground inside the group only if nothing outside the
+family consumes it, and leave shared grounds outside as boundary
+premises; give the group one dominant story toward its claim (a box
+that both attacks and supports its claim in equal measure makes an
+illegible card); label it as a short reader question ("Is the worry
+real and near?") rather than a category noun. Leave a box flat when its
+objections interleave with shared-ground supports, and treat a group
+created purely to fix layout as provisional: re-judge it in the
+reader's default view whenever the viewer changes.
 
 Groups are allowed anywhere: any depth, inside each other, inside
 refinements. Membership does **not** suppress the isolated-statement note: a context

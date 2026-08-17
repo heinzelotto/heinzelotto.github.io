@@ -107,11 +107,19 @@ the graph, the roles and the solve identical.
 Use it for a *topic*, where a wrapper evidence would be a lie: two
 arguments sharing a file but no premise, or a shelf of background facts.
 Before `::`, that could only be a `# ====` comment no tool could see.
+The workhorse case in practice is the **objection battery inside a
+box**: several answered attacks on the box's claim, grouped so they
+read (and fold) as one unit. Keep the family's lines contiguous; put a
+ground inside only if nothing outside the family consumes it; label
+with a short reader question. Every group folds to a summarizing card
+(non-closed ones bundle their boundary edges into dashed summaries,
+D124), and a group nested in a refinement starts folded.
 
 Lint checks the authored box against the derived block (connected
 component). Silent: a group equal to one block, or spanning several
 *whole* blocks. Warns: **W12** a group covering only PART of a connected
-block (edges cross the boundary, and the box also cannot fold), **W13**
+block (edges cross the boundary; its fold bundles them into summary
+edges), **W13**
 one block split across two groups (usually an accidental shared premise
 merged two topics while your headings still claim they are separate,
 which is the mistake worth catching), **W14** an empty group. Only
