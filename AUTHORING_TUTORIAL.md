@@ -1335,6 +1335,15 @@ Three tests turn the debt into structure:
    quiet instead of repeating itself. It is advice, not
    a check: nothing it prints is a diagnostic, and declining a fold it
    proposes is a normal outcome.
+   Two siblings run the same way. `argmap-query group-audit` names
+   boxes where three or more objection families stand without a
+   `::group` around them and prints the group header to paste, and it
+   flags a declared group whose lines tell no one story (a possible
+   catch-all). `argmap-query cook-audit` names structure that would
+   steer the solve rather than report it: objections buried two
+   refinement levels below the claim's supports, and near-duplicate
+   supports stacked on one claim. Both are advice in the same sense,
+   and the call stays yours.
 
 Sometimes all three tests fail and the heading is still real. That
 happens when the section is a **topic**, not a fold unit: two arguments
