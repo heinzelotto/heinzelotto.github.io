@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="preload" as="font" type="font/woff2" href="/app/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2" crossorigin="">
+    <link rel="preload" as="font" type="font/woff2" href="/app/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2" crossorigin="">
+    <link rel="preload" as="font" type="font/woff2" href="/app/ibm-plex-sans-latin-700-normal-Bxkt5Cjx.woff2" crossorigin="">
+
+    <meta charset="UTF-8" />
+    <!-- Page pinch-zoom off for the same reason index.html turns it off: the
+         graph canvas owns pinch (d3-zoom), and the native page zoom fights it
+         frame by frame on Firefox Android. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <!-- No favicon, no manifest, no link-preview tags: this document is only
+         ever seen inside someone else's iframe, so an unfurler never reads it
+         and a tab never shows it. -->
+    <title>ArgMap embed</title>
+    <!-- Nothing here should be indexed as a page in its own right. -->
+    <meta name="robots" content="noindex" />
+    <script type="module" crossorigin src="/app/embed-BP1WWTAC.js"></script>
+    <link rel="modulepreload" crossorigin href="/app/styles-DeznJQQk.js">
+    <link rel="modulepreload" crossorigin href="/app/engine-seat-Cscr9XPC.js">
+    <link rel="stylesheet" crossorigin href="/app/styles-Djf13Xl6.css">
+    <link rel="stylesheet" crossorigin href="/app/embed-Bz3FAgs-.css">
+  <link rel="manifest" href="/manifest.webmanifest"></head>
+  <body>
+    <div id="root"></div>
+    <!--
+      THE MAP.
+
+      `type="text/plain"` so the browser does not execute it and does not parse
+      its contents as HTML, which is what makes a raw `.argmap` block safe to
+      paste in. The LessWrong shim hands its micro-map over exactly this way.
+
+      Left EMPTY on purpose: with no source the viewer shows its built-in
+      fallback map (src/embed/source.ts), so this page is directly openable
+      during development and an author who forgets the block still sees
+      something honest rather than a blank canvas.
+    -->
+    <script type="text/plain" id="argmap-embed-source"></script>
+  </body>
+</html>

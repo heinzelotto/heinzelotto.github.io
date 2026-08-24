@@ -1,0 +1,101 @@
+<!doctype html>
+<meta charset="utf-8" />
+<!--
+  THE SHIM. Paste this whole file into a LessWrong custom-widget code block.
+
+  It is deliberately small and deliberately dumb. It holds the map text, shows a
+  poster until someone clicks, and only then creates the iframe that loads the
+  viewer. Nothing heavy is fetched by an embed nobody has touched, which is what
+  makes several embeds in one article affordable.
+
+  Edit TWO things:
+    1. the map, in the <script type="text/plain"> block near the bottom;
+    2. POSTER, if you have generated one; otherwise the placeholder is drawn.
+
+  Why a nested iframe rather than loading the viewer's script straight in here:
+  this document is `about:srcdoc`, which INHERITS THE PARENT'S CSP. A nested
+  frame at a real https URL does not. Measured on a LessWrong draft 2026-08-24:
+  LessWrong does serve a strict script-src, and this arrangement is unaffected
+  by it in both Chrome and Firefox.
+-->
+<style>
+  html, body { margin: 0; height: 560px; background: #fbfbfd; }
+  @media (max-width: 500px) { html, body { height: 420px; } }
+  @media (prefers-color-scheme: dark) { html, body { background: #16181d; } }
+  #stage { position: relative; width: 100%; height: 100%; }
+  iframe { display: block; width: 100%; height: 100%; border: 0; }
+  #poster {
+    position: absolute; inset: 0; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    border: 1px solid rgba(128,128,128,.35); border-radius: 4px;
+    font: 13px/1.4 ui-sans-serif, system-ui, sans-serif; color: #444;
+    background: #fbfbfd repeating-linear-gradient(135deg, rgba(90,120,220,.07) 0 12px, transparent 12px 24px);
+    background-size: cover; background-position: center;
+  }
+  @media (prefers-color-scheme: dark) { #poster { color: #cfd3dc; background-color: #16181d; } }
+  #poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .pill {
+    position: relative;
+    border: 1px solid rgba(128,128,128,.5); border-radius: 99px;
+    padding: 5px 14px; background: rgba(255,255,255,.85); color: #222;
+  }
+  @media (prefers-color-scheme: dark) { .pill { background: rgba(24,26,32,.85); color: #e6e8ee; } }
+</style>
+
+<div id="stage">
+  <div id="poster"><span class="pill">Click to explore this map</span></div>
+</div>
+
+<script type="text/plain" id="argmap-src">
+@rushed [Testing was rushed] 0.7: the schedule left less checking than usual.
+@bugs [Serious bugs reach users]: something bad gets through.
+@ship [The system ships on schedule]: the release goes out as planned.
+
+$hurry [rushed testing lets bugs through] 0.6 @bugs | @rushed: less checking, more escapes.
+$slip [bugs delay the release] 0.5 ~@ship | @bugs: bugs bad enough to notice push the date.
+</script>
+
+<script>
+  var VIEWER = 'https://www.p1graph.org/embed.html';
+  // Drawn by `npm run embed-poster`, and kept fresh by refresh-pins.sh's
+  // family 8. Replace it when you replace the map below.
+  var POSTER = 'https://www.p1graph.org/embed/default.png';
+
+  (function () {
+    var stage = document.getElementById('stage');
+    var poster = document.getElementById('poster');
+    var srcEl = document.getElementById('argmap-src');
+    if (!stage || !poster || !srcEl) throw new Error('shim: its own markup is missing');
+    var source = srcEl.textContent.trim();
+    var frame = null;
+
+    if (POSTER) {
+      var img = document.createElement('img');
+      img.src = POSTER;
+      img.alt = 'Argument map preview';
+      poster.insertBefore(img, poster.firstChild);
+    }
+
+    // The handshake. Both documents are opaque origins, so targetOrigin must be
+    // '*' and the nonce is what pairs a reply with its request when an article
+    // holds several embeds.
+    window.addEventListener('message', function (ev) {
+      var d = ev.data;
+      if (!d || d.type !== 'argmap-embed-ready') return;
+      if (!frame || ev.source !== frame.contentWindow) return;
+      frame.contentWindow.postMessage(
+        { type: 'argmap-embed-source', source: source, nonce: d.nonce },
+        '*'
+      );
+    });
+
+    poster.addEventListener('click', function () {
+      if (frame) return;
+      frame = document.createElement('iframe');
+      frame.setAttribute('title', 'ArgMap: an explorable argument map');
+      frame.src = VIEWER;
+      stage.appendChild(frame);
+      poster.remove();
+    });
+  })();
+</script>
