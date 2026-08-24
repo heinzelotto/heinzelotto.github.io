@@ -73,6 +73,44 @@
   .table-scroll { margin: 1em 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .table-scroll > table { margin: 0; }
   blockquote { margin: 1em 0; padding-left: 1em; border-left: 3px solid var(--border); color: var(--dim); }
+
+  :root {
+    --am-atom: #2f5fd0;
+    --am-evidence: #8a5a12;
+    --am-group: #6b4bb8;
+    --am-label: #1f6b52;
+    --am-number: #8f3a6b;
+    --am-keyword: #b4441f;
+    --am-operator: #6b7280;
+    --am-comment: #6b7280;
+    --am-meta: #6b7280;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --am-atom: #8fb0f5;
+      --am-evidence: #e0b476;
+      --am-group: #c0a8f2;
+      --am-label: #78d3ae;
+      --am-number: #f0a0c8;
+      --am-keyword: #ffa780;
+      --am-operator: #9aa3b2;
+      --am-comment: #98a1af;
+      --am-meta: #98a1af;
+    }
+  }
+  pre.argmap { tab-size: 2; }
+  pre.argmap .am-atom { color: var(--am-atom); }
+  pre.argmap .am-variableName { color: var(--am-evidence); }
+  pre.argmap .am-labelName { color: var(--am-group); font-weight: 600; }
+  pre.argmap .am-string { color: var(--am-label); }
+  pre.argmap .am-number { color: var(--am-number); }
+  pre.argmap .am-keyword { color: var(--am-keyword); font-weight: 600; }
+  pre.argmap .am-operator { color: var(--am-operator); }
+  pre.argmap .am-link { color: var(--am-atom); text-decoration: underline; text-underline-offset: 2px; }
+  pre.argmap .am-comment { color: var(--am-comment); font-style: italic; }
+  pre.argmap .am-annotation { color: var(--am-comment); font-style: italic; opacity: 0.75; }
+  pre.argmap .am-quote { color: var(--am-operator); }
+  pre.argmap .am-meta { color: var(--am-meta); }
 </style>
 </head>
 <body>
@@ -222,7 +260,7 @@ them. The solver needs python3 with numpy and scipy, and node on the PATH.</p>
 comment lines, node lines, and footnote definitions. Indentation is
 spaces only; a tab is a parse error.</p>
 <h3>3.1 Statement lines</h3>
-<pre><code>@id [short label] p: gloss
+<pre class="argmap"><code><span class="am-atom">@id</span> <span class="am-string">[short label]</span> p<span class="am-operator">:</span> gloss
 </code></pre>
 <ol>
 <li><code>@id</code> declares a statement. IDs use <code>[A-Za-z0-9_-]</code>, are case
@@ -292,11 +330,11 @@ subgraph that models the same reasoning step at higher resolution. When a
 reader unfolds the evidence, the block replaces it; folded, the outer line
 serves as the coarse summary. One consistent indentation increase per
 level (two spaces recommended).</p>
-<pre><code># fragment - not standalone
-$syllogism @socrates-mortal | @socrates-human AND @humans-mortal: surface form
-  @intermediate [Socrates inherits mortality property] 0.99:
-  $inherit-1 @intermediate | @socrates-human AND @humans-mortal-property:
-  $inherit-2 @socrates-mortal | @intermediate:
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$syllogism</span> <span class="am-atom">@socrates-mortal</span> <span class="am-operator">|</span> <span class="am-atom">@socrates-human</span> <span class="am-keyword">AND</span> <span class="am-atom">@humans-mortal</span><span class="am-operator">:</span> surface form
+  <span class="am-atom">@intermediate</span> <span class="am-string">[Socrates inherits mortality property]</span> <span class="am-number">0.99</span><span class="am-operator">:</span>
+  <span class="am-variableName">$inherit-1</span> <span class="am-atom">@intermediate</span> <span class="am-operator">|</span> <span class="am-atom">@socrates-human</span> <span class="am-keyword">AND</span> <span class="am-atom">@humans-mortal-property</span><span class="am-operator">:</span>
+  <span class="am-variableName">$inherit-2</span> <span class="am-atom">@socrates-mortal</span> <span class="am-operator">|</span> <span class="am-atom">@intermediate</span><span class="am-operator">:</span>
 </code></pre>
 <p>A statement may also carry an indented block; that refines the implicit
 factor asserting the statement&#39;s own marginal, and the statement itself
@@ -312,9 +350,9 @@ deeper-indented line that does not begin with <code>@</code>, <code>$</code>, or
 the gloss of the nearest preceding node line, joined with a space. This
 is also how longer narrative passages attach to a node without costing
 graph structure:</p>
-<pre><code># fragment - not standalone
-@human-precedent [Human intelligence transformed the planet] 0.9?: Nobels to humans, none to chimps
-  a parable: a council of beast-&quot;gods&quot; laugh at the Ape-god&#39;s newest
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-atom">@human-precedent</span> <span class="am-string">[Human intelligence transformed the planet]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span> Nobels to humans, none to chimps
+  a parable<span class="am-operator">:</span> a council of beast-&quot;gods&quot; laugh at the Ape-god's newest
   creature, frail and clawless. The Ape-god says only, quietly, &quot;and yet.&quot;
 </code></pre>
 <p>The hazard: if you forget a sigil on a node line, the line silently
@@ -369,7 +407,11 @@ instead of an authored marginal. A check value may carry the <code>?</code>
 marker like any other value (<code># check: 0.9?</code>), and in a
 source-faithful map it should: there the check is the source&#39;s own
 stated register for that conclusion (the D39 practice), not the
-extractor&#39;s belief.</li>
+extractor&#39;s belief. A check may also be an interval, <code># check: 0.85..0.95</code>: the range the register licenses, at the same widths the
+residual pairs use. The badge a reader sees is then the distance from
+the computed value to that range, zero inside it; a bare point is the
+zero-width interval. A token that is neither (reversed bounds, a bound
+past 1, a single dot) is the lint&#39;s W26.</li>
 <li><code># gate: q($id) &gt;= 0.10 =&gt; @conclusion</code> records a threshold audit:
 after a solve, if the left side clears, the named conclusion is
 expected to hold, and the display reports agreement or disagreement.</li>
@@ -379,9 +421,9 @@ will treat them as ordinary comments.</p>
 <h3>3.8 Citations</h3>
 <p>Attach citations as Markdown-style footnotes: <code>[^ref]</code> in a gloss, and a
 definition line anywhere at top level:</p>
-<pre><code># fragment - not standalone
-@p1 [Capabilities advance rapidly] 0.9: doubling times keep shrinking [^epoch2025]
-[^epoch2025]: Epoch AI, &quot;Trends in Machine Learning,&quot; 2025.
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-atom">@p1</span> <span class="am-string">[Capabilities advance rapidly]</span> <span class="am-number">0.9</span><span class="am-operator">:</span> doubling times keep shrinking <span class="am-link">[^epoch2025]</span>
+<span class="am-link">[^epoch2025]</span><span class="am-operator">:</span> Epoch AI, &quot;Trends in Machine Learning,&quot; <span class="am-number">2025</span>.
 </code></pre>
 <p>Footnote text is free text: author, title, venue, year, plain URL.
 Viewers autolink URLs; there is no inline link syntax. The lint checks
@@ -415,10 +457,10 @@ to express &quot;this consideration cuts both ways&quot; or an interval-shaped
 residual; details in FORMAT_DESIGN §3.1/§3.2 and SOLVER_SEMANTICS §1.9.</p>
 <h3>3.11 v0.3: declared groups (<code>::</code>)</h3>
 <p>A third sigil declares a <strong>group</strong>: a named box drawn around nodes.</p>
-<pre><code>::timelines [Capability timelines]: when transformative AI arrives
-  @agi-soon [Transformative AI within a decade] 0.4:
-  @compute-grows 0.9: frontier training compute keeps growing
-  $scaling 0.7 @agi-soon | @compute-grows: the trend argument
+<pre class="argmap"><code><span class="am-labelName">::timelines</span> <span class="am-string">[Capability timelines]</span><span class="am-operator">:</span> when transformative AI arrives
+  <span class="am-atom">@agi-soon</span> <span class="am-string">[Transformative AI within a decade]</span> <span class="am-number">0.4</span><span class="am-operator">:</span>
+  <span class="am-atom">@compute-grows</span> <span class="am-number">0.9</span><span class="am-operator">:</span> frontier training compute keeps growing
+  <span class="am-variableName">$scaling</span> <span class="am-number">0.7</span> <span class="am-atom">@agi-soon</span> <span class="am-operator">|</span> <span class="am-atom">@compute-grows</span><span class="am-operator">:</span> the trend argument
 </code></pre>
 <p>Its indented block is <strong>membership</strong>, not refinement (the one place the
 indentation rule is keyed on the parent&#39;s sigil, 3.4). Otherwise the head
@@ -485,11 +527,11 @@ shelf of standalone facts still reports each one as isolated.</p>
 <h3>3.12 v0.3: source quote lines (<code>&gt;</code>)</h3>
 <p>A line beginning <code>&gt;</code> under a node carries a <strong>verbatim</strong> span from your
 source, plus the footnote locator it came from:</p>
-<pre><code># fragment - not standalone
-@no-honor [Honor is a contingent evolved hack an AI won&#39;t carry] 0.9?: honor is
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-atom">@no-honor</span> <span class="am-string">[Honor is a contingent evolved hack an AI won't carry]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span> honor is
   an evolutionarily contingent shortcut, not a convergent feature of minds
-  &gt; a specific weird hack that humanity stumbled into [^supp-ch5]
-  &gt; quite skeptical that gradient descent will happen to stumble across the
+  <span class="am-quote">&gt;</span> a specific weird hack that humanity stumbled into <span class="am-link">[^supp-ch5]</span>
+  <span class="am-quote">&gt;</span> quite skeptical that gradient descent will happen to stumble across the
 </code></pre>
 <p>(the last line is shown truncated only for the page width, see &quot;no
 wrapping&quot; below.)</p>
@@ -553,9 +595,9 @@ back to the source.</p>
 <p><strong>Annotation comments (<code>#[…]</code>).</strong> Per-quote side data goes on a full-line
 comment of the form <code>#[key: …]</code> (no space between <code>#</code> and <code>[</code>) on the
 line above the quote, at the same indent:</p>
-<pre><code># fragment - not standalone
-  #[de: schwer, der Schlussfolgerung zu entgehen]
-  &gt; hard to avoid the conclusion [^supp-ch5]
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+  <span class="am-annotation">#[de: schwer, der Schlussfolgerung zu entgehen]</span>
+  <span class="am-quote">&gt;</span> hard to avoid the conclusion <span class="am-link">[^supp-ch5]</span>
 </code></pre>
 <p>To the parser this is an ordinary comment. Two things make the form
 worth using rather than a plain <code>#</code>: the parity tool treats <code>#[…]</code> lines
@@ -660,10 +702,15 @@ you authored against it (the pin holds the solved value where the
 counter-evidence should have moved it), while the check silently
 disagrees with the pin. Concluded-into statements take a check or
 nothing; only frontier roots take pins. The lint and the editor both
-flag the pair as <strong>W23</strong> since 2026-08-08, on any statement line,
-because it is wrong wherever it appears: one extraction wrote both on
-28 nodes, and the only visible symptom was that the gaps looked
-suspiciously small.</p>
+flag a bare point beside a check as <strong>W23</strong> (since 2026-08-08, narrowed
+2026-08-22 to the bare point), on any statement line, because it is
+wrong wherever it appears: one extraction wrote both on 28 nodes, and
+the only visible symptom was that the gaps looked suspiciously small. A
+bare point beside a strengthed line that concludes into the statement
+is <strong>W25</strong> (2026-08-22), whether or not a check sits beside it. An
+explicit residual pair beside a check (<code>0.6?/0?</code> with <code># check: 0.9</code>)
+is silent: that is the intended two-slot shape, the pair being the
+unargued remainder and the check the total (4.7).</p>
 <p>The rule is topological and does not change inside refinement boxes. A
 hinge statement that sibling lines inside a refinement conclude into is
 a concluded-into statement like any other: check, not pin, even when
@@ -753,6 +800,379 @@ keeps several badges because they are audit findings about the source.</p>
 (&quot;world-killers&quot;, SOLVER_SEMANTICS P3) and are a smell; if you mean
 &quot;very confident&quot;, write 0.97, or give an interval with a v0.3 pair. The
 honest wide statement is cheap; the false point is not.</p>
+<h3>4.7 The epistemic delicacies: residual, point, pair, check, derive</h3>
+<p>The rules above keep a map lint-clean. The rules in this section keep a
+lint-clean map from counting one consideration twice, which is the error
+class no lint can see in full and the one an extractor has to get right
+in a single pass. They were settled in August 2026 (DECISIONS.md D152,
+the register to pair table in AUTHORING_NOTES 2026-08-23, the check
+intervals of the same day) and each of them has a five-line measurement
+behind it. Those measurements are the toy battery in <code>examples/toys/</code>;
+the numbers quoted here were re-measured on 2026-08-23 with
+<code>solve_map.py</code> at the ratified defaults and match that directory&#39;s
+README to three decimals. Read the toy, then the rule; the rule is what
+the number says.</p>
+<h4>4.7.1 The residual rule, stated once more</h4>
+<p>A statement&#39;s own number is evidence <strong>not already in the map</strong>. Two
+cases follow:</p>
+<ol>
+<li>A <strong>frontier root</strong> (a statement no strengthed line concludes into)
+keeps its number whole. Nothing in the map argues for it, so its
+number is the entire interface to the unmapped world, and the
+all-things-considered reading is the right one.</li>
+<li>An <strong>interior statement</strong> (at least one strengthed line concludes
+into it) may carry a number only for the part of the author&#39;s
+credence that the mapped lines do not trace: the unargued remainder,
+which the reader-facing vocabulary calls the author&#39;s <em>tacit grounds</em>.
+The author&#39;s total belongs in the check (4.7.2).</li>
+</ol>
+<p>The asymmetry is the whole rule. A root&#39;s number and an interior
+statement&#39;s number are different kinds of object, and the mistake that
+produced the 2026-08-03 incident (AUTHORING_NOTES) was writing the same
+all-things-considered figure into both slots.</p>
+<h4>4.7.2 Point, pair, check: three slots on one statement</h4>
+<p>A statement line has three places a number can sit, and they mean three
+different things.</p>
+<ol>
+<li><strong>The point</strong>, <code>@s 0.9?</code>. Since D36 a bare point is read as the
+<strong>degenerate pair</strong> <code>0.9?/0.1?</code>, a zero-width interval: the members
+sum to 1 and P(s) is held at 0.9. Under the solver&#39;s default ridge it
+is held by a spring (weight 400), so a pin leaks about 1/400 and
+otherwise restates itself.</li>
+<li><strong>The pair</strong>, <code>@s 0.6?/0?</code> (v0.3, D53). The author&#39;s <strong>direct
+evidence</strong> about the statement: a floor of 0.6 for it and nothing
+against it, so P(s) is bounded to [0.6, 1]. The map&#39;s own inference
+then <strong>selects within the interval</strong>: every line the statement feeds
+or is fed by pushes the solved value around inside it, and the
+balancing prior picks the max-entropy point when nothing pushes.
+Inference through the map never counts against the pair; the pair is
+read as direct evidence and the width is the author&#39;s honest spread.</li>
+<li><strong>The check</strong>, <code># check: 0.85..0.95</code>. The author&#39;s <strong>total</strong>, all
+things considered, as an interval at the register&#39;s width (4.7.4), or
+a bare point as the zero-width case. It <strong>never constrains</strong> the
+solve. The badge a reader sees is the signed distance from the solved
+value to the interval, zero inside it. A badge that stays is a
+finding about the argument; closing one by moving a number is the
+move the whole discipline forbids.</li>
+</ol>
+<p>The three toys T1, T2 and T3 put the three slots on the same five-line
+map. <code>@want</code> is a frontier root, <code>@subvert</code> is the statement whose
+authored 0.9 silently contains &quot;because it wants things&quot;, and
+<code>@resists</code> reads <code>@subvert</code>.</p>
+<pre class="argmap"><code><span class="am-meta">---</span>
+<span class="am-meta">title: T1 pin kept beside a mapped argument</span>
+<span class="am-meta">argmap-format-version: 0.3</span>
+<span class="am-meta">---</span>
+<span class="am-atom">@want</span> <span class="am-string">[The system wants things]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span> a frontier root
+<span class="am-atom">@subvert</span> <span class="am-string">[It routes around oversight]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span> the author's all-things-considered <span class="am-number">0.9</span>, kept as a PIN
+<span class="am-variableName">$sub-ev</span> <span class="am-string">[wanting means routing around obstacles]</span> <span class="am-number">0.9?</span> <span class="am-atom">@subvert</span> <span class="am-operator">|</span> <span class="am-atom">@want</span><span class="am-operator">:</span>
+<span class="am-atom">@resists</span> <span class="am-string">[It resists being corrected]</span> <span class="am-operator">:</span> <span class="am-comment"># check: 0.7</span>
+<span class="am-variableName">$res-ev</span> <span class="am-string">[subversion implies resisting correction]</span> <span class="am-number">0.85?</span> <span class="am-atom">@resists</span> <span class="am-operator">|</span> <span class="am-atom">@subvert</span><span class="am-operator">:</span>
+</code></pre>
+<p>T1 is the shape to avoid, and the lint says so (W25 on <code>@subvert</code>): the
+point sits beside a strengthed line that argues for the same statement.
+It solves <code>@want</code> 0.893, <code>@subvert</code> 0.899, <code>@resists</code> 0.879. The wanting
+consideration is counted twice here, once inside the 0.9 and once
+through <code>$sub-ev</code>, and the solve shows no sign of it, because a pin
+mostly restates itself.</p>
+<p>T2 derives the statement: the same file with <code>@subvert</code>&#39;s head line
+replaced by <code>@subvert [It routes around oversight] : # check: 0.9</code>. It
+solves <code>@want</code> 0.892, <code>@subvert</code> 0.868, <code>@resists</code> 0.866. Two things
+are now visible. <code>@resists</code> fell from 0.879 to 0.866, which is T1&#39;s
+double count made measurable. And <code>@subvert</code> reads 0.868 against the
+author&#39;s 0.9, which is the honest state: the one ground the map wires
+delivers less than the author holds, and the badge says so instead of
+the pin hiding it.</p>
+<p>T3 adds a residual floor pair beside the check: <code>@subvert [It routes around oversight] 0.6?/0?: # check: 0.9</code>. It solves <code>@subvert</code> 0.921,
+<code>@resists</code> 0.889, and the lint is silent, because a non-coinciding pair
+beside a check is exactly the two-slot shape D36 item 3 describes. The
+floor absorbed most of the back-channel (the map now explains <code>@subvert</code>
+through the floor instead of through <code>@want</code>), which is fine when the
+0.6 is the unargued remainder the text licenses and is the pin again
+with extra steps when it was read off the total. T3&#39;s hazard is
+elicitation; the machinery is sound.</p>
+<p>T4 is the legitimate interim state: the pin kept, the relation drawn,
+the strength left off (<code>$sub-ev [..] @subvert | @want:</code>). An
+unstrengthed line compiles inert, so T4 solves as the pin alone (<code>@want</code>
+0.895, <code>@subvert</code> 0.893, <code>@resists</code> 0.877), the lint lists the line
+under I3, and nothing is asserted twice. Against T1 the strengthed edge
+beside the pin was worth +0.006 on <code>@subvert</code> and +0.002 on <code>@resists</code>:
+that small lift is the double count, visible even in a toy.</p>
+<h4>4.7.3 Deriving a root (D152)</h4>
+<p>To <strong>derive</strong> a root is to give a pinned root its first incoming
+strengthed line. One test decides whether the line may be written, and
+one obligation follows once it is.</p>
+<p><strong>The inference test.</strong> The line is written when it carries an
+inference (premise to conclusion) and withheld when it would only
+restate, or co-refer to, the same episode or proposition at a second
+dock. A restatement wired as inference counts one consideration twice.
+The flagship&#39;s precedent is <code>@psychosis</code> and <code>@c13ws-retrain</code>: one
+episode family at two docks, cross-referenced in comments and never
+joined by a line. Source faithfulness is no part of the test: a real
+inference the source omits is a comprehensiveness defect of the source,
+and it is mapped, with a comment marking it as the mapmaker&#39;s.</p>
+<p><strong>What does not count against a derivation.</strong> &quot;A heavily consumed root,
+once derived, moves everything downstream&quot; is true and is no reason to
+withhold the line: the movement is the coherence audit working.
+Completion is always licensed; if a correct completion swings the
+conclusions wildly, that refutes the semantics or the elicitation and
+never the completion. Measured on the case that settled it: deriving
+<code>@steering-finds-subversion</code> from the two grounds the book itself gives
+(<code>| @goals AND @deep-gears</code>) moved that statement 0.893 to 0.628,
+<code>@goals</code> 0.842 to 0.712 and <code>@incorrigible</code> 0.821 to 0.695 (the two-floor
+pass, AUTHORING_NOTES 2026-08-23). That is a finding about the book (its
+flat 0.9 outruns its own two grounds), and the map now shows it.</p>
+<p><strong>The elicitation obligation.</strong> Once a line sits under the root, its
+authored point is no longer a residual. The point moves to the check,
+at its register&#39;s interval, and the residual slot is <strong>empty by
+default</strong> for every register: a floor read off the register is read off
+the total, because the register describes the all-things-considered
+credence and the text never gives the split. Two text-licensed
+exceptions, applied row by row:</p>
+<ol>
+<li>The passage names a <strong>second ground the map does not yet wire</strong>: a
+floor at that ground&#39;s own register, with a gloss naming the passage,
+as the interim encoding until the line is written.</li>
+<li>The passage says the listed grounds are a <strong>subset</strong> (&quot;to name a
+few&quot;): a remainder at the fallback row <code>0.2?/0?</code>, with the quote in
+the gloss. Small enough never to close a badge; nonzero so the
+acknowledged mass shows.</li>
+</ol>
+<p>In practice the derivation is one head-line edit plus one new line:</p>
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone (flagship, anchor &quot;$subversion-ev&quot;; before and after the 2026-08-23 derivation)</span>
+<span class="am-atom">@steering-finds-subversion</span> <span class="am-string">[A goal-directed system seeks ways to subvert whatever limits it]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span> shared ground <span class="am-operator">(</span>reused by Ch<span class="am-number">5</span>, Ch<span class="am-number">11</span><span class="am-operator">)</span>  <span class="am-comment"># C7 flat: the state before</span>
+<span class="am-atom">@steering-finds-subversion</span> <span class="am-string">[A goal-directed system seeks ways to subvert whatever limits it]</span><span class="am-operator">:</span> shared ground <span class="am-operator">(</span>reused by Ch<span class="am-number">5</span>, Ch<span class="am-number">11</span><span class="am-operator">)</span>  <span class="am-comment"># check: 0.85..0.95 (C7 flat; derived via $subversion-ev)</span>
+<span class="am-variableName">$subversion-ev</span> <span class="am-string">[wanting routes around obstacles the gears can find]</span> <span class="am-number">0.9?</span> <span class="am-atom">@steering-finds-subversion</span> <span class="am-operator">|</span> <span class="am-atom">@goals</span> <span class="am-keyword">AND</span> <span class="am-atom">@deep-gears</span><span class="am-operator">:</span> the two grounds the authors give
+</code></pre>
+<p>(The fragment shows both head lines for the comparison; a real file
+carries one of them.) Before writing the edge, grep the map for the
+root&#39;s id: the reason it was left unwired is usually written down in a
+comment somewhere, and a derived root&#39;s comment has to be rewritten
+along with its number.</p>
+<h4>4.7.4 The register to pair table, in brief</h4>
+<p>The source states neither points nor intervals; it states <strong>registers</strong>
+(flat repetition, &quot;probably&quot;, &quot;our best guess&quot;, &quot;nobody knows&quot;). The D39
+rubric mapped registers to points; the 2026-08-23 table adds the pair
+column, pre-registered before any root was touched. Its rules:</p>
+<ol>
+<li><p><strong>Centring.</strong> A pair&#39;s midpoint (1 + p⁺ − p⁻)/2 equals the rubric
+point, and the register fixes the width: p⁺ = point − w/2, p⁻ = 1 −
+point − w/2. Widths are rubric constants: 0.05 for the strongest
+categorical class, 0.10 for flat assertion, 0.20 for &quot;by default&quot; and
+&quot;best guess&quot;, 0.30 for &quot;we expect&quot; and &quot;could well&quot;, 0.40 for the
+weakest hedge, 0.80 for a refusal. Authored mass is linear
+probability; log-odds widening was only ever a sweep&#39;s
+parametrisation.</p>
+</li>
+<li><p><strong>The rows</strong>, point to pair, for a root that stays a root:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>register (flagship class)</th>
+<th>point</th>
+<th>pair</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>repeated categorical, anti-hyperbole (C1)</td>
+<td>0.97</td>
+<td><code>0.95?/0?</code></td>
+</tr>
+<tr>
+<td>categorical deontic, &quot;insane gamble&quot; (N1, N3, RS1)</td>
+<td>0.93</td>
+<td><code>0.9?/0?</code></td>
+</tr>
+<tr>
+<td>title register, C2</td>
+<td>0.93</td>
+<td><code>0.88?/0.02?</code></td>
+</tr>
+<tr>
+<td>flat unhedged assertion (C7, P-FACT)</td>
+<td>0.90</td>
+<td><code>0.85?/0.05?</code></td>
+</tr>
+<tr>
+<td>&quot;by default&quot;, &quot;our best guess&quot; (C3)</td>
+<td>0.85</td>
+<td><code>0.75?/0.05?</code></td>
+</tr>
+<tr>
+<td>RS3</td>
+<td>0.80</td>
+<td><code>0.7?/0.1?</code></td>
+</tr>
+<tr>
+<td>&quot;we expect&quot;, a granted point (C4, P-GRANT)</td>
+<td>0.75</td>
+<td><code>0.6?/0.1?</code></td>
+</tr>
+<tr>
+<td>&quot;could well&quot; (C5)</td>
+<td>0.70</td>
+<td><code>0.55?/0.15?</code></td>
+</tr>
+<tr>
+<td>weakest hedge (RS6)</td>
+<td>0.60</td>
+<td><code>0.4?/0.2?</code></td>
+</tr>
+<tr>
+<td>role defaults 0.8 / 0.7 / 0.6</td>
+<td></td>
+<td><code>0.65?/0.05?</code>, <code>0.55?/0.15?</code>, <code>0.45?/0.25?</code></td>
+</tr>
+<tr>
+<td>explicit refusal, &quot;nobody knows&quot; (COIN)</td>
+<td>0.50</td>
+<td><code>0.1?/0.1?</code> plus a gloss sentence</td>
+</tr>
+<tr>
+<td>the objection the source denies at class X (P-CONTEST)</td>
+<td>1 − X</td>
+<td>the mirror of X&#39;s pair</td>
+</tr>
+</tbody></table></div>
+</li>
+<li><p><strong>One-sided categoricals.</strong> Where the source leaves no room against
+(<code>0.9?/0?</code>, <code>0.95?/0?</code>), the midpoint sits above the point, and that
+is the balancing prior&#39;s reading, never a number the table asserts.</p>
+</li>
+<li><p><strong>The P-CONTEST mirror.</strong> An objection the source denies at class X
+takes X&#39;s pair reflected (<code>0.05?/0.85?</code> for a flat denial,
+<code>0.1?/0.6?</code> for a hedged one), never <code>0/p</code>: omitting the floor would
+leave nothing for the objection, and &quot;we don&#39;t think so&quot; is weaker
+than &quot;impossible&quot;.</p>
+</li>
+<li><p><strong>Refusals are wide pairs with a gloss.</strong> &quot;Nobody knows&quot; where the
+statement is the unknown becomes <code>0.1?/0.1?</code> and a gloss sentence
+naming the passage, in one shared shape: what the passage does (&quot;the
+page calls the question open&quot;), then &quot;the wide pair carries that, and
+its midpoint is nobody&#39;s belief&quot;. The interval is the message.</p>
+</li>
+<li><p><strong>Per-node asymmetric pairs</strong> are written where the passage states
+both directions (an inner flat claim under an outer hedge, a
+concession, &quot;routes against their own&quot;): from the text, with the
+rationale in a trailing comment, and the midpoint may differ from the
+class point. The class row is the default where the text gives one
+direction.</p>
+</li>
+<li><p><strong>Riding rules.</strong> <code>?</code> on every member, zero members included; a gloss
+sentence whenever the total width exceeds 0.30; the class token in
+the trailing comment of every pin; nothing on an evidence line moves.</p>
+</li>
+</ol>
+<p>One proviso, stated so it stops being rediscovered: a root&#39;s register-read
+confidence is a posterior that may already discount what the author
+believes downstream, and reading it as direct evidence lets the solve
+apply modus tollens a second time. There is no operational alternative
+(the text never gives the un-discounted figure), the magnitude at these
+widths is small and measured (at most 0.043 per statement in the
+widening sweep, mean 0.006 on the centred table), and the compensation is
+to show the interval and the band rather than present a midpoint as the
+author&#39;s number.</p>
+<h4>4.7.5 Shared considerations</h4>
+<p>Separate lines are combined as if independent (4.4). The only way the
+map can say two lines co-vary is a <strong>shared statement</strong> they both cite,
+so whenever two lines rest on one consideration, name it as a statement
+and condition both on it. The sign of the effect tells you whether you
+had it right. T5 and T5b put one consideration into an AND junction
+twice, first through a pin and then through the shared root:</p>
+<pre class="argmap"><code><span class="am-meta">---</span>
+<span class="am-meta">title: T5b the same junction with both routes derived</span>
+<span class="am-meta">argmap-format-version: 0.3</span>
+<span class="am-meta">---</span>
+<span class="am-atom">@want</span> <span class="am-string">[The system wants things]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span> a frontier root
+<span class="am-atom">@subvert</span> <span class="am-string">[It routes around oversight]</span> <span class="am-operator">:</span> derived from the same root the other route uses  <span class="am-comment"># check: 0.9</span>
+<span class="am-variableName">$sub-ev</span> <span class="am-string">[wanting means routing around obstacles]</span> <span class="am-number">0.9?</span> <span class="am-atom">@subvert</span> <span class="am-operator">|</span> <span class="am-atom">@want</span><span class="am-operator">:</span>
+<span class="am-atom">@grabs</span> <span class="am-string">[It grabs resources]</span> <span class="am-operator">:</span> <span class="am-comment"># check: 0.9</span>
+<span class="am-variableName">$grab-ev</span> <span class="am-string">[wanting implies grabbing]</span> <span class="am-number">0.9?</span> <span class="am-atom">@grabs</span> <span class="am-operator">|</span> <span class="am-atom">@want</span><span class="am-operator">:</span>
+<span class="am-atom">@danger</span> <span class="am-string">[It is dangerous]</span> <span class="am-operator">:</span> <span class="am-comment"># check: 0.9</span>
+<span class="am-variableName">$danger-ev</span> <span class="am-string">[subversion and grabbing together]</span> <span class="am-number">0.9?</span> <span class="am-atom">@danger</span> <span class="am-operator">|</span> <span class="am-atom">@subvert</span> <span class="am-keyword">AND</span> <span class="am-atom">@grabs</span><span class="am-operator">:</span> the wanting consideration enters twice here
+</code></pre>
+<p>With <code>@subvert</code> pinned at 0.9 instead (T5) the conjunction solves
+<code>@danger</code> 0.843; derived as above it solves 0.850. The conjunction
+<strong>rises</strong> once its two premises are correlated through the shared root,
+because independence understates a conjunction of positively correlated
+premises, and the pin had asserted independence.</p>
+<p>T8 and T8b are the same fingerprint with both consumers present: two
+study findings that share one methodology statement <code>@method</code> (T8) or
+rest on separate <code>@method-a</code> / <code>@method-b</code> roots (T8b), each read by an
+AND consumer and an OR consumer.</p>
+<pre class="argmap"><code><span class="am-meta">---</span>
+<span class="am-meta">title: T8 two lines sharing a premise co-vary through it</span>
+<span class="am-meta">argmap-format-version: 0.3</span>
+<span class="am-meta">---</span>
+<span class="am-atom">@method</span> <span class="am-string">[The shared methodology is sound]</span> <span class="am-number">0.7?</span><span class="am-operator">:</span> the common cause, named as a statement
+<span class="am-atom">@a</span> <span class="am-string">[Study A's finding holds]</span> <span class="am-operator">:</span> <span class="am-comment"># check: 0.65</span>
+<span class="am-variableName">$a-ev</span> <span class="am-string">[A's report, given the method]</span> <span class="am-number">0.9?</span> <span class="am-atom">@a</span> <span class="am-operator">|</span> <span class="am-atom">@method</span><span class="am-operator">:</span>
+<span class="am-atom">@b</span> <span class="am-string">[Study B's finding holds]</span> <span class="am-operator">:</span> <span class="am-comment"># check: 0.65</span>
+<span class="am-variableName">$b-ev</span> <span class="am-string">[B's report, given the method]</span> <span class="am-number">0.9?</span> <span class="am-atom">@b</span> <span class="am-operator">|</span> <span class="am-atom">@method</span><span class="am-operator">:</span>
+<span class="am-atom">@both</span> <span class="am-string">[The effect is real, both needed]</span> <span class="am-operator">:</span> <span class="am-comment"># check: 0.6</span>
+<span class="am-variableName">$both-ev</span> <span class="am-string">[two findings together]</span> <span class="am-number">0.9?</span> <span class="am-atom">@both</span> <span class="am-operator">|</span> <span class="am-atom">@a</span> <span class="am-keyword">AND</span> <span class="am-atom">@b</span><span class="am-operator">:</span>
+<span class="am-atom">@either</span> <span class="am-string">[The effect is real, either suffices]</span> <span class="am-operator">:</span> <span class="am-comment"># check: 0.8</span>
+<span class="am-variableName">$either-ev</span> <span class="am-string">[either finding suffices]</span> <span class="am-number">0.9?</span> <span class="am-atom">@either</span> <span class="am-operator">|</span> <span class="am-atom">@a</span> <span class="am-keyword">OR</span> <span class="am-atom">@b</span><span class="am-operator">:</span>
+</code></pre>
+<p>The two findings barely move between the maps (<code>@a</code> and <code>@b</code> 0.750
+shared against 0.751 separate). The consumers move in opposite
+directions: <strong>the AND rises</strong> (<code>@both</code> 0.751 to 0.782) and <strong>the OR
+falls</strong> (<code>@either</code> 0.918 to 0.886), because findings that share a
+methodology stand or fall together, which helps a conjunction and costs
+a disjunction. <code>argmap-query shared-cause</code> lists every such overlap in a
+map, one row per shared statement; each row is either the deliberate
+world-layer device or an overlap to factor out, and the remedy is the
+same either way: name it.</p>
+<p>One shape the static audit cannot see: a statement conjoined with its
+<strong>own derivative</strong>. The flagship had <code>$wst-race</code> conclude from
+<code>@race-dynamics AND @one-cavalier-suffices</code> while <code>$ocs-ev</code> derived the
+second premise from the first, which counts the race consideration twice
+through one junction (the covariance probe&#39;s single hit above its floor,
++0.029 of manufactured co-movement). The fix is to drop the duplicate
+premise, or to re-elicit the line conditionally on the derivative alone.
+Trace each premise&#39;s ancestry before writing an AND.</p>
+<h4>4.7.6 Definitional versus substantive bundling</h4>
+<p>A node that bundles a <strong>definitional</strong> part with a <strong>substantive</strong> part
+is two variables in one slot. &quot;A goal-directed system seeks ways to
+subvert whatever limits it&quot; contains &quot;routing around obstacles is what
+wanting means&quot; (a definition) and &quot;oversight is one of the obstacles&quot;
+(the claim). Two remedies: split the node into one proposition per
+statement, or derive it from both halves, one line per ground (the
+<code>$subversion-ev</code> shape above). No lint sees this; the authoring rule is
+the tool.</p>
+<p>A definition that does inferential work encodes as <strong>p = 1 evidence
+lines</strong>, and a biconditional as two of them, written as the <strong>converse
+pair</strong>: the forward line and its contrapositive, both concluding into the
+defined term (T6, respelled 2026-08-23):</p>
+<pre class="argmap"><code><span class="am-meta">---</span>
+<span class="am-meta">title: T6 a definition encoded as a converse pair</span>
+<span class="am-meta">argmap-format-version: 0.3</span>
+<span class="am-meta">---</span>
+<span class="am-atom">@steers</span> <span class="am-string">[It steers toward outcomes]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span>
+<span class="am-atom">@routes</span> <span class="am-string">[It routes around obstacles]</span> <span class="am-number">0.85?</span><span class="am-operator">:</span>
+<span class="am-atom">@want</span> <span class="am-string">[It wants things]</span> <span class="am-operator">:</span> wanting, by definition, is steering plus routing  <span class="am-comment"># check: 0.8</span>
+<span class="am-variableName">$def-fwd</span> <span class="am-string">[definition, forward]</span> <span class="am-number">1</span> <span class="am-atom">@want</span> <span class="am-operator">|</span> <span class="am-atom">@steers</span> <span class="am-keyword">AND</span> <span class="am-atom">@routes</span><span class="am-operator">:</span>
+<span class="am-variableName">$def-conv</span> <span class="am-string">[definition, converse]</span> <span class="am-number">1</span> <span class="am-operator">~</span><span class="am-atom">@want</span> <span class="am-operator">|</span> <span class="am-operator">~</span><span class="am-atom">@steers</span> <span class="am-keyword">OR</span> <span class="am-operator">~</span><span class="am-atom">@routes</span><span class="am-operator">:</span>
+</code></pre>
+<p>It solves <code>@want</code> 0.755, which is P(steers AND routes) to within the
+ridge&#39;s 1/w, and the lint is silent. The same two lines spelled as
+forward plus <em>backward</em> (<code>$def-back 1 @steers AND @routes | @want</code>) carry
+the same logic and solve the same (0.752), but they form a directed cycle,
+so the lint reports W2, and the backward line concludes into the roots,
+so it draws W25 on each. Nothing in the semantics prefers that spelling;
+the converse pair is the one to write. One-way is not a definition: a
+single forward line leaves the term free above the members (the
+balancing prior fills the interval), so a consumer of the term reads more
+than the members deliver (0.828 against a joint of 0.749 in the toy
+battery&#39;s <code>t9c</code>). Both directions, or none.</p>
+<p>A pure terminology node is the shape to avoid: <code>@asi-def [ASI means an AI far beyond every human at every cognitive task] 1:</code> conjoined into a
+premise (T7) solves 0.988 under the ridge, so every junction it joins
+pays about 1/400 (<code>@dies</code> 0.849 with the conjunct against 0.854 without,
+T7b), and it draws an edge into every junction that uses it. The cost is
+exactly the ridge weight&#39;s reciprocal and vanishes at no finite weight.
+Terminology belongs in a gloss or a glossary surface; only definitional
+<em>claims</em> become lines, and a definition is a p = 1 line, never a p = 1
+statement.</p>
 <h2>5. From source text to map</h2>
 <p>This chapter is the workflow that produced the flagship map, distilled
 from the re-authoring passes logged in AUTHORING_NOTES.md (2026-07-16
@@ -975,27 +1395,27 @@ idioms it demonstrates.</p>
 <p>The workhorse. An objection statement (the hope or doubt), an objection
 evidence concluding against the target, and a response undercutting the
 objection evidence:</p>
-<pre><code># fragment - not standalone (flagship ~line 628, anchor &quot;@c11-readthoughts&quot;)
-@c11-readthoughts [We&#39;ll read the AI&#39;s thoughts and catch bad plans] 0.15?:
-$c11-readthoughts-obj 0.2? ~@wont-solve-in-time | @c11-readthoughts:
-$c11-readthoughts-resp [punishing visible bad thoughts hides them] 0.85? @wont-solve-in-time | @steering-finds-subversion AND $c11-readthoughts-obj: training against legible bad thoughts selects for concealment, not for good ones
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone (flagship ~line 628, anchor &quot;@c11-readthoughts&quot;)</span>
+<span class="am-atom">@c11-readthoughts</span> <span class="am-string">[We'll read the AI's thoughts and catch bad plans]</span> <span class="am-number">0.15?</span><span class="am-operator">:</span>
+<span class="am-variableName">$c11-readthoughts-obj</span> <span class="am-number">0.2?</span> <span class="am-operator">~</span><span class="am-atom">@wont-solve-in-time</span> <span class="am-operator">|</span> <span class="am-atom">@c11-readthoughts</span><span class="am-operator">:</span>
+<span class="am-variableName">$c11-readthoughts-resp</span> <span class="am-string">[punishing visible bad thoughts hides them]</span> <span class="am-number">0.85?</span> <span class="am-atom">@wont-solve-in-time</span> <span class="am-operator">|</span> <span class="am-atom">@steering-finds-subversion</span> <span class="am-keyword">AND</span> <span class="am-variableName">$c11-readthoughts-obj</span><span class="am-operator">:</span> training against legible bad thoughts selects for concealment, not for good ones
 </code></pre>
 <p>FAQ-shaped sources map one-to-one onto rows of these. The <code>-obj</code>/<code>-resp</code>
 ID suffixes are a mnemonic convention, not syntax.</p>
 <h3>7.2 The undercut ladder, including second-order undercuts</h3>
 <p>Rebuttal, undercut, response, and undercut-of-undercut are one schema
 applied repeatedly (flagship ~line 283, anchor &quot;$uc-counting&quot;):</p>
-<pre><code># fragment - not standalone
-$uc-counting [this argument form fails in ML contexts] 0.3? ~@fragile | @nn-generalize AND @sgd-bias AND $fragile-count:
-$uc-uc-counting [the ML rescue may not transfer to alignment] 0.7? @fragile | @gen-not-values AND $uc-counting:
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$uc-counting</span> <span class="am-string">[this argument form fails in ML contexts]</span> <span class="am-number">0.3?</span> <span class="am-operator">~</span><span class="am-atom">@fragile</span> <span class="am-operator">|</span> <span class="am-atom">@nn-generalize</span> <span class="am-keyword">AND</span> <span class="am-atom">@sgd-bias</span> <span class="am-keyword">AND</span> <span class="am-variableName">$fragile-count</span><span class="am-operator">:</span>
+<span class="am-variableName">$uc-uc-counting</span> <span class="am-string">[the ML rescue may not transfer to alignment]</span> <span class="am-number">0.7?</span> <span class="am-atom">@fragile</span> <span class="am-operator">|</span> <span class="am-atom">@gen-not-values</span> <span class="am-keyword">AND</span> <span class="am-variableName">$uc-counting</span><span class="am-operator">:</span>
 </code></pre>
 <p>The second line reinstates <code>@fragile</code> exactly to the extent the first
 line&#39;s rescue fails.</p>
 <h3>7.3 Linked and convergent, side by side</h3>
 <p>One hub with both shapes (flagship ~line 269, anchor &quot;$fragile-ev&quot;):</p>
-<pre><code># fragment - not standalone
-$fragile-ev 0.9? @fragile | @orth AND @contingent AND @fragility:
-$fragile-count 0.7? @fragile | @counting: lottery-ticket prior over goal-space
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$fragile-ev</span> <span class="am-number">0.9?</span> <span class="am-atom">@fragile</span> <span class="am-operator">|</span> <span class="am-atom">@orth</span> <span class="am-keyword">AND</span> <span class="am-atom">@contingent</span> <span class="am-keyword">AND</span> <span class="am-atom">@fragility</span><span class="am-operator">:</span>
+<span class="am-variableName">$fragile-count</span> <span class="am-number">0.7?</span> <span class="am-atom">@fragile</span> <span class="am-operator">|</span> <span class="am-atom">@counting</span><span class="am-operator">:</span> lottery-ticket prior over goal-space
 </code></pre>
 <p>The first is a linked three-conjunct rule (all needed); the second is an
 independent convergent sibling on the same conclusion. The test for
@@ -1006,10 +1426,10 @@ disagreement; together they are the spread&quot;.</p>
 <p>When a source presents overdetermined routes (&quot;any one of these
 suffices&quot;), write separate evidences, not one conjunction (flagship
 ~line 170, anchor &quot;$adv-speed-ev&quot;):</p>
-<pre><code># fragment - not standalone
-$adv-speed-ev [speed alone breaks the human range] 0.9? @ai-advantages | @adv-speed:
-$adv-copy-ev [copyability alone breaks the human range] 0.9? @ai-advantages | @adv-copy:
-$adv-selfimp-ev [self-improvement alone breaks the human range] 0.75? @ai-advantages | @adv-selfimp:
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$adv-speed-ev</span> <span class="am-string">[speed alone breaks the human range]</span> <span class="am-number">0.9?</span> <span class="am-atom">@ai-advantages</span> <span class="am-operator">|</span> <span class="am-atom">@adv-speed</span><span class="am-operator">:</span>
+<span class="am-variableName">$adv-copy-ev</span> <span class="am-string">[copyability alone breaks the human range]</span> <span class="am-number">0.9?</span> <span class="am-atom">@ai-advantages</span> <span class="am-operator">|</span> <span class="am-atom">@adv-copy</span><span class="am-operator">:</span>
+<span class="am-variableName">$adv-selfimp-ev</span> <span class="am-string">[self-improvement alone breaks the human range]</span> <span class="am-number">0.75?</span> <span class="am-atom">@ai-advantages</span> <span class="am-operator">|</span> <span class="am-atom">@adv-selfimp</span><span class="am-operator">:</span>
 </code></pre>
 <p>The flagship originally had these as a four-way AND; the repair note in
 the file records why that was wrong (the book is explicit that no single
@@ -1017,8 +1437,8 @@ advantage is necessary).</p>
 <h3>7.5 Coarse summary plus refinement</h3>
 <p>The whole book&#39;s case is one coarse line whose refinement holds
 everything (flagship ~line 261, anchor &quot;$link &quot;):</p>
-<pre><code># fragment - not standalone
-$link [the book&#39;s claim as one coarse implication] 0.93? @everyone-dies | @if-built: unfolds below into the full case
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$link</span> <span class="am-string">[the book's claim as one coarse implication]</span> <span class="am-number">0.93?</span> <span class="am-atom">@everyone-dies</span> <span class="am-operator">|</span> <span class="am-atom">@if-built</span><span class="am-operator">:</span> unfolds below into the full case
 </code></pre>
 <p>The coarse strength on a refined line is not a solver input (the
 refinement replaces it); it is the evidence-side check, displayed
@@ -1033,9 +1453,9 @@ local clusters; the collapsed view keeps the cross-region edge.</p>
 <h3>7.6 The complementary partition (&quot;even if&quot;)</h3>
 <p>Two routes that would overlap are made disjoint by conjoining the
 negation of the other route (flagship ~line 638, anchor &quot;$mwb-time&quot;):</p>
-<pre><code># fragment - not standalone
-$mwb-hard [the hardness route] 0.9? @misaligned-when-built | @align-hard:
-$mwb-time [the timing route, in the solvable worlds] 0.9? @misaligned-when-built | @wont-solve-in-time AND ~@align-hard:
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$mwb-hard</span> <span class="am-string">[the hardness route]</span> <span class="am-number">0.9?</span> <span class="am-atom">@misaligned-when-built</span> <span class="am-operator">|</span> <span class="am-atom">@align-hard</span><span class="am-operator">:</span>
+<span class="am-variableName">$mwb-time</span> <span class="am-string">[the timing route, in the solvable worlds]</span> <span class="am-number">0.9?</span> <span class="am-atom">@misaligned-when-built</span> <span class="am-operator">|</span> <span class="am-atom">@wont-solve-in-time</span> <span class="am-keyword">AND</span> <span class="am-operator">~</span><span class="am-atom">@align-hard</span><span class="am-operator">:</span>
 </code></pre>
 <p>The <code>~@align-hard</code> conjunct is the source&#39;s own &quot;even if alignment were
 solvable&quot; made explicit; without it the two routes double-count.</p>
@@ -1044,8 +1464,8 @@ solvable&quot; made explicit; without it the two routes double-count.</p>
 on <code>@c</code> conditions on <code>@a</code> says nothing about the <code>~@a</code> worlds. If the
 source asserts the converse, name it (flagship ~line 254, anchor
 &quot;$no-doom-otherwise&quot;):</p>
-<pre><code># fragment - not standalone
-$no-doom-otherwise [no build, no doom] 0.9? ~@everyone-dies | ~@if-built: the book&#39;s own converse of the title conditional
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$no-doom-otherwise</span> <span class="am-string">[no build, no doom]</span> <span class="am-number">0.9?</span> <span class="am-operator">~</span><span class="am-atom">@everyone-dies</span> <span class="am-operator">|</span> <span class="am-operator">~</span><span class="am-atom">@if-built</span><span class="am-operator">:</span> the book's own converse of the title conditional
 </code></pre>
 <p>This is the cross-slab converse pair of 4.2: it cancels the drift tax
 and keeps a contested base-rate claim on the map, right of a given bar,
@@ -1053,8 +1473,8 @@ instead of hiding it in a prior.</p>
 <h3>7.8 Conditioning on an inference (the designed W1)</h3>
 <p>A policy conclusion that hangs on an implication, not on a fact
 (flagship ~line 770, anchor &quot;$shutdown-ev&quot;):</p>
-<pre><code># fragment - not standalone
-$shutdown-ev [if built means everyone dies, no one may build] 0.93? @shutdown | $link:
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$shutdown-ev</span> <span class="am-string">[if built means everyone dies, no one may build]</span> <span class="am-number">0.93?</span> <span class="am-atom">@shutdown</span> <span class="am-operator">|</span> <span class="am-variableName">$link</span><span class="am-operator">:</span>
 </code></pre>
 <p>Conditioning on <code>@everyone-dies</code> instead would be subtly wrong: doom
 that were unconditional would justify no ban. This is the rare positive
@@ -1065,9 +1485,9 @@ in a comment.</p>
 doubt as a statement and conjoin it into every member; elicit its prior
 once, family-holistically (flagship ~line 435 onward, anchor
 &quot;$hope-care&quot;; the shared conjunct is <code>~@no-right-care</code>):</p>
-<pre><code># fragment - not standalone
-$obj-cheap 0.7? ~@not-preserved | @cheap-keep AND ~@no-right-care: a sliver of care plus a negligible bill would get paid
-$resp-cheap [it would need a reason to pay ours] 0.9? @not-preserved | @needs-motive AND $obj-cheap:
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$obj-cheap</span> <span class="am-number">0.7?</span> <span class="am-operator">~</span><span class="am-atom">@not-preserved</span> <span class="am-operator">|</span> <span class="am-atom">@cheap-keep</span> <span class="am-keyword">AND</span> <span class="am-operator">~</span><span class="am-atom">@no-right-care</span><span class="am-operator">:</span> a sliver of care plus a negligible bill would get paid
+<span class="am-variableName">$resp-cheap</span> <span class="am-string">[it would need a reason to pay ours]</span> <span class="am-number">0.9?</span> <span class="am-atom">@not-preserved</span> <span class="am-operator">|</span> <span class="am-atom">@needs-motive</span> <span class="am-keyword">AND</span> <span class="am-variableName">$obj-cheap</span><span class="am-operator">:</span>
 </code></pre>
 <p>Prefer as the latent the statement the support side already denies, so
 attack and support quantify over the same worlds. This was the only
@@ -1079,11 +1499,11 @@ credences are not world facts). The pattern: reify the evidence-state as
 a first-order statement, state the norm as its own statement, and let a
 near-deductive step combine them (flagship ~line 793, anchor
 &quot;@risk-unbounded&quot;):</p>
-<pre><code># fragment - not standalone
-@risk-unbounded [No one can currently bound the extinction risk below the actionable threshold]: a fact about what has been demonstrated, not about anyone&#39;s opinion
-@no-gamble [Running a risk no one can bound below the threshold is impermissible] 0.93?: the norm, stated where it can be attacked
-$shutdown-fine [unbounded risk + the norm license &quot;don&#39;t build&quot;] 0.9? @shutdown | @risk-unbounded AND @no-gamble:
-$bounded-escape [a demonstrated bound would dissolve the case] 0.9? ~@shutdown | ~@risk-unbounded:
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-atom">@risk-unbounded</span> <span class="am-string">[No one can currently bound the extinction risk below the actionable threshold]</span><span class="am-operator">:</span> a fact about what has been demonstrated, not about anyone's opinion
+<span class="am-atom">@no-gamble</span> <span class="am-string">[Running a risk no one can bound below the threshold is impermissible]</span> <span class="am-number">0.93?</span><span class="am-operator">:</span> the norm, stated where it can be attacked
+<span class="am-variableName">$shutdown-fine</span> <span class="am-string">[unbounded risk + the norm license &quot;don't build&quot;]</span> <span class="am-number">0.9?</span> <span class="am-atom">@shutdown</span> <span class="am-operator">|</span> <span class="am-atom">@risk-unbounded</span> <span class="am-keyword">AND</span> <span class="am-atom">@no-gamble</span><span class="am-operator">:</span>
+<span class="am-variableName">$bounded-escape</span> <span class="am-string">[a demonstrated bound would dissolve the case]</span> <span class="am-number">0.9?</span> <span class="am-operator">~</span><span class="am-atom">@shutdown</span> <span class="am-operator">|</span> <span class="am-operator">~</span><span class="am-atom">@risk-unbounded</span><span class="am-operator">:</span>
 </code></pre>
 <p>Note <code>$bounded-escape</code>: the author naming the condition under which
 their own conclusion lapses. A self-declared off-ramp is both honest and
@@ -1101,9 +1521,9 @@ you author (checklist item 8).</p>
 <p>Rival explanations that cannot both hold are a premise-less constraint
 factor plus an authored abductive step
 (<code>examples/09-exclusive-causes.argmap</code>, the pattern catalog):</p>
-<pre><code># fragment - not standalone
-$who [an eaten cake means one of the two ate it] 1.0 @alice OR @bob | @cake: the abductive step, stated as a contestable rule
-$notboth [they would not both have eaten it] 1.0 ~@alice OR ~@bob: premise-less unconditional constraint factor
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$who</span> <span class="am-string">[an eaten cake means one of the two ate it]</span> <span class="am-number">1.0</span> <span class="am-atom">@alice</span> <span class="am-keyword">OR</span> <span class="am-atom">@bob</span> <span class="am-operator">|</span> <span class="am-atom">@cake</span><span class="am-operator">:</span> the abductive step, stated as a contestable rule
+<span class="am-variableName">$notboth</span> <span class="am-string">[they would not both have eaten it]</span> <span class="am-number">1.0</span> <span class="am-operator">~</span><span class="am-atom">@alice</span> <span class="am-keyword">OR</span> <span class="am-operator">~</span><span class="am-atom">@bob</span><span class="am-operator">:</span> premise-less unconditional constraint factor
 </code></pre>
 <p>The lesson recorded there: abduction is authored, not free. Pinning the
 effect gives the causes no diagnostic lift by itself; &quot;it must have been
@@ -1112,8 +1532,8 @@ the point.</p>
 <h3>7.13 The direct-assertion pattern (spoken and debate sources)</h3>
 <p>A flat spoken assertion with no stated grounds becomes an attributed
 premise-less evidence (<code>experiments/llm-extraction/debate-tang-shapira.argmap</code>):</p>
-<pre><code># fragment - not standalone
-$a-blur [A: attention is a blur of what causes what] 0.9? @opaque: the quadratic self-attention transformer &quot;literally is a blur of what causes what&quot; [^t005008]
+<pre class="argmap"><code><span class="am-comment"># fragment - not standalone</span>
+<span class="am-variableName">$a-blur</span> <span class="am-string">[A: attention is a blur of what causes what]</span> <span class="am-number">0.9?</span> <span class="am-atom">@opaque</span><span class="am-operator">:</span> the quadratic self-attention transformer &quot;literally is a blur of what causes what&quot; <span class="am-link">[^t005008]</span>
 </code></pre>
 <p>Sixteen of these carried the debate map. Related: a refusal to give a
 number (&quot;P(doom) is not assignable&quot;) needs no special syntax; leave the
@@ -1442,9 +1862,49 @@ review.</li>
 <td>migrate it: <code>&gt;</code> line, plain marks, or the echo pattern</td>
 </tr>
 <tr>
+<td>W21</td>
+<td>buried spine: top-level statements unconnected in the flat projection (8)</td>
+<td>lift the linking evidences it names to the top tier</td>
+</tr>
+<tr>
+<td>W22</td>
+<td>zero-node file</td>
+<td>the parse went wrong; read the counts, fix the file</td>
+</tr>
+<tr>
+<td>W23</td>
+<td>a bare point and a <code># check:</code> on one head line (4.3, 4.7)</td>
+<td>drop one, or write the unargued remainder as a pair beside the check</td>
+</tr>
+<tr>
+<td>W24</td>
+<td>an <code>@id</code>/<code>$id</code> token in prose that resolves to nothing</td>
+<td>fix the typo, or drop the sigil if it is not a pointer</td>
+</tr>
+<tr>
+<td>W25</td>
+<td>a bare point beside mapped support (4.7)</td>
+<td>derive: move the number to a <code># check:</code>, or write the remainder as a pair</td>
+</tr>
+<tr>
+<td>W26</td>
+<td>malformed <code># check:</code> token (3.7)</td>
+<td>a point in [0, 1] or <code>lo..hi</code> with lo &lt;= hi</td>
+</tr>
+<tr>
 <td>I1</td>
 <td>stats; isolated statements</td>
 <td>connect or delete isolates</td>
+</tr>
+<tr>
+<td>I2</td>
+<td>block inventory (multi-block files)</td>
+<td>read it; confirm the split you intended</td>
+</tr>
+<tr>
+<td>I3</td>
+<td>unstrengthed-line inventory (4.7)</td>
+<td>the lines that compile inert; commit or drop each before calling the map done</td>
 </tr>
 </tbody></table></div>
 <p>Two caveats: the stranded-node check (W6) lives only in the TypeScript
@@ -1495,51 +1955,170 @@ named evidence is added, or the badge stays and means something.</li>
 parse still validate everything structural.</p>
 <p>For translated maps, <code>python3 tools/translation-parity.py BASE TR</code>
 verifies the translation touches only free-text spans.</p>
+<h3>10.4 The pitfalls checklist (for an adversarial auditor)</h3>
+<p>Work this list against a finished map as if you were paid to find the
+double count. Each item says what to look for, how to see it (the lint
+code or <code>argmap-query</code> audit that catches it, or the reading that does
+when no tool can), and the fix. The tools are
+<code>python3 tools/argmap-lint.py FILE</code> and
+<code>node mvp/packages/parser/bin/argmap-query.mjs FILE &lt;audit&gt;</code>; every
+audit is advisory and prints the shape, and the call stays yours. The
+rationale for each item is 4.7.</p>
+<ol>
+<li><strong>A pin beside mapped support.</strong> A statement with an authored point
+and at least one strengthed line concluding into it; the point
+counts that line&#39;s consideration twice (T1). See it: <strong>W25</strong>. Fix:
+derive it (the number moves to <code># check:</code> at its register&#39;s
+interval), or write the unargued remainder as a pair.</li>
+<li><strong>A pin and a check on one head line.</strong> The point pins the statement
+to itself while the check silently disagrees; the solve reports a
+tiny gap that reads as convergence. See it: <strong>W23</strong>. Fix: drop one;
+on an interior statement the check stays and the point goes, or
+becomes a residual pair if the text licenses one.</li>
+<li><strong>A pinned root homed in a box it does not feed.</strong> A pinned root
+declared inside a refinement box or <code>::group</code>, consumed only outside
+it, wired to nothing inside it: shared ground parked where the map
+holds its likeliest antecedents. See it: <code>isolate-audit</code> (each row
+names the container and the outside consumers). Fix: derive it from
+the container if the inference test passes, re-home it with a
+consumer, or say in the gloss why it stays.</li>
+<li><strong>A restatement wired as inference.</strong> A line whose premise and
+conclusion are the same proposition or episode at two docks (the
+<code>@psychosis</code> / <code>@c13ws-retrain</code> shape): one consideration counted
+twice through a line that carries no inference. See it:
+<code>restate-audit</code> lists lines whose premise and conclusion cite only
+the same locator; the reading is &quot;does the passage make this step, or
+say the same thing twice?&quot; Fix: delete the line and cross-reference
+the docks in a comment, or merge them into one statement.</li>
+<li><strong>Two lines sharing a premise into one conclusion.</strong> Same-polarity
+lines into one statement whose premise sets overlap, combined as if
+independent. See it: <code>shared-cause</code>, one row per shared statement.
+Fix: either the overlap is the deliberate world-layer device (the
+shared conjunct, 7.9) and a comment says so, or factor the shared
+span out, or merge the lines.</li>
+<li><strong>A statement AND-ed with its own derivative.</strong> A junction
+<code>@x AND @y</code> where some line derives <code>@y</code> from <code>@x</code> (the flagship&#39;s
+<code>$wst-race</code>): the consideration enters the junction twice, and no
+static audit sees it. See it: the reading. For every AND, trace each
+premise&#39;s ancestry two hops up (<code>argmap-query neighbors ID --hops 2</code>);
+a premise that appears in another premise&#39;s ancestry is the hit. The
+covariance probe (<code>experiments/solver-prototypes/covariance_probe.py</code>)
+finds it at scale as premises that co-move under one root&#39;s ablation.
+Fix: drop the duplicate premise, or re-elicit the line conditional on
+the derivative alone.</li>
+<li><strong>A floor elicited from the total.</strong> A derived statement carrying a
+residual pair whose floor sits at, or near, the register&#39;s point:
+the pin again with extra steps (T3&#39;s hazard; the spoke&#39;s variant C).
+See it: the reading. A pair beside a check is lint-silent by design,
+so compare the two: a floor that would close the badge on its own is
+the total, and a floor with no passage behind it in the gloss is the
+total by default. Fix: empty the residual unless the text names a
+second unwired ground (floor at that ground&#39;s register, passage in
+the gloss) or a remainder (&quot;to name a few&quot;: <code>0.2?/0?</code>).</li>
+<li><strong>A posterior elicited as direct evidence.</strong> A root&#39;s pair read off a
+register that already discounts what the author believes downstream,
+so the solve applies modus tollens a second time. See it: the
+reading; the signature is an author hedging a root <em>because of</em> a
+conclusion the map also derives from it. Fix: there is no exact
+correction. Keep the table&#39;s widths, say in the trailing comment that
+the register is a posterior, and present the interval and the band
+rather than the midpoint.</li>
+<li><strong>A definition as a p = 1 statement.</strong> A terminology node
+(<code>@asi-def [ASI means ...] 1</code>) conjoined into premises: it solves
+0.988 under the ridge and taxes every junction it joins by 1/400
+(T7). See it: grep the marginals for <code> 1:</code> and <code> 1?:</code>; the lint is
+silent (0/1 is a smell without a code). Fix: terminology goes in a
+gloss or a glossary surface; a definition that does inferential work
+becomes p = 1 evidence lines, spelled as the converse pair (T6).</li>
+<li><strong>A malformed check interval.</strong> <code># check:</code> holding a token that is
+neither a point in [0, 1] nor <code>lo..hi</code> with lo &lt;= hi (reversed
+bounds, a bound past 1, a single dot, a dangling <code>..</code>). The check
+is display-only, so nothing fails downstream; the badge simply
+disappears while the comment reads as if it counted. See it:
+<strong>W26</strong>. Fix: write the point or the interval.</li>
+<li><strong>An unstrengthed line left as structure.</strong> A line with no strength
+compiles inert: the relation is drawn and nothing is asserted, so a
+map that &quot;maps&quot; an argument through it says nothing about it. See
+it: <strong>I3</strong>, the inventory. Fix: commit a strength by rubric, or
+delete the line if the relation was never meant to carry.</li>
+<li><strong>A label whose pronoun has no antecedent.</strong> &quot;It must hold across
+the gap between weak before and lethal after&quot; (the flagship&#39;s
+<code>@before-after-gap</code> before 2026-08-23) reads cleanly in source order
+and as nothing in the outline, the graph card or a search hit. See
+it: the reading. Read every statement label cold and out of order
+(sort the outline, or read the <code>argmap-query roots</code> listing); any
+label that needs the line above to say what &quot;it&quot; is fails. Fix: put
+the subject in the label (&quot;Alignment must hold across the gap ...&quot;).</li>
+<li><strong>A bundled label.</strong> A label carrying two propositions (&quot;X and Y&quot;),
+or a claim fused with what follows from it (&quot;X, so dismiss Y&quot;): two
+variables in one slot, and a reader cannot tell which half a line
+argues for. See it: the reading; grep labels for <code>and</code>, <code>so</code>,
+<code>therefore</code>, and ask of each hit whether the two halves could be
+true separately. Fix: one proposition per statement, or derive the
+fused conclusion from its halves with one line per ground.</li>
+<li><strong>A refusal written as a number.</strong> The source says &quot;nobody knows&quot;
+and the map carries 0.5, or a confident point, or a narrow pair,
+with no gloss. See it: the reading; a pair wider than 0.30 with no
+gloss sentence, or a 0.5 with none, is the signature. Fix: <code>0.1?/0.1?</code>
+plus the gloss sentence naming the passage, or a blank marginal
+where the refusal is the author&#39;s own.</li>
+<li><strong>A pair whose shape contradicts its register.</strong> A categorical the
+source leaves no room against, written two-sided; an objection the
+source denies, written <code>0/p</code> with no floor; a hedged claim written
+as a flat pair. See it: the reading, against the table in 4.7.4 and
+the class token in the trailing comment (a pin with no class token
+is unaudited). Fix: the table&#39;s row, or a per-node pair from the
+text with the rationale beside it.</li>
+</ol>
+<p>Run the mechanical half first (lint, then the five audits: <code>isolate-audit</code>,
+<code>restate-audit</code>, <code>shared-cause</code>, <code>cook-audit</code>, <code>pinned-roots</code>), then the
+reading half over the statements <code>pinned-roots</code> lists, since those are
+the rows where items 3, 7, 8, 14 and 15 live.</p>
 <h2>Appendix A: a complete worked example</h2>
 <p>The file below is complete and lints clean as shown (zero errors, zero
 warnings). It exercises: convergent
 routes, a linked conjunction, a refinement with an evidence-side check,
 an undercut, a reinstating undercut-of-the-undercut, a rebuttal, check
 credences, <code>?</code> discipline, and a footnote.</p>
-<pre><code>---
-argmap-version: 0.2
-title: &quot;Protected bike lanes and cyclist safety&quot;
-description: &quot;AUTHORING_TUTORIAL.md Appendix A: worked example.&quot;
-date: 2026-07-25
----
+<pre class="argmap"><code><span class="am-meta">---</span>
+<span class="am-meta">argmap-version: 0.2</span>
+<span class="am-meta">title: &quot;Protected bike lanes and cyclist safety&quot;</span>
+<span class="am-meta">description: &quot;AUTHORING_TUTORIAL.md Appendix A: worked example.&quot;</span>
+<span class="am-meta">date: 2026-07-25</span>
+<span class="am-meta">---</span>
 
-# Headline first (convention). Derived statement: no authored marginal,
-# a check credence instead (residual authoring rule).
-@lanes-safer [Protected lanes reduce cyclist injuries per trip]: the headline claim  # check: 0.8
+<span class="am-comment"># Headline first (convention). Derived statement: no authored marginal,</span>
+<span class="am-comment"># a check credence instead (residual authoring rule).</span>
+<span class="am-atom">@lanes-safer</span> <span class="am-string">[Protected lanes reduce cyclist injuries per trip]</span><span class="am-operator">:</span> the headline claim  <span class="am-comment"># check: 0.8</span>
 
-# Route 1: observational. The coarse line refines into the per-trip
-# reading; its 0.7? is the evidence-side check against the refinement.
-@study-drop [Injury rates fell after protected-lane installation] 0.9?: city-level before/after counts [^lusk]
-$obs-route [before/after data carries the claim] 0.7? @lanes-safer | @study-drop: unfolds into the per-trip reading below
-  @exposure-ok [The drop is not explained by reduced cycling] 0.8?: ridership rose over the same period, so per-trip risk fell
-  $obs-fine [per-trip injuries fell while ridership rose] 0.8? @lanes-safer | @study-drop AND @exposure-ok: linked - both facts are needed for the per-trip reading
+<span class="am-comment"># Route 1: observational. The coarse line refines into the per-trip</span>
+<span class="am-comment"># reading; its 0.7? is the evidence-side check against the refinement.</span>
+<span class="am-atom">@study-drop</span> <span class="am-string">[Injury rates fell after protected-lane installation]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span> city-level before/after counts <span class="am-link">[^lusk]</span>
+<span class="am-variableName">$obs-route</span> <span class="am-string">[before/after data carries the claim]</span> <span class="am-number">0.7?</span> <span class="am-atom">@lanes-safer</span> <span class="am-operator">|</span> <span class="am-atom">@study-drop</span><span class="am-operator">:</span> unfolds into the per-trip reading below
+  <span class="am-atom">@exposure-ok</span> <span class="am-string">[The drop is not explained by reduced cycling]</span> <span class="am-number">0.8?</span><span class="am-operator">:</span> ridership rose over the same period, so per-trip risk fell
+  <span class="am-variableName">$obs-fine</span> <span class="am-string">[per-trip injuries fell while ridership rose]</span> <span class="am-number">0.8?</span> <span class="am-atom">@lanes-safer</span> <span class="am-operator">|</span> <span class="am-atom">@study-drop</span> <span class="am-keyword">AND</span> <span class="am-atom">@exposure-ok</span><span class="am-operator">:</span> linked - both facts are needed for the per-trip reading
 
-# Route 2: mechanism. Convergent sibling of $obs-route (independent
-# routes, so separate lines, not an AND). Independence audited: the
-# mechanism does not rest on the before/after data.
-@separation [Physical separation removes the main collision type] 0.9?: most serious urban cycling injuries involve motor vehicles
-$mech-route [the design removes the dominant injury mechanism] 0.75? @lanes-safer | @separation:
+<span class="am-comment"># Route 2: mechanism. Convergent sibling of $obs-route (independent</span>
+<span class="am-comment"># routes, so separate lines, not an AND). Independence audited: the</span>
+<span class="am-comment"># mechanism does not rest on the before/after data.</span>
+<span class="am-atom">@separation</span> <span class="am-string">[Physical separation removes the main collision type]</span> <span class="am-number">0.9?</span><span class="am-operator">:</span> most serious urban cycling injuries involve motor vehicles
+<span class="am-variableName">$mech-route</span> <span class="am-string">[the design removes the dominant injury mechanism]</span> <span class="am-number">0.75?</span> <span class="am-atom">@lanes-safer</span> <span class="am-operator">|</span> <span class="am-atom">@separation</span><span class="am-operator">:</span>
 
-# The objection: grants the data, denies the inference from it
-# (an undercut of $obs-route, not a rebuttal of the claim).
-@confound [Cities add lanes where cycling is already safest] 0.5?: selection: lanes go where streets are calmest
-$uc-obs [selection could explain the before/after drop] 0.6? ~@lanes-safer | @confound AND $obs-route:
+<span class="am-comment"># The objection: grants the data, denies the inference from it</span>
+<span class="am-comment"># (an undercut of $obs-route, not a rebuttal of the claim).</span>
+<span class="am-atom">@confound</span> <span class="am-string">[Cities add lanes where cycling is already safest]</span> <span class="am-number">0.5?</span><span class="am-operator">:</span> selection<span class="am-operator">:</span> lanes go where streets are calmest
+<span class="am-variableName">$uc-obs</span> <span class="am-string">[selection could explain the before/after drop]</span> <span class="am-number">0.6?</span> <span class="am-operator">~</span><span class="am-atom">@lanes-safer</span> <span class="am-operator">|</span> <span class="am-atom">@confound</span> <span class="am-keyword">AND</span> <span class="am-variableName">$obs-route</span><span class="am-operator">:</span>
 
-# The response: an undercut of the undercut (reinstatement). The
-# selection story predicts no drop at quasi-random sites.
-@natural-exp [Some installations were sited quasi-randomly] 0.7?: construction-driven and court-ordered sitings
-$resp-uc [quasi-random sites show the same drop] 0.8? @lanes-safer | @natural-exp AND $uc-obs:
+<span class="am-comment"># The response: an undercut of the undercut (reinstatement). The</span>
+<span class="am-comment"># selection story predicts no drop at quasi-random sites.</span>
+<span class="am-atom">@natural-exp</span> <span class="am-string">[Some installations were sited quasi-randomly]</span> <span class="am-number">0.7?</span><span class="am-operator">:</span> construction-driven and court-ordered sitings
+<span class="am-variableName">$resp-uc</span> <span class="am-string">[quasi-random sites show the same drop]</span> <span class="am-number">0.8?</span> <span class="am-atom">@lanes-safer</span> <span class="am-operator">|</span> <span class="am-atom">@natural-exp</span> <span class="am-keyword">AND</span> <span class="am-variableName">$uc-obs</span><span class="am-operator">:</span>
 
-# A rebuttal (attacks the claim itself, so no $-conjunct).
-@risk-comp [Riders take more risks when they feel protected] 0.4?: the risk-compensation hypothesis
-$rebut [risk compensation could offset the design gain] 0.3? ~@lanes-safer | @risk-comp:
+<span class="am-comment"># A rebuttal (attacks the claim itself, so no $-conjunct).</span>
+<span class="am-atom">@risk-comp</span> <span class="am-string">[Riders take more risks when they feel protected]</span> <span class="am-number">0.4?</span><span class="am-operator">:</span> the risk-compensation hypothesis
+<span class="am-variableName">$rebut</span> <span class="am-string">[risk compensation could offset the design gain]</span> <span class="am-number">0.3?</span> <span class="am-operator">~</span><span class="am-atom">@lanes-safer</span> <span class="am-operator">|</span> <span class="am-atom">@risk-comp</span><span class="am-operator">:</span>
 
-[^lusk]: Lusk et al., &quot;Risk of injury for bicycling on cycle tracks versus in the street,&quot; Injury Prevention 17, 2011.
+<span class="am-link">[^lusk]</span><span class="am-operator">:</span> Lusk et al., &quot;Risk of injury for bicycling on cycle tracks versus in the street,&quot; Injury Prevention <span class="am-number">17</span>, <span class="am-number">2011</span>.
 </code></pre>
 <p>What to notice:</p>
 <ol>
@@ -1556,13 +2135,13 @@ refinement&#39;s delivery line when unfolded.</li>
 </ol>
 <p>The actual solver readout for this file (solve_map.py, D36 defaults,
 2026-07-25), abridged:</p>
-<pre><code>appendix-a.argmap: 7+5 vars, width=3 | 0.0s, conv=True
-  largest statement gaps (authored/check -&gt; solved):
-    @lanes-safer                0.80 -&gt; 0.818  |d|=0.018
-    @separation                 0.90 -&gt; 0.893  |d|=0.007
+<pre class="argmap"><code>appendix-a.argmap<span class="am-operator">:</span> <span class="am-number">7</span>+<span class="am-number">5</span> vars, width=<span class="am-number">3</span> <span class="am-operator">|</span> <span class="am-number">0.0</span>s, conv=True
+  largest statement gaps <span class="am-operator">(</span>authored/check -<span class="am-quote">&gt;</span> solved):
+    <span class="am-atom">@lanes-safer</span>                <span class="am-number">0.80</span> -<span class="am-quote">&gt;</span> 0.818  |d|=0.018
+    <span class="am-atom">@separation</span>                 <span class="am-number">0.90</span> -<span class="am-quote">&gt;</span> 0.893  |d|=0.007
     ...
-  largest spectator gaps (authored coarse ~&gt; delivered by refinement):
-    $obs-route:delivered-by-refinement    p=0.70 ~&gt; q=0.837 |gap|=0.137
+  largest spectator gaps <span class="am-operator">(</span>authored coarse <span class="am-operator">~</span><span class="am-quote">&gt;</span> delivered by refinement):
+    <span class="am-variableName">$obs-route</span><span class="am-operator">:</span>delivered-by-refinement    p=<span class="am-number">0.70</span> <span class="am-operator">~</span><span class="am-quote">&gt;</span> q=0.837 |gap|=0.137
 </code></pre>
 <p>Reading it: the check credence 0.8 on the headline is nearly met by the
 mapped argument (solved 0.818), so the map delivers the stated belief.
@@ -1574,22 +2153,22 @@ refinement&#39;s number (the coarse 0.7 was too conservative) or to notice a
 missing qualifier in the fine model; nothing is tuned silently either
 way.</p>
 <h2>Appendix B: cheat sheet</h2>
-<pre><code>@id [label] p?: gloss                     statement; p optional, ? = estimated
-$id [label] s? CONCL | PREM: gloss        evidence; s optional; | optional
-$id s ~@x OR ~@y: gloss                   premise-less constraint factor
-~@id                                      negation (never ~$id: E3)
-AND / OR                                  linked / convergent; parens to mix
-::id [label]: gloss                       declared group; no credence, never in an expr
-  indented node lines                     under @/$: refinement (replaces parent unfolded)
-                                          under ::: membership in the group
+<pre class="argmap"><code><span class="am-atom">@id</span> <span class="am-string">[label]</span> p?<span class="am-operator">:</span> gloss                     statement; p optional, ? = estimated
+<span class="am-variableName">$id</span> <span class="am-string">[label]</span> s? CONCL <span class="am-operator">|</span> PREM<span class="am-operator">:</span> gloss        evidence; s optional; <span class="am-operator">|</span> optional
+<span class="am-variableName">$id</span> s <span class="am-operator">~</span><span class="am-atom">@x</span> <span class="am-keyword">OR</span> <span class="am-operator">~</span><span class="am-atom">@y</span><span class="am-operator">:</span> gloss                   premise-less constraint factor
+<span class="am-operator">~</span><span class="am-atom">@id</span>                                      negation <span class="am-operator">(</span>never <span class="am-operator">~</span><span class="am-variableName">$id</span><span class="am-operator">:</span> E<span class="am-number">3</span><span class="am-operator">)</span>
+<span class="am-keyword">AND</span> / <span class="am-keyword">OR</span>                                  linked / convergent; parens to mix
+<span class="am-labelName">::id</span> <span class="am-string">[label]</span><span class="am-operator">:</span> gloss                       declared group; no credence, never in an expr
+  indented node lines                     under @/$<span class="am-operator">:</span> refinement <span class="am-operator">(</span>replaces parent unfolded<span class="am-operator">)</span>
+                                          under <span class="am-operator">:::</span> membership in the group
   indented prose                          folds into the gloss above
-  &gt; verbatim text [^locator]              quote line; one line, no trailing comment
-# comment                                 full-line or trailing
-#[key: ...]                               annotation comment (per-file free in parity)
-# check: p                                display-only credence (derived stmts)
-# gate: q($e) &gt;= t =&gt; @c                  threshold audit (comment layer)
-[^ref] ... [^ref]: source                 footnote citation
----: argmap-version: 0.3                  required for slash pairs (s+/s-, p+/p-) and &gt; lines
+  <span class="am-quote">&gt;</span> verbatim text [^locator]              quote line; one line, no trailing comment
+<span class="am-comment"># comment                                 full-line or trailing</span>
+<span class="am-annotation">#[key: ...]                               annotation comment (per-file free in parity)</span>
+<span class="am-comment"># check: p  or  # check: lo..hi           display-only credence (derived stmts); badge = distance to the interval</span>
+<span class="am-comment"># gate: q($e) &gt;= t =&gt; @c                  threshold audit (comment layer)</span>
+<span class="am-link">[^ref]</span> ... <span class="am-link">[^ref]</span><span class="am-operator">:</span> source                 footnote citation
+---<span class="am-operator">:</span> argmap-version<span class="am-operator">:</span> <span class="am-number">0.3</span>                  required for slash pairs <span class="am-operator">(</span>s+/s-, p+/p-<span class="am-operator">)</span> and <span class="am-quote">&gt;</span> lines
 </code></pre>
 <p>Number rules: elicit as &quot;assume the premises; how likely is the
 conclusion?&quot;; <code>?</code> on rubric-derived values, bare only for source-stated
@@ -1607,7 +2186,7 @@ guarded; multi-voice overlaps deduplicated.</p>
 
 <script>
 (function () {
-  var SKILL = "---\nname: argmap-author\ndescription: Recipe for reading and authoring .argmap (v0.3) maps: syntax crib incl. declared groups and source quote lines, the D36 number rules, label/gloss discipline, the structural-idiom catalog, nesting discipline, the extraction workflow, and the lint + solve verification loop.\n---\n\n# Authoring .argmap maps\n\nThis file is meant to be sufficient on its own: syntax, numbers, the\nidiom catalog, nesting discipline, the workflow, and the checks. Open\nthe full tutorial only for depth: the rationale behind each rule, the\nreading chapter, and a complete worked example with its solver readout\n(`AUTHORING_TUTORIAL.md` Appendix A). Pointers below read `tut 7.4`\n(= that tutorial's section 7.4). `examples/README.md` indexes the\nexample corpus by idiom, and is the place to read a whole real file.\n`MATH.md` is the model underneath the numbers. Read it when a *why*\nquestion about solved values or tension comes up; nothing here needs it.\n\nOutside this repo: the canonical copies live in the **argmap** repo\ncheckout: `.claude/skills/argmap-author/SKILL.md` and\n`AUTHORING_TUTORIAL.md` at its root; the user-level pointer skill in\n`~/.claude/skills/` carries the local path to it. For machines without\nthe checkout, the deployed webapp serves the tutorial at\np1graph.org/AUTHORING_TUTORIAL.md and this skill card from\np1graph.org/authoring-tutorial.html (the \"download SKILL.md\" link:\nthe host renders raw `.md` with front matter to HTML, so the page\nhands over the exact bytes as a download instead).\n\n## Reading only\n\nMaps render at p1graph.org (text / outline / graph panes; solved\nvalues, \"implied\" in the UI, are on by default and the \"Show what the\nmap implies\" Controls toggle turns them off, `authored -> implied` with\nthe gap tinted). Headless query, from `experiments/solver-prototypes/` (needs\npython3 + numpy + scipy + node):\n`python3 solve_map.py FILE @node '$edge' --band` or `--top 10`.\n\n## Syntax crib\n\nThe block below is a complete, lint-clean file (given\n`argmap-version: 0.3` in the frontmatter, which the last two lines\nneed):\n\n```\n@prem1 [First premise] 0.9?: gloss; a deeper-indented prose line folds in [^src]\n@prem2 [Second premise] 0.8?:\n@ground [The objection's ground] 0.5?:\n@root [A root fact] 0.9?:\n@concl [The claim, as a proposition]: derived, so check not pin  # check: 0.8\n$id [headline warrant, \u003c=56 chars] 0.8? @concl | @prem1 AND @prem2: depth here\n$rebut 0.3? ~@concl | @ground:            # rebuttal: attacks the claim\n$uc 0.6? ~@concl | @ground AND $id:       # undercut: attacks the inference $id\n$fact 0.9? @concl:                        # premise-less constraint factor\n$step 0.7? @concl | @root: coarse summary; the indented block replaces it unfolded\n  @mid [Intermediate claim] 0.8?:\n  $fine 0.8? @concl | @root AND @mid:\n::topic [A named box]: v0.3 declared group; its block is MEMBERSHIP, not refinement\n  @side [An unrelated topic in the same file] 0.4?: a claim of its own\n    #[note: an annotation comment - free per file in the parity check]\n    > a verbatim span from the source, attached to @side [^src]\n[^src]: Author, \"Title,\" venue, year, URL.\n```\n\nRules: spaces-only indent (a tab is a parse error); IDs document-global,\nforward refs legal, one namespace across `@`/`$`/`::`; `AND` linked /\n`OR` convergent, parens to mix; `~$id` is banned (error E3), so write\nan undercut instead; `?` = estimated; labels crop at 56 chars on\nevidences (and group boxes), with W5 firing at 57 exactly.\n\n`AND`/`OR` take any number of operands and any operand may be negated,\nso a three-conjunct linked premise containing a `~` (`@a AND @b AND\n~@c`) is ordinary and idiomatic; the neither-alone-suffices test scales\nunchanged. A **premise-less** evidence (`$fact 0.9? @concl:`) is an\nunconditional floor on its conclusion (no slab, nothing to be in force\nagainst), and it accumulates with the other lines concluding there\nunder the same independence assumption as any convergent sibling.\n\n**Indentation is sigil-keyed (D58/D59):** it always means \"belongs to the\nline above\"; the PARENT's sigil says how. Under `@`/`$` = refinement.\nUnder `::` = membership in a declared group. Sigil-less prose folds into\nthe gloss; a `>` child is a quote line (below).\n\nOptional YAML frontmatter carries `title`, `author`, `date`,\n`description`, `source`, `scope` (which part of the source the map\nclaims to cover; state it, it is review checklist item 6),\n`focus: [id, id]` (D57; declare only when topology misreads intent, e.g.\na goal guard), and `argmap-version`. Unknown keys are preserved, which\nmakes frontmatter the extension point for provenance notes. The version\ngate covers **pairs and quote lines**: `0.3` is required if the file\nwrites slash pairs (`0.9/0.2`, E5/W10) or `>` quote lines (W19).\nDeclared groups are not gated, though a `::`-using file conventionally\ndeclares 0.3.\n\nTwo-sided pairs (v0.3, D52/D53): `$e 0.9/0.2 @c | @a` adds an opposed\nfloor in the same slab; `@s 0.8/0.1` bounds P(s) to [0.8, 0.9] instead\nof pinning a point. No whitespace around the slash, `?` binds per\nmember, an omitted second member is 0 (= the v0.2 reading). Ignore pairs\nuntil you need \"this cuts both ways\" or an interval-shaped residual.\n\n## Declared groups (`::`, v0.3/D58)\n\n`::id [Label]: gloss` names a box drawn around the nodes indented under\nit. Display only, by construction: **no credence** (a number on a `::`\nline is an error), **never referenceable** (`::id` in any expression is\na parse error), and **transparent**: deleting every `::` line leaves\nthe graph, the roles and the solve identical.\n\nUse it for a *topic*, where a wrapper evidence would be a lie: two\narguments sharing a file but no premise, or a shelf of background facts.\nBefore `::`, that could only be a `# ====` comment no tool could see.\nThe workhorse case in practice is the **objection battery inside a\nbox**: several answered attacks on the box's claim, grouped so they\nread (and fold) as one unit. Keep the family's lines contiguous; put a\nground inside only if nothing outside the family consumes it; label\nwith a short reader question. Every group folds to a summarizing card\n(non-closed ones bundle their boundary edges into dashed summaries,\nD124), and a group nested in a refinement starts folded.\n\nLint checks the authored box against the derived block (connected\ncomponent). Silent: a group equal to one block, or spanning several\n*whole* blocks. Warns: **W12** a group covering only PART of a connected\nblock (edges cross the boundary; its fold bundles them into summary\nedges), **W13**\none block split across two groups (usually an accidental shared premise\nmerged two topics while your headings still claim they are separate,\nwhich is the mistake worth catching), **W14** an empty group. Only\ndocument-level groups are checked; nested ones subdivide their parent.\nMembership does NOT suppress the isolate note I1. **I2** lists the\nderived blocks for any multi-block file. Read it to confirm the split\nyou intended.\n\n## Source quotes (`>`, v0.3/D59)\n\n`> verbatim text [^locator]` under a node carries a **verbatim** span of\nsource material plus its footnote locator (tut 3.12). The gloss goes\nback to being a claim a reader can parse cold; the quotes sit beneath it\nas its evidence. Replaces the retired `~\"…\"` in-gloss convention, which\nno tool could see.\n\n```\n@no-honor [Honor is a contingent evolved hack an AI won't carry] 0.9?: an\n  evolutionarily contingent shortcut, not a convergent feature of minds\n  #[de: ein seltsamer Hack, auf den die Menschheit gestossen ist]\n  > a specific weird hack that humanity stumbled into [^supp-ch5]\n  > quite skeptical that gradient descent will stumble across the same shortcut [^supp-ch5]\n```\n\nRules: **verbatim, never paraphrased**; **always give a locator** (W15:\nchapter, supplement page, or transcript timestamp, whatever the source\nallows); **only a trailing `[^id]` is the locator**, anything else on the\nline is verbatim text including a mid-line `[^…]` (W16); **no trailing\n`#` comment**, the one line kind without one, because source text cannot\nbe reworded to dodge the splitter (W17 flags a ` # ` inside a quote);\n**no wrapping**, one line however long; **placement is positional**: a\nquote attaches to the node above and must sit in that node's *annotation\nblock*, the span before its first child, so a `>` at top level or after a\nchild node is E9, never a re-attachment outward; **gloss first, then\nquotes** (W18, since the serializer rewrites to that order anyway);\ndeclare `argmap-version: 0.3` (W19).\n\n**Which spans become `>` lines: the three-way test.** *Is this the\nnode's own wording, or support for it?*\n\n1. **Supporting quote** (most of them), evidence for the claim: lift to\n   a `>` line.\n2. **Load-bearing inline fragment**, a verbatim phrase that is a\n   grammatical constituent of the gloss sentence (`Kelvin's \"infinitely\n   beyond…\" fell to DNA`): keep it in the gloss in **plain quotation\n   marks**, the node's own phrasing borrowing the source's words. Add an\n   **echo** (a `>` line with the full verbatim sentence + locator, gloss\n   fragment unchanged) when provenance matters.\n3. **Quote-is-the-claim** (the gloss is nothing but the quote): the\n   degenerate case of 2, with plain marks in the gloss and a `>` echo\n   underneath.\n\n**Quotes are never translated.** In a multilingual set the whole `>`\nline is byte-identical across languages (`translation-parity.py` enforces\nit); a translated \"verbatim\" quote is false and breaks the tie to the\nsource. The echo pattern is what makes case 2 honest across languages:\nthe translated gloss quotes ordinary prose, the `>` line stays in the\nsource language.\n\n**Annotation comments.** Per-quote side data goes on a full-line\n`#[key: …]` comment (no space between `#` and `[`) above the quote, at\nits indent. An ordinary comment to the parser; **free per file** in the\nparity check (every other comment must match byte-for-byte); and the\nreserved surface for real attributes in a later version, so the\nconvention promotes without a rewrite. Current tenant: `#[de: …]`,\nparking a quote's translation until quotes get a real translation field.\n\n## Labels and glosses\n\nThree slots, three different jobs (tut 6):\n\n1. **Statement label** = the claim itself, a proposition, may be a full\n   sentence. Not length-linted.\n2. **Evidence label** = the headline warrant: *why* the premises bear on\n   the conclusion, in a phrase. Crops at ~56 chars in the graph (W5), so\n   distill. Not every evidence needs one. An obvious deductive\n   connector is better unlabeled than filler-labeled (about half the\n   flagship's evidences carry labels).\n3. **Gloss** = the depth tier: full reasoning, qualifications, source\n   voice, quotes. Never length-linted.\n\nThe three-job test for gloss text: content is either (a) a role tag\n(\"undercut of ...\"), derivable from topology, so delete it; (b) the\nwarrant, which belongs in the label; or (c) format-meta commentary,\nwhich belongs in a `#` comment. What survives is the genuine depth\ntier. Put the substantive point first even inside a gloss: displays\ncrop from the end.\n\nThree conventions worth keeping: **plain-first, technical-nested** (write\nthe gloss plainly, move a technical restatement to a folded continuation\nline starting \"technical reading: ...\"); **rubric provenance is not\nreader content** (elicitation citations like \"R-STEP S2: ...\" go in a\ntrailing `#` comment, not the gloss, while reader-valuable quotes and\nfootnote refs stay); and in multi-speaker maps **prefix evidence labels\nwith a speaker tag** (\"A:\", \"L:\"), because IDs are invisible at graph\njunctions.\n\n## Numbers (D36, five rules)\n\n1. Elicit strength as: assume the premises; how likely is the conclusion?\n   It is a property of the rule; premise truth lives elsewhere. Do not\n   discount a strength because you doubt the premises. The given bar is\n   directional. Contraposition is a different claim, so preserve the\n   direction the source asserts.\n2. `?` on every rubric-derived value; bare numbers only where the source\n   states a number. Fix the verbal->probability rubric BEFORE assigning;\n   never move a number after the first solve.\n3. Residual rule: frontier roots keep authored values; derived statements\n   get `# check: p` trailing comments, never pins, because authoring\n   both the support and the conclusion double-counts. Never both on one\n   line: a pin + check pair on a concluded-into statement fights your\n   own counter-evidence and contradicts itself, and the lint flags any\n   head line carrying both as **W23**. This holds inside\n   refinements too: a hinge with internal incoming lines takes a check;\n   if the source also asserts it directly, add a premise-less attributed\n   evidence at that register (the direct-assertion pattern), not a pin.\n   The keeper sentence: a statement's own indented block *explicates* its\n   number; sibling lines concluding into it *replace* it.\n   Syntax of the check comment: it must sit on the node's **head line**.\n   On a folded continuation line it is silently ignored, with no\n   diagnostic and a `—` where the readout would show it. It may carry\n   `?` and be followed by prose (`# check: 0.95?  (A2: restated)`); the\n   reader stops at the number. In a source-faithful map the `?` belongs\n   there, because the check is the source's register, not your belief.\n4. No authored 0/1 marginals (world-killers); strength 1 is fine for\n   deduction, strength 0 means \"drop the number\" (W11).\n5. Unstrengthed lines are legal structure-only sketches; commit numbers\n   later.\n\nFour consequences that trip authors (tut 4.2, 4.4, 4.5):\n\n1. **Drift tax.** Asserting `$imp 0.8 @c | @a` alone drags solved P(@a)\n   to ~0.36. Two remedies, both ordinary authoring: author a value on\n   `@a`; or, if the source asserts the converse, write the cross-slab\n   pair `~@c | ~@a` (idiom 7 below). Do not confuse that with the\n   same-slab pair (`@c | @a` opposed by `~@c | @a`), which compounds the\n   drift instead of cancelling it.\n   The tax follows the premise's **polarity**, in both directions: with\n   `$e 0.9? @c | ~@a` the same mechanism pushes P(@a) *up* (0.5 → 0.651,\n   the exact mirror of 0.349). Conditioning on a negated statement is\n   therefore an implicit vote *for* it. Expect it, and check the sign\n   before calling the result a bug.\n   When the premise is itself **derived** (concluded into by other\n   lines), rule 3 wins and the first remedy is off the table: do not pin\n   it. Author the missing counter-evidence as its own named line at the\n   source's register instead, the same move as the direct-assertion\n   pattern (idiom 13). A pin would fight the very lines that conclude\n   into it; a named line accumulates with them and stays criticizable.\n2. **Independence is assumed**: separate lines accumulate noisy-OR, so\n   convergent lines with overlapping grounds double-count. Three repairs\n   in increasing order of structure: merge into one evidence; name the\n   shared source as a statement and condition both on it; or partition\n   with `AND ~@other-route`. Applies only to lines converging on the\n   *same* conclusion. One statement feeding several different\n   conclusions needs no declaration.\n3. **Stacking to ~0.99 is not automatically an error.** Four genuinely\n   independent 0.85 routes compound past 0.99; if the source really\n   asserts four sufficient reasons, that is its own logic, and a lower\n   `# check:` on the hub turns the difference into a visible audit\n   finding. First check for an unnamed shared latent (repair 2), since\n   several \"distinct\" failure modes of one mechanism usually have one.\n4. **An undercut does NOT push its own conclusion.** Its strength is\n   \"granted the grounds, how often does the target inference fail?\" Do\n   not pre-discount it because a response exists (author the response as\n   an undercut of the undercut). But an undercut-shaped line compiles as\n   a pure **inhibitor** of its target: it carries no floor of its own\n   (SOLVER_SEMANTICS §1.2, the factored-A compile), so the negated\n   conclusion it names gets no independent push from it. Two measured\n   consequences: an undercut whose target is unstrengthed moves nothing\n   at all (0.500 → 0.500); and an undercut of a rebuttal reinstates the\n   claim only *toward* the value it would have with the rebuttal absent,\n   never past it (0.500 → 0.866 against a rebuttal-free 0.898).\n   The authoring consequence, and it is easy to miss: when the source\n   also asserts the **fact** the objection rests on, and you want that\n   fact to bear on the conclusion, the undercut cannot carry it. Author\n   the fact as an ordinary evidence line beside the undercut. The two do\n   not double-count: the inhibitor acts on the inference, the plain\n   line acts on the claim.\n\n## Structural idioms\n\nThe patterns that carry the flagship map\n(`experiments/llm-extraction/iabied-comprehensive-en.argmap`; each entry\nnames an anchor to grep for). Full prose in tut 7; whole readable files\nin `examples/` (see its README).\n\n1. **Objection/response triple** (tut 7.1, anchor `@c11-readthoughts`).\n   The workhorse; FAQ-shaped sources map one row each. An objection\n   statement, an objection evidence concluding against the target, and a\n   response undercutting that evidence:\n   `@hope 0.15?:` / `$hope-obj 0.2? ~@target | @hope:` /\n   `$hope-resp [why the hope fails] 0.85? @target | @ground AND $hope-obj:`.\n   The `-obj`/`-resp` suffixes are a mnemonic convention, not syntax.\n2. **Undercut ladder** (tut 7.2, anchor `$uc-counting`): rebuttal,\n   undercut, response and undercut-of-undercut are one schema applied\n   repeatedly. `$uc-uc q @claim | @grounds AND $uc` reinstates `@claim`\n   exactly to the extent the rescue in `$uc` fails.\n3. **Linked vs convergent, side by side** (tut 7.3, anchor\n   `$fragile-ev`). Write `$a 0.9? @hub | @x AND @y AND @z` beside\n   `$b 0.7? @hub | @w`. Test for linked: *neither conjunct alone\n   suffices* (\"neither end alone shows disagreement; together they are\n   the spread\").\n4. **Convergent siblings instead of a false AND** (tut 7.4, anchor\n   `$adv-speed-ev`). When the source says \"any one of these suffices\",\n   write separate evidences on the same conclusion, never one\n   conjunction. The flagship had this wrong as a four-way AND; the\n   repair note is still in the file.\n5. **Coarse summary + refinement** (tut 7.5, anchor `$link `, grepped\n   with the trailing space): one coarse line whose indented block holds\n   the whole sub-argument. The coarse strength is not a solver input\n   (the refinement replaces it); it is the evidence-side check. Author\n   it as your holistic judgment *before* trusting the steps, and the\n   comparison is a free audit. Special case, the **coarse hull**: when a\n   region's linking evidence mixes one cross-region premise with\n   region-local hubs, write the coarse line conditioning on just the\n   cross-region premise (`$takeover-ev @takeover-doom | @unaligned-asi`\n   in the He map) and put the fine conjunction plus the local clusters\n   in the refinement: the spine edge survives folding, because a\n   refinement folds to its visible coarse line where a statement block\n   folds to nothing (spine test).\n6. **Complementary partition, \"even if\"** (tut 7.6, anchor `$mwb-time`).\n   Make two overlapping routes disjoint by conjoining the negation of\n   the other: `$r2 0.9? @c | @route2-ground AND ~@route1-ground`. That\n   `~` conjunct is the source's own \"even if X were false\".\n7. **Balancing evidence** (tut 7.7, anchor `$no-doom-otherwise`): a\n   conditional says nothing outside its slab. If the source asserts the\n   converse, name it: `$conv 0.9? ~@c | ~@a`. Cancels the drift tax and\n   keeps a contested claim on the map instead of hiding it in a prior.\n8. **Conditioning on an inference** (tut 7.8, anchor `$shutdown-ev`), a\n   policy that hangs on an implication, not on a fact:\n   `$policy 0.93? @should-act | $link`. Conditioning on the implication's\n   *conclusion* would be subtly wrong (unconditional doom would justify\n   no ban). The rare positive evidence-as-premise; lint fires W1 by\n   design, so say so in a comment.\n9. **Shared latent conjunct** (tut 7.9, anchor `$hope-care`; the latent\n   is `~@no-right-care`). When k objections express one underlying\n   doubt, name the doubt as a statement and conjoin it into every\n   member, eliciting its prior once, family-holistically. Prefer as the\n   latent the statement the support side already denies, so attack and\n   support quantify over the same worlds. The only structure of six\n   probed that stayed stable as hopes were added.\n10. **Epistemic-fact reification** (tut 7.10, anchor `@risk-unbounded`;\n    wrong shapes in `examples/edge-cases/e15-reified-chance.argmap`):\n    the solver cannot represent facts about credences, so reify the\n    evidence-state as a first-order statement, state the norm as its own\n    statement, and combine near-deductively:\n    ```\n    # fragment - not standalone\n    @risk-unbounded [No one can bound the risk below the threshold]: about what has been demonstrated, not about anyone's opinion\n    @no-gamble [Running an unbounded risk is impermissible] 0.93?: the norm, stated where it can be attacked\n    $fine 0.9? @policy | @risk-unbounded AND @no-gamble:\n    $escape 0.9? ~@policy | ~@risk-unbounded:\n    ```\n    `$escape` is the author naming the condition under which their own\n    conclusion lapses, which is honest and persuasive.\n11. **Rebuttal guards** (tut 7.11, comment anchor `risk-conditional\n    rebuttal guards`). Ask of every response: *which epistemic state\n    does this defeat presuppose?* If it only works while X is\n    undemonstrated, conjoin the statement saying so, and the defeat\n    lapses (objection revives) in the worlds where X is demonstrated.\n    Structure only, no new numbers. Seven flagship responses carry it.\n12. **Exclusive alternatives + authored abduction** (tut 7.12,\n    `examples/09-exclusive-causes.argmap`):\n    `$who 1.0 @alice OR @bob | @cake:` (the abductive step, stated as a\n    contestable rule) plus `$notboth 1.0 ~@alice OR ~@bob:` (premise-less\n    constraint). Abduction is authored, not free: pinning the effect\n    gives the causes no diagnostic lift by itself.\n13. **Direct assertion** (tut 7.13,\n    `experiments/llm-extraction/debate-tang-shapira.argmap`). A flat\n    spoken claim with no stated grounds becomes an attributed\n    premise-less evidence: `$a-blur [A: attention is a blur] 0.9? @opaque: \"…\" [^t005008]`.\n    Sixteen of these carried the debate map. A refusal to give a number\n    needs no syntax: leave the marginal blank, and if the refusal is\n    itself argued, map that as an undercut cluster against assignability.\n14. **The parable at zero depth** (tut 7.14, anchor `a parable`):\n    narrative goes in folded gloss continuation lines, not in nodes. A\n    whole illustrative story attaches under one statement, costs no graph\n    structure, and folds away. Use it for the source's most persuasive\n    prose, which is usually exactly what does not decompose into premises.\n\n## Nesting and large maps\n\nFirst drafts come out flat, and the clusters are usually already visible\nas `#` section-heading comments. **Section headings are nesting debt**: a\ndivider organizes the text file, only indentation organizes the reader's\nview. Three tests turn debt into structure (tut 8):\n\n1. **Fold-unit test**: would a reader want this sub-debate collapsed to\n   one line? Give it a wrapper evidence whose refinement holds the\n   cluster (idiom 5), and author the wrapper's coarse strength as your\n   holistic judgment of the cluster's net force.\n2. **Burial test**. Anything referenced from outside the cluster moves\n   up out of it. A shared ground homed inside one cluster renders as a\n   cross-reference burial and, worst case, a stranded node (W6,\n   validator-only). Home shared nodes above every cluster that uses them,\n   and annotate each reuse site with a comment naming its home region.\n3. **Spine test**. The collapsed view must already show the argument's\n   shape: a folded evidence contributes no edges, so a buried spine\n   disappears from it (W21, which names the linking evidences to lift).\n   But do not over-correct into lifting every sub-conclusion: that\n   trades a wall of disconnected cards for a crowded one. Pick the top\n   TIER deliberately and keep it coarse: headline, sinks, route hubs,\n   and the shared grounds the burial test already forces up (~15-30\n   cards on a large map); every single-region statement hub lives one\n   fold down. \"Nest clusters under their target\" covers a cluster's\n   INTERNAL traffic (grounds, caveats, objection pairs). The mechanics\n   rest on a folding asymmetry: a STATEMENT block folds to nothing, an\n   EVIDENCE refinement folds to a visible coarse line, edges intact. So\n   an edge between two top-level statements never sinks into a statement\n   block; it stays a top-level evidence (all premises top-level), or\n   becomes a **coarse hull** (idiom 5) conditioning on just its\n   cross-region premise, fine conjunction and local clusters in the\n   refinement, solve on the fine line (D38). Quick checks:\n   `grep -c '^\\$'` = 0 on a multi-statement map means no spine at all\n   (W21); a top rank past ~40 cards means the tier is set too fine. If\n   the source draws its own overview (a section-2 diagram, an abstract's\n   roadmap), the flat projection should BE that overview; a\n   free-standing exhibit node or two beside a visible spine is fine (W21\n   stays silent then).\n\nWhen all three fail and the heading is still real, the section is a\n*topic*, not a fold unit, and that is a declared group (`::`), not debt.\n\nFor maps past ~150 nodes: **width, not depth** (every new objection\ncluster is a sibling under its target, never a deeper chain; when a\nsub-debate wants an eighth level, promote the deep node to a shared\ntop-level node, so node count can triple while max depth stays flat); a\n**manifest comment block** at the top with the coarse spine in ASCII,\nevery shared node listed with its home region and consumers, and the\nregion-prefix scheme stated (`@c5-trade`, `$c5-trade-obj`,\n`$c5-trade-resp`); build in dependency order and lint after every region.\nSmell figure: the flagship holds 431 nodes at depth 5. A hundred-node map\nat depth 1 is under-nested even if every line is well-formed. Its reader\nmeets a wall of top-level nodes and the fold control does nothing.\n\n## Workflow\n\n1. Skeleton: structure only, no numbers - three sub-passes (tut 5.1),\n   because the directions fail differently (top-down invents hubs the\n   source never asserted, which solve near-tautologous; bottom-up buries\n   the spine, W21, and double-counts shared grounds, gotcha 2):\n   (a) SPINE top-down, transcribed from the source's own overview (a\n   section-2 diagram, an abstract, a title conditional): top tier,\n   `focus:`, region list + prefix scheme, the manifest comment. Genre\n   flip: a debate asserts no overview up front - go bottom-up first and\n   write the spine after the meta-shape emerges (the wrap-up); never\n   fake a spine the source did not assert.\n   (b) REGIONS bottom-up, in source order, each step citing its\n   sentence: statement granularity (a label must be a proposition;\n   meta-principles and framing stay glosses, not conjuncts), linked vs\n   convergent (test in idiom 3), and per objection: which inference\n   does this grant, and which does it deny? (undercut vs rebuttal, the\n   most common first-pass error). Nest a cluster's internal traffic\n   under its target.\n   (c) RECONCILE: promote shared grounds discovered in (b) to the home\n   the burial test picks (the nearest container covering every\n   consumer, not blindly the document top); merge or partition\n   overlapping lines; set the tier by the source's own disclosure order\n   - headline, sinks, route hubs and burial-forced shared grounds on\n   top, single-region hubs one fold down, cross-tier edges as top-level\n   evidences or coarse hulls, never sunk in a statement block (spine\n   test, W21). Then lint, and nest-audit for missed fold candidates.\n2. Elicit blind by rubric. **Fix the rubric before assigning anything**:\n   keep two tables, one for statement registers and one for\n   inference-step language, plus **role defaults** for where the source\n   is silent (an unhedged asserted step, an objection raised to deflect,\n   …). You will need them. Convention: the rubric lives in a comment\n   block immediately after the frontmatter. When hedges stack the\n   outermost governs; when two readings are defensible author the weaker\n   and log both, and likewise when the source asserts one proposition at\n   two registers. A stated *rate* (\"one accident per twenty million\n   hours\") is not a stated credence. Keep it in the gloss and derive\n   from the assertion's register. In a source-faithful map a `# check:`\n   carries the source's own register for that conclusion, `?` and all.\n3. Review checklist: provenance traced; undercut targets typed; overlaps\n   merged / shared-source factored / partitioned (`AND ~@other-route`) or\n   declared independent in a comment; no dangling sub-conclusions\n   (every non-headline statement feeds some evidence, though the\n   headline itself is the one sink and is exempt); nesting present AND\n   the spine surfaced at a coarse tier (top-level evidences exist, W21\n   silent, top rank not a crowd; see the spine test's bounds);\n   full-source coverage (summarizing from memory under-extracts); defeat\n   presuppositions guarded (idiom 11); multi-voice overlaps deduplicated\n   (full concurrence = one line at the weaker register; a subset relation\n   = shared span plus a residual increment; an instance supports the\n   shared ground, not the downstream conclusion). After the skeleton and\n   after any restructuring pass, run `argmap-query nest-audit` (add\n   `--rank` for the fold-as-detail vs coarse-hull call): it sizes the top\n   tier against its genre (the ~40 bound is per group on an atlas map, per\n   tier on a spine map), names the boxes whose opened view is a wide and\n   deep wall, and lists cones ready to fold with the edges that block them,\n   counting each cone by what still stands at the statement's own tier.\n   Advice, not a check; declining a proposed fold is a normal outcome.\n4. Mechanical smoke: lint, parse (editor), solve (below).\n\nQuoting discipline: verbatim spans of at most one sentence (~25 words),\nnormally one per node; never alter a quote silently; never reproduce a\nself-contained creative unit (a parable, a poem) whole, but retell and\ncompress. Whole-map budget from one work: low hundreds of words, and\nproportionally less for a short source. Where the span goes is the\nthree-way test above: supporting quotes become `>` lines with a\n`[^locator]`; a fragment that is grammatically part of the gloss sentence\nstays inline in plain double quotes, optionally echoed by a `>` line. The\nbudget counts both.\n\n## Gotchas\n\n1. Undercut schema is exactly `$u q ~C | grounds AND $target`; dropping\n   the `AND $target` silently makes it a rebuttal.\n2. Convergent lines must not share grounds (independence is assumed);\n   merge, name the shared source, or partition.\n3. `AND` only if no conjunct alone suffices; overdetermined routes are\n   separate convergent lines.\n4. A sigil forgotten on a node line silently becomes gloss text, so heed\n   lint W3. The **inverse has no diagnostic and cannot get one**: a gloss\n   continuation line that *begins* `@`, `$`, `#`, `::` or `>` is consumed\n   as that construct, because dispatch is a first-character switch and by\n   then the parser has built a node with no idea prose was meant. Never\n   start a continuation line with a sigil character. Begin with a word.\n   (Quote lines cannot wrap, which is what keeps the exposure small.)\n   A whitespace-preceded `#` inside a gloss starts a comment,\n   and the split is **silent**: `…memory cell #2 is protected` parses as\n   gloss `…memory cell` plus trailing comment `2 is protected`, losing\n   the rest of the sentence from the display with no diagnostic. The\n   escape is to delete the space: `cell#2` stays in the gloss whole.\n   Reword or close the gap; never leave ` #` inside prose you meant to\n   keep.\n5. Asserting `@c | @a` alone drags P(@a) down (drift tax); author a value\n   on `@a`, or map the source's converse `~@c | ~@a` if it asserts one.\n6. Don't condition on a near-tautology premise (e.g. the OR of four of\n   five partition members): the floor semantics constrain both slabs, the\n   negated one is nearly empty, and the solve shows a large spurious\n   tension. Condition on the informative complement, or drop the premise\n   part.\n7. `#` section-heading comments are nesting debt (see above); the\n   exception is a *topic*, which is a declared group.\n\n## Limitations\n\nKnown dead ends, with the standing workaround; none block parsing or\ndisplay, they bound what a solve can mean (tut 9):\n\n1. **Scope conditionals** (\"aligned now, degrades at superhuman scale\")\n   have no first-class form; nesting is a partial workaround, statement\n   granularity is your burden.\n2. **Undercut fan-out**: an undercut names one target, so class-level\n   objections (\"this is all unfalsifiable\") are under-stated. Give the\n   family a shared gate premise and rebut that once, or make the\n   objection a shared ground feeding several undercuts.\n3. **No statement re-opening** (D33): refinement is physical\n   indentation, so declare nodes at their refinement site and\n   forward-reference them (IDs are document-global).\n4. **Binary statements only**: categorical or continuous claims enter\n   through threshold-gate statements (\"X exceeds T\").\n5. **Credal links are second-order**: nothing computes \"if P(X) > t then\n   Y\", so use idiom 10 plus a `# gate: q($e) >= t => @c` comment audit.\n6. **Statement-level provenance** has no in-format home beyond footnotes\n   and ID prefixes; scope policing in multi-source maps is manual.\n7. **Independence is assumed** and dependence must be authored; there is\n   no correlation annotation.\n8. **Solver cost grows with treewidth** (the corpus solves in seconds at\n   treewidth ~7–9); width-not-depth authoring also keeps treewidth down.\n9. **Comment-layer slots are conventions**: `# check:` and `# gate:` are\n   invisible to tools other than the solver readouts.\n10. **Cross-map ID reuse is unchecked**, so verify the propositions\n    match before treating two maps' same-named nodes as the same claim.\n\n## Verify\n\n```bash\npython3 tools/argmap-lint.py FILE          # repo; in a bundle: python3 argmap-lint.py FILE\ncd experiments/solver-prototypes && python3 solve_map.py FILE --top 10   # bundle: cd solver/\npython3 solve_map.py FILE @headline --band\n```\n\nErrors must be zero. Warnings need explanations, not suppression: the\ndiscipline is not \"zero warnings\", it is \"every warning has an\nexplanation you could put in a comment\" (the flagship ships two\ndeliberate W1s).\n\n| Code | Meaning | Author action |\n|---|---|---|\n| E1 | duplicate ID (one namespace) | rename |\n| E2 | dangling reference | fix the ID |\n| E3 | `~$id` | rewrite as an undercut |\n| E4 | probability outside [0,1] | fix |\n| E5 | v0.3 pair without `argmap-version: 0.3` | declare the version |\n| E6 | malformed pair (`0.9/`, `/0.2`) | write both members |\n| E7 | `::id` used in an expression | a group takes no part in inference; reference a member instead |\n| E8 | a probability on a `::` line | groups have no credence slot; delete the number |\n| E9 | `>` outside an annotation block | move it under its node, before that node's first child |\n| E10 | `>` with no quote text | write the quote or delete the line |\n| W1 | evidence-in-premise, not undercut-shaped | usually a polarity slip; legitimate only for idiom 8, then comment it |\n| W2 | directed cycle | usually fine (mutual rebuttal); check it is not a zero-negation support cycle |\n| W3 | prose line resembling a node | you lost a sigil |\n| W4 | footnote used/defined mismatch | fix |\n| W5 | evidence label past 56 chars | an exact threshold, not a guideline: it fires at 57. Distill the warrant; depth to the gloss |\n| W6 | stranded node (validator only) | re-home it with its consumer |\n| W7 | pair sums > 1 | declared two-sided conflict or infeasible residual; confirm intended |\n| W8 | pair `0/0` | drop it |\n| W9 | pair entangled with undercut shape | check what the opposed side asserts |\n| W10 | pair syntax under a declared version \u003c 0.3 (validator only) | declare `argmap-version: 0.3` |\n| W11 | authored 0 strength | you probably mean an unstrengthed line |\n| W12/W13/W14 | group vs block mismatch | see the groups section |\n| W15 | quote line with no `[^locator]` | add it; provenance is the point |\n| W16 | leftover `[^` inside quote text | only a trailing ref is the locator; fix the stray/doubled one |\n| W17 | ` # ` inside quote text | quote lines have no trailing comment; move the note to `#[…]` |\n| W18 | quotes before the end of the gloss prose | reorder: gloss first, then quotes |\n| W19 | `>` under a declared version \u003c 0.3 | declare `argmap-version: 0.3` |\n| W20 | retired `~\"…\"` still in a gloss | migrate it (`>` line / plain marks / echo) |\n| I1 | isolated statements | connect or delete |\n| I2 | block inventory | read it; confirm the split you intended |\n\nThree caveats. W6 and W10 live only in the TypeScript validator (visible\nin the editor), not in this lint. On expression-valued conclusions\n(`@a OR @b` left of the given bar) the lint skips the undercut-shape\nfamily (W1/W9) by design, because the editor validator covers those.\nAnd \"zero errors\" is a weaker gate than it sounds: the lint reports `ok`\non a file it finds no nodes in, so a truncated or mangled file passes\ncleanly and then fails in the solver with a raw traceback rather than a\ndiagnostic. Read the reported counts, not just the exit code:\n`0 statements, 0 evidences` on a file you know has nodes means the parse\nwent wrong. Without the editor, a successful `solve_map.py` run doubles\nas the parse gate: it loads the file through the real parser.\n\nReading the solve: **statement gaps** (authored/check vs solved) mean the\nmapped argument does not deliver the stated belief; **evidence tensions**\nmean the constraint set cannot honor that strength (look for an\noverlooked conflict with neighbouring lines); **spectator gaps** mean a\nrefinement delivers something different from its coarse summary (decide\nwhich side is wrong, since both happen). Investigate any tension above\n~0.15 before touching numbers, then fix structure or add named\nevidence, never tune silently. Numbers never move to make badges\ndisappear; a badge that stays is a finding. That ~0.15 is a rule of\nthumb for evidence tensions only; there is no ratified threshold for\nstatement or spectator gaps, so judge those by whether the gap would\nchange a reader's reading, and say in the log what you concluded.\n\nThe readout's own vocabulary: the header `NAME: 15+14 vars, width=4 |\n0.1s, conv=True` reports statements + evidences as solver variables, the\njunction-tree treewidth (cost grows with it), and whether the solve\nconverged. `conv=False` invalidates the numbers below it, so re-check\nbefore reading anything. Each evidence yields **two** tension rows,\n`P(E|phi)` and `P(E|~phi)`: the D36 floor is symmetric, so one authored\nstrength constrains both slabs (given the premises, and given their\nnegation). That is why conditioning on a near-tautology premise\nmisbehaves (gotcha 6). `--band` adds the **forced interval** for a named\nstatement: how far the constraints actually pin it, as against where\nmax-entropy settled inside that freedom. A wide band is not an error; it\nsays the exact point value is not load-bearing, so do not build an\nargument on its third decimal. An EMPTY band is the real signal: the\nconstraint set is infeasible at that node.\n\nFor translated maps, `python3 tools/translation-parity.py BASE TR`\nverifies the translation touches only free-text spans.\n";
+  var SKILL = "---\nname: argmap-author\ndescription: Recipe for reading and authoring .argmap (v0.3) maps: syntax crib incl. declared groups and source quote lines, the D36 number rules, label/gloss discipline, the structural-idiom catalog, nesting discipline, the extraction workflow, and the lint + solve verification loop.\n---\n\n# Authoring .argmap maps\n\nThis file is meant to be sufficient on its own: syntax, numbers, the\nidiom catalog, nesting discipline, the workflow, and the checks. Open\nthe full tutorial only for depth: the rationale behind each rule, the\nreading chapter, and a complete worked example with its solver readout\n(`AUTHORING_TUTORIAL.md` Appendix A). Pointers below read `tut 7.4`\n(= that tutorial's section 7.4). `examples/README.md` indexes the\nexample corpus by idiom, and is the place to read a whole real file.\n`MATH.md` is the model underneath the numbers. Read it when a *why*\nquestion about solved values or tension comes up; nothing here needs it.\n\nOutside this repo: the canonical copies live in the **argmap** repo\ncheckout: `.claude/skills/argmap-author/SKILL.md` and\n`AUTHORING_TUTORIAL.md` at its root; the user-level pointer skill in\n`~/.claude/skills/` carries the local path to it. For machines without\nthe checkout, the deployed webapp serves the tutorial at\np1graph.org/AUTHORING_TUTORIAL.md and this skill card from\np1graph.org/authoring-tutorial.html (the \"download SKILL.md\" link:\nthe host renders raw `.md` with front matter to HTML, so the page\nhands over the exact bytes as a download instead).\n\n## Reading only\n\nMaps render at p1graph.org (text / outline / graph panes; solved\nvalues, \"implied\" in the UI, are on by default and the \"Show what the\nmap implies\" Controls toggle turns them off, `authored -> implied` with\nthe gap tinted). Headless query, from `experiments/solver-prototypes/` (needs\npython3 + numpy + scipy + node):\n`python3 solve_map.py FILE @node '$edge' --band` or `--top 10`.\n\n## Syntax crib\n\nThe block below is a complete, lint-clean file (given\n`argmap-version: 0.3` in the frontmatter, which the last two lines\nneed):\n\n```\n@prem1 [First premise] 0.9?: gloss; a deeper-indented prose line folds in [^src]\n@prem2 [Second premise] 0.8?:\n@ground [The objection's ground] 0.5?:\n@root [A root fact] 0.9?:\n@concl [The claim, as a proposition]: derived, so check not pin  # check: 0.8\n$id [headline warrant, \u003c=56 chars] 0.8? @concl | @prem1 AND @prem2: depth here\n$rebut 0.3? ~@concl | @ground:            # rebuttal: attacks the claim\n$uc 0.6? ~@concl | @ground AND $id:       # undercut: attacks the inference $id\n$fact 0.9? @concl:                        # premise-less constraint factor\n$step 0.7? @concl | @root: coarse summary; the indented block replaces it unfolded\n  @mid [Intermediate claim] 0.8?:\n  $fine 0.8? @concl | @root AND @mid:\n::topic [A named box]: v0.3 declared group; its block is MEMBERSHIP, not refinement\n  @side [An unrelated topic in the same file] 0.4?: a claim of its own\n    #[note: an annotation comment - free per file in the parity check]\n    > a verbatim span from the source, attached to @side [^src]\n[^src]: Author, \"Title,\" venue, year, URL.\n```\n\nRules: spaces-only indent (a tab is a parse error); IDs document-global,\nforward refs legal, one namespace across `@`/`$`/`::`; `AND` linked /\n`OR` convergent, parens to mix; `~$id` is banned (error E3), so write\nan undercut instead; `?` = estimated; labels crop at 56 chars on\nevidences (and group boxes), with W5 firing at 57 exactly.\n\n`AND`/`OR` take any number of operands and any operand may be negated,\nso a three-conjunct linked premise containing a `~` (`@a AND @b AND\n~@c`) is ordinary and idiomatic; the neither-alone-suffices test scales\nunchanged. A **premise-less** evidence (`$fact 0.9? @concl:`) is an\nunconditional floor on its conclusion (no slab, nothing to be in force\nagainst), and it accumulates with the other lines concluding there\nunder the same independence assumption as any convergent sibling.\n\n**Indentation is sigil-keyed (D58/D59):** it always means \"belongs to the\nline above\"; the PARENT's sigil says how. Under `@`/`$` = refinement.\nUnder `::` = membership in a declared group. Sigil-less prose folds into\nthe gloss; a `>` child is a quote line (below).\n\nOptional YAML frontmatter carries `title`, `author`, `date`,\n`description`, `source`, `scope` (which part of the source the map\nclaims to cover; state it, it is review checklist item 6),\n`focus: [id, id]` (D57; declare only when topology misreads intent, e.g.\na goal guard), and `argmap-version`. Unknown keys are preserved, which\nmakes frontmatter the extension point for provenance notes. The version\ngate covers **pairs and quote lines**: `0.3` is required if the file\nwrites slash pairs (`0.9/0.2`, E5/W10) or `>` quote lines (W19).\nDeclared groups are not gated, though a `::`-using file conventionally\ndeclares 0.3.\n\nTwo-sided pairs (v0.3, D52/D53): `$e 0.9/0.2 @c | @a` adds an opposed\nfloor in the same slab; `@s 0.8/0.1` bounds P(s) to [0.8, 0.9] instead\nof pinning a point. No whitespace around the slash, `?` binds per\nmember, an omitted second member is 0 (= the v0.2 reading). Ignore pairs\nuntil you need \"this cuts both ways\" or an interval-shaped residual.\n\n## Declared groups (`::`, v0.3/D58)\n\n`::id [Label]: gloss` names a box drawn around the nodes indented under\nit. Display only, by construction: **no credence** (a number on a `::`\nline is an error), **never referenceable** (`::id` in any expression is\na parse error), and **transparent**: deleting every `::` line leaves\nthe graph, the roles and the solve identical.\n\nUse it for a *topic*, where a wrapper evidence would be a lie: two\narguments sharing a file but no premise, or a shelf of background facts.\nBefore `::`, that could only be a `# ====` comment no tool could see.\nThe workhorse case in practice is the **objection battery inside a\nbox**: several answered attacks on the box's claim, grouped so they\nread (and fold) as one unit. Keep the family's lines contiguous; put a\nground inside only if nothing outside the family consumes it; label\nwith a short reader question. Every group folds to a summarizing card\n(non-closed ones bundle their boundary edges into dashed summaries,\nD124), and a group nested in a refinement starts folded.\n\nLint checks the authored box against the derived block (connected\ncomponent). Silent: a group equal to one block, or spanning several\n*whole* blocks. Warns: **W12** a group covering only PART of a connected\nblock (edges cross the boundary; its fold bundles them into summary\nedges), **W13**\none block split across two groups (usually an accidental shared premise\nmerged two topics while your headings still claim they are separate,\nwhich is the mistake worth catching), **W14** an empty group. Only\ndocument-level groups are checked; nested ones subdivide their parent.\nMembership does NOT suppress the isolate note I1. **I2** lists the\nderived blocks for any multi-block file. Read it to confirm the split\nyou intended.\n\n## Source quotes (`>`, v0.3/D59)\n\n`> verbatim text [^locator]` under a node carries a **verbatim** span of\nsource material plus its footnote locator (tut 3.12). The gloss goes\nback to being a claim a reader can parse cold; the quotes sit beneath it\nas its evidence. Replaces the retired `~\"…\"` in-gloss convention, which\nno tool could see.\n\n```\n@no-honor [Honor is a contingent evolved hack an AI won't carry] 0.9?: an\n  evolutionarily contingent shortcut, not a convergent feature of minds\n  #[de: ein seltsamer Hack, auf den die Menschheit gestossen ist]\n  > a specific weird hack that humanity stumbled into [^supp-ch5]\n  > quite skeptical that gradient descent will stumble across the same shortcut [^supp-ch5]\n```\n\nRules: **verbatim, never paraphrased**; **always give a locator** (W15:\nchapter, supplement page, or transcript timestamp, whatever the source\nallows); **only a trailing `[^id]` is the locator**, anything else on the\nline is verbatim text including a mid-line `[^…]` (W16); **no trailing\n`#` comment**, the one line kind without one, because source text cannot\nbe reworded to dodge the splitter (W17 flags a ` # ` inside a quote);\n**no wrapping**, one line however long; **placement is positional**: a\nquote attaches to the node above and must sit in that node's *annotation\nblock*, the span before its first child, so a `>` at top level or after a\nchild node is E9, never a re-attachment outward; **gloss first, then\nquotes** (W18, since the serializer rewrites to that order anyway);\ndeclare `argmap-version: 0.3` (W19).\n\n**Which spans become `>` lines: the three-way test.** *Is this the\nnode's own wording, or support for it?*\n\n1. **Supporting quote** (most of them), evidence for the claim: lift to\n   a `>` line.\n2. **Load-bearing inline fragment**, a verbatim phrase that is a\n   grammatical constituent of the gloss sentence (`Kelvin's \"infinitely\n   beyond…\" fell to DNA`): keep it in the gloss in **plain quotation\n   marks**, the node's own phrasing borrowing the source's words. Add an\n   **echo** (a `>` line with the full verbatim sentence + locator, gloss\n   fragment unchanged) when provenance matters.\n3. **Quote-is-the-claim** (the gloss is nothing but the quote): the\n   degenerate case of 2, with plain marks in the gloss and a `>` echo\n   underneath.\n\n**Quotes are never translated.** In a multilingual set the whole `>`\nline is byte-identical across languages (`translation-parity.py` enforces\nit); a translated \"verbatim\" quote is false and breaks the tie to the\nsource. The echo pattern is what makes case 2 honest across languages:\nthe translated gloss quotes ordinary prose, the `>` line stays in the\nsource language.\n\n**Annotation comments.** Per-quote side data goes on a full-line\n`#[key: …]` comment (no space between `#` and `[`) above the quote, at\nits indent. An ordinary comment to the parser; **free per file** in the\nparity check (every other comment must match byte-for-byte); and the\nreserved surface for real attributes in a later version, so the\nconvention promotes without a rewrite. Current tenant: `#[de: …]`,\nparking a quote's translation until quotes get a real translation field.\n\n## Labels and glosses\n\nThree slots, three different jobs (tut 6):\n\n1. **Statement label** = the claim itself, a proposition, may be a full\n   sentence. Not length-linted.\n2. **Evidence label** = the headline warrant: *why* the premises bear on\n   the conclusion, in a phrase. Crops at ~56 chars in the graph (W5), so\n   distill. Not every evidence needs one. An obvious deductive\n   connector is better unlabeled than filler-labeled (about half the\n   flagship's evidences carry labels).\n3. **Gloss** = the depth tier: full reasoning, qualifications, source\n   voice, quotes. Never length-linted.\n\nThe three-job test for gloss text: content is either (a) a role tag\n(\"undercut of ...\"), derivable from topology, so delete it; (b) the\nwarrant, which belongs in the label; or (c) format-meta commentary,\nwhich belongs in a `#` comment. What survives is the genuine depth\ntier. Put the substantive point first even inside a gloss: displays\ncrop from the end.\n\nThree conventions worth keeping: **plain-first, technical-nested** (write\nthe gloss plainly, move a technical restatement to a folded continuation\nline starting \"technical reading: ...\"); **rubric provenance is not\nreader content** (elicitation citations like \"R-STEP S2: ...\" go in a\ntrailing `#` comment, not the gloss, while reader-valuable quotes and\nfootnote refs stay); and in multi-speaker maps **prefix evidence labels\nwith a speaker tag** (\"A:\", \"L:\"), because IDs are invisible at graph\njunctions.\n\n## Numbers (D36, five rules)\n\n1. Elicit strength as: assume the premises; how likely is the conclusion?\n   It is a property of the rule; premise truth lives elsewhere. Do not\n   discount a strength because you doubt the premises. The given bar is\n   directional. Contraposition is a different claim, so preserve the\n   direction the source asserts.\n2. `?` on every rubric-derived value; bare numbers only where the source\n   states a number. Fix the verbal->probability rubric BEFORE assigning;\n   never move a number after the first solve.\n3. Residual rule: frontier roots keep authored values; derived statements\n   get `# check: p` trailing comments, never pins, because authoring\n   both the support and the conclusion double-counts. Never both on one\n   line: a pin + check pair on a concluded-into statement fights your\n   own counter-evidence and contradicts itself, and the lint flags a\n   head line carrying a bare point and a check as **W23**, and a bare\n   point beside any strengthed incoming line as **W25**. An explicit\n   residual pair beside a check (`0.6?/0?` with `# check: 0.9`) is the\n   intended shape and draws nothing. This holds inside\n   refinements too: a hinge with internal incoming lines takes a check;\n   if the source also asserts it directly, add a premise-less attributed\n   evidence at that register (the direct-assertion pattern), not a pin.\n   The keeper sentence: a statement's own indented block *explicates* its\n   number; sibling lines concluding into it *replace* it.\n   Syntax of the check comment: it must sit on the node's **head line**.\n   On a folded continuation line it is silently ignored, with no\n   diagnostic and a `—` where the readout would show it. It may carry\n   `?` and be followed by prose (`# check: 0.95?  (A2: restated)`); the\n   reader stops at the number. In a source-faithful map the `?` belongs\n   there, because the check is the source's register, not your belief.\n   A check may be an interval, `# check: 0.85..0.95`: the range the\n   register licenses, at the residual pairs' widths; the badge is the\n   distance from the computed value to it, zero inside, and a bare point\n   is the zero-width interval. Malformed tokens (reversed, past 1, one\n   dot) draw **W26**.\n4. No authored 0/1 marginals (world-killers); strength 1 is fine for\n   deduction, strength 0 means \"drop the number\" (W11).\n5. Unstrengthed lines are legal structure-only sketches; commit numbers\n   later.\n\nFour consequences that trip authors (tut 4.2, 4.4, 4.5):\n\n1. **Drift tax.** Asserting `$imp 0.8 @c | @a` alone drags solved P(@a)\n   to ~0.36. Two remedies, both ordinary authoring: author a value on\n   `@a`; or, if the source asserts the converse, write the cross-slab\n   pair `~@c | ~@a` (idiom 7 below). Do not confuse that with the\n   same-slab pair (`@c | @a` opposed by `~@c | @a`), which compounds the\n   drift instead of cancelling it.\n   The tax follows the premise's **polarity**, in both directions: with\n   `$e 0.9? @c | ~@a` the same mechanism pushes P(@a) *up* (0.5 → 0.651,\n   the exact mirror of 0.349). Conditioning on a negated statement is\n   therefore an implicit vote *for* it. Expect it, and check the sign\n   before calling the result a bug.\n   When the premise is itself **derived** (concluded into by other\n   lines), rule 3 wins and the first remedy is off the table: do not pin\n   it. Author the missing counter-evidence as its own named line at the\n   source's register instead, the same move as the direct-assertion\n   pattern (idiom 13). A pin would fight the very lines that conclude\n   into it; a named line accumulates with them and stays criticizable.\n2. **Independence is assumed**: separate lines accumulate noisy-OR, so\n   convergent lines with overlapping grounds double-count. Three repairs\n   in increasing order of structure: merge into one evidence; name the\n   shared source as a statement and condition both on it; or partition\n   with `AND ~@other-route`. Applies only to lines converging on the\n   *same* conclusion. One statement feeding several different\n   conclusions needs no declaration.\n3. **Stacking to ~0.99 is not automatically an error.** Four genuinely\n   independent 0.85 routes compound past 0.99; if the source really\n   asserts four sufficient reasons, that is its own logic, and a lower\n   `# check:` on the hub turns the difference into a visible audit\n   finding. First check for an unnamed shared latent (repair 2), since\n   several \"distinct\" failure modes of one mechanism usually have one.\n4. **An undercut does NOT push its own conclusion.** Its strength is\n   \"granted the grounds, how often does the target inference fail?\" Do\n   not pre-discount it because a response exists (author the response as\n   an undercut of the undercut). But an undercut-shaped line compiles as\n   a pure **inhibitor** of its target: it carries no floor of its own\n   (SOLVER_SEMANTICS §1.2, the factored-A compile), so the negated\n   conclusion it names gets no independent push from it. Two measured\n   consequences: an undercut whose target is unstrengthed moves nothing\n   at all (0.500 → 0.500); and an undercut of a rebuttal reinstates the\n   claim only *toward* the value it would have with the rebuttal absent,\n   never past it (0.500 → 0.866 against a rebuttal-free 0.898).\n   The authoring consequence, and it is easy to miss: when the source\n   also asserts the **fact** the objection rests on, and you want that\n   fact to bear on the conclusion, the undercut cannot carry it. Author\n   the fact as an ordinary evidence line beside the undercut. The two do\n   not double-count: the inhibitor acts on the inference, the plain\n   line acts on the claim.\n\n## Epistemic delicacies (D152, compressed; tut 4.7)\n\nThe rules that keep a lint-clean map from counting one consideration\ntwice. Each has a five-line toy behind it in `examples/toys/` with its\nmeasured numbers (re-measured 2026-08-23).\n\n1. **Residual rule.** A statement's own number is evidence NOT already\n   in the map. A frontier root (no strengthed incoming line) keeps its\n   number whole. An interior statement may carry a number only for the\n   unargued remainder (its *tacit grounds*); its total goes in the check.\n2. **Three slots.** Point `@s 0.9?` = the zero-width pair `0.9?/0.1?`,\n   held by a w=400 spring. Pair `@s 0.6?/0?` = direct evidence, P(s) in\n   [0.6, 1]; the map's inference selects within it and never counts\n   against it. Check `# check: 0.85..0.95` = the author's total as an\n   interval at the register's width; never constrains; the badge is the\n   distance from the solved value to the interval, zero inside. T1 (pin\n   beside `$sub-ev`): `@subvert` 0.899, `@resists` 0.879, W25. T2\n   (derived, `# check: 0.9`): 0.868 / 0.866, the double count made\n   visible and the honest badge. T3 (`0.6?/0?` + check): 0.921 / 0.889,\n   silent; right when 0.6 is the remainder, the pin again when read off\n   the total.\n3. **Derive a root** = give a pinned root its first strengthed incoming\n   line. One test: does the line carry an INFERENCE? A restatement or\n   co-reference at a second dock (`@psychosis` / `@c13ws-retrain`) gets a\n   comment, never a line. Source faithfulness is no part of the test (a\n   real inference the source omits is mapped, with a comment). Never\n   withhold a derivation for what it does downstream: completion is\n   always licensed, and the movement is the audit working\n   (`@steering-finds-subversion` 0.893 to 0.628, `@goals` 0.842 to 0.712\n   on the flagship). Then the obligation: the old point becomes the\n   check at its register's interval, and the residual stays EMPTY unless\n   the text names a second unwired ground (floor at that ground's\n   register, gloss naming the passage) or says the grounds are a subset\n   (\"to name a few\": remainder `0.2?/0?`, quote in the gloss). Grep the\n   map for the root's id first; the reason it was left unwired is usually\n   in a comment that now has to be rewritten.\n4. **Register to pair table** (AUTHORING_NOTES 2026-08-23). Centred:\n   midpoint = the rubric point, width fixed per register (0.05 strongest\n   categorical, 0.10 flat assertion, 0.20 \"by default\" / \"best guess\",\n   0.30 \"we expect\" / \"could well\", 0.40 weakest hedge, 0.80 refusal).\n   Rows: C1 0.97 `0.95?/0?`; N1/N3 0.93 `0.9?/0?` (one-sided: the\n   midpoint above the point is the balancing prior's reading); C2 0.93\n   `0.88?/0.02?`; C7 / P-FACT 0.90 `0.85?/0.05?`; C3 0.85\n   `0.75?/0.05?`; 0.80 `0.7?/0.1?`; C4 / P-GRANT 0.75 `0.6?/0.1?`; C5\n   0.70 `0.55?/0.15?`; RS6 0.60 `0.4?/0.2?`; role defaults 0.8/0.7/0.6\n   `0.65?/0.05?` / `0.55?/0.15?` / `0.45?/0.25?`; COIN (explicit\n   refusal) `0.1?/0.1?` + a gloss sentence (\"the page calls the question\n   open; the wide pair carries that, and its midpoint is nobody's\n   belief\"); P-CONTEST = the MIRROR of the denied class's pair\n   (`0.05?/0.85?` for a flat denial), never `0/p`. Per-node asymmetric\n   pairs only where the passage states both directions, written from the\n   text with the rationale in the trailing comment. `?` on every member,\n   zeros included; a gloss sentence whenever total width > 0.30; the\n   class token in the trailing comment. Proviso, stated: a register read\n   is a posterior, and reading it as direct evidence lets modus tollens\n   run twice; known, small (\u003c= 0.043 per statement), compensated by\n   showing the interval and the band.\n5. **Shared considerations.** Lines combine as independent; the ONLY way\n   to say two lines co-vary is a shared statement both cite. Name the\n   overlap as a statement and condition both lines on it. Fingerprint:\n   the AND consumer RISES and the OR consumer FALLS when premises share a\n   cause (T8 vs T8b: `@both` 0.751 to 0.782, `@either` 0.918 to 0.886;\n   T5 vs T5b: `@danger` 0.843 to 0.850). `argmap-query shared-cause`\n   lists the rows. Never AND a statement with its own derivative\n   (`$wst-race`, `@race-dynamics AND @one-cavalier-suffices` where\n   `$ocs-ev` derives the second from the first): drop the duplicate\n   premise or re-elicit conditionally. Trace each premise's ancestry\n   before writing an AND.\n6. **Definitional vs substantive.** A node bundling a definition with a\n   claim is two variables in one slot: split it, or derive from both\n   halves (one line per ground). A definition that does inferential\n   work is a **p = 1 evidence line** (a biconditional is two, spelled as\n   the converse pair `1 @want | @a AND @b` plus `1 ~@want | ~@a OR ~@b`,\n   T6: `@want` 0.755 = P(steers AND routes), lint-silent; the\n   forward/backward spelling draws W2 and W25 for nothing), never a p = 1\n   statement:\n   `@asi-def [..] 1` conjoined into a premise solves 0.988 and taxes\n   every junction it joins by 1/w (T7 `@dies` 0.849 vs 0.854 without).\n   Terminology goes in a gloss.\n\n## Structural idioms\n\nThe patterns that carry the flagship map\n(`experiments/llm-extraction/iabied-comprehensive-en.argmap`; each entry\nnames an anchor to grep for). Full prose in tut 7; whole readable files\nin `examples/` (see its README).\n\n1. **Objection/response triple** (tut 7.1, anchor `@c11-readthoughts`).\n   The workhorse; FAQ-shaped sources map one row each. An objection\n   statement, an objection evidence concluding against the target, and a\n   response undercutting that evidence:\n   `@hope 0.15?:` / `$hope-obj 0.2? ~@target | @hope:` /\n   `$hope-resp [why the hope fails] 0.85? @target | @ground AND $hope-obj:`.\n   The `-obj`/`-resp` suffixes are a mnemonic convention, not syntax.\n2. **Undercut ladder** (tut 7.2, anchor `$uc-counting`): rebuttal,\n   undercut, response and undercut-of-undercut are one schema applied\n   repeatedly. `$uc-uc q @claim | @grounds AND $uc` reinstates `@claim`\n   exactly to the extent the rescue in `$uc` fails.\n3. **Linked vs convergent, side by side** (tut 7.3, anchor\n   `$fragile-ev`). Write `$a 0.9? @hub | @x AND @y AND @z` beside\n   `$b 0.7? @hub | @w`. Test for linked: *neither conjunct alone\n   suffices* (\"neither end alone shows disagreement; together they are\n   the spread\").\n4. **Convergent siblings instead of a false AND** (tut 7.4, anchor\n   `$adv-speed-ev`). When the source says \"any one of these suffices\",\n   write separate evidences on the same conclusion, never one\n   conjunction. The flagship had this wrong as a four-way AND; the\n   repair note is still in the file.\n5. **Coarse summary + refinement** (tut 7.5, anchor `$link `, grepped\n   with the trailing space): one coarse line whose indented block holds\n   the whole sub-argument. The coarse strength is not a solver input\n   (the refinement replaces it); it is the evidence-side check. Author\n   it as your holistic judgment *before* trusting the steps, and the\n   comparison is a free audit. Special case, the **coarse hull**: when a\n   region's linking evidence mixes one cross-region premise with\n   region-local hubs, write the coarse line conditioning on just the\n   cross-region premise (`$takeover-ev @takeover-doom | @unaligned-asi`\n   in the He map) and put the fine conjunction plus the local clusters\n   in the refinement: the spine edge survives folding, because a\n   refinement folds to its visible coarse line where a statement block\n   folds to nothing (spine test).\n6. **Complementary partition, \"even if\"** (tut 7.6, anchor `$mwb-time`).\n   Make two overlapping routes disjoint by conjoining the negation of\n   the other: `$r2 0.9? @c | @route2-ground AND ~@route1-ground`. That\n   `~` conjunct is the source's own \"even if X were false\".\n7. **Balancing evidence** (tut 7.7, anchor `$no-doom-otherwise`): a\n   conditional says nothing outside its slab. If the source asserts the\n   converse, name it: `$conv 0.9? ~@c | ~@a`. Cancels the drift tax and\n   keeps a contested claim on the map instead of hiding it in a prior.\n8. **Conditioning on an inference** (tut 7.8, anchor `$shutdown-ev`), a\n   policy that hangs on an implication, not on a fact:\n   `$policy 0.93? @should-act | $link`. Conditioning on the implication's\n   *conclusion* would be subtly wrong (unconditional doom would justify\n   no ban). The rare positive evidence-as-premise; lint fires W1 by\n   design, so say so in a comment.\n9. **Shared latent conjunct** (tut 7.9, anchor `$hope-care`; the latent\n   is `~@no-right-care`). When k objections express one underlying\n   doubt, name the doubt as a statement and conjoin it into every\n   member, eliciting its prior once, family-holistically. Prefer as the\n   latent the statement the support side already denies, so attack and\n   support quantify over the same worlds. The only structure of six\n   probed that stayed stable as hopes were added.\n10. **Epistemic-fact reification** (tut 7.10, anchor `@risk-unbounded`;\n    wrong shapes in `examples/edge-cases/e15-reified-chance.argmap`):\n    the solver cannot represent facts about credences, so reify the\n    evidence-state as a first-order statement, state the norm as its own\n    statement, and combine near-deductively:\n    ```\n    # fragment - not standalone\n    @risk-unbounded [No one can bound the risk below the threshold]: about what has been demonstrated, not about anyone's opinion\n    @no-gamble [Running an unbounded risk is impermissible] 0.93?: the norm, stated where it can be attacked\n    $fine 0.9? @policy | @risk-unbounded AND @no-gamble:\n    $escape 0.9? ~@policy | ~@risk-unbounded:\n    ```\n    `$escape` is the author naming the condition under which their own\n    conclusion lapses, which is honest and persuasive.\n11. **Rebuttal guards** (tut 7.11, comment anchor `risk-conditional\n    rebuttal guards`). Ask of every response: *which epistemic state\n    does this defeat presuppose?* If it only works while X is\n    undemonstrated, conjoin the statement saying so, and the defeat\n    lapses (objection revives) in the worlds where X is demonstrated.\n    Structure only, no new numbers. Seven flagship responses carry it.\n12. **Exclusive alternatives + authored abduction** (tut 7.12,\n    `examples/09-exclusive-causes.argmap`):\n    `$who 1.0 @alice OR @bob | @cake:` (the abductive step, stated as a\n    contestable rule) plus `$notboth 1.0 ~@alice OR ~@bob:` (premise-less\n    constraint). Abduction is authored, not free: pinning the effect\n    gives the causes no diagnostic lift by itself.\n13. **Direct assertion** (tut 7.13,\n    `experiments/llm-extraction/debate-tang-shapira.argmap`). A flat\n    spoken claim with no stated grounds becomes an attributed\n    premise-less evidence: `$a-blur [A: attention is a blur] 0.9? @opaque: \"…\" [^t005008]`.\n    Sixteen of these carried the debate map. A refusal to give a number\n    needs no syntax: leave the marginal blank, and if the refusal is\n    itself argued, map that as an undercut cluster against assignability.\n14. **The parable at zero depth** (tut 7.14, anchor `a parable`):\n    narrative goes in folded gloss continuation lines, not in nodes. A\n    whole illustrative story attaches under one statement, costs no graph\n    structure, and folds away. Use it for the source's most persuasive\n    prose, which is usually exactly what does not decompose into premises.\n\n## Nesting and large maps\n\nFirst drafts come out flat, and the clusters are usually already visible\nas `#` section-heading comments. **Section headings are nesting debt**: a\ndivider organizes the text file, only indentation organizes the reader's\nview. Three tests turn debt into structure (tut 8):\n\n1. **Fold-unit test**: would a reader want this sub-debate collapsed to\n   one line? Give it a wrapper evidence whose refinement holds the\n   cluster (idiom 5), and author the wrapper's coarse strength as your\n   holistic judgment of the cluster's net force.\n2. **Burial test**. Anything referenced from outside the cluster moves\n   up out of it. A shared ground homed inside one cluster renders as a\n   cross-reference burial and, worst case, a stranded node (W6,\n   validator-only). Home shared nodes above every cluster that uses them,\n   and annotate each reuse site with a comment naming its home region.\n3. **Spine test**. The collapsed view must already show the argument's\n   shape: a folded evidence contributes no edges, so a buried spine\n   disappears from it (W21, which names the linking evidences to lift).\n   But do not over-correct into lifting every sub-conclusion: that\n   trades a wall of disconnected cards for a crowded one. Pick the top\n   TIER deliberately and keep it coarse: headline, sinks, route hubs,\n   and the shared grounds the burial test already forces up (~15-30\n   cards on a large map); every single-region statement hub lives one\n   fold down. \"Nest clusters under their target\" covers a cluster's\n   INTERNAL traffic (grounds, caveats, objection pairs). The mechanics\n   rest on a folding asymmetry: a STATEMENT block folds to nothing, an\n   EVIDENCE refinement folds to a visible coarse line, edges intact. So\n   an edge between two top-level statements never sinks into a statement\n   block; it stays a top-level evidence (all premises top-level), or\n   becomes a **coarse hull** (idiom 5) conditioning on just its\n   cross-region premise, fine conjunction and local clusters in the\n   refinement, solve on the fine line (D38). Quick checks:\n   `grep -c '^\\$'` = 0 on a multi-statement map means no spine at all\n   (W21); a top rank past ~40 cards means the tier is set too fine. If\n   the source draws its own overview (a section-2 diagram, an abstract's\n   roadmap), the flat projection should BE that overview; a\n   free-standing exhibit node or two beside a visible spine is fine (W21\n   stays silent then).\n\nWhen all three fail and the heading is still real, the section is a\n*topic*, not a fold unit, and that is a declared group (`::`), not debt.\n\nFor maps past ~150 nodes: **width, not depth** (every new objection\ncluster is a sibling under its target, never a deeper chain; when a\nsub-debate wants an eighth level, promote the deep node to a shared\ntop-level node, so node count can triple while max depth stays flat); a\n**manifest comment block** at the top with the coarse spine in ASCII,\nevery shared node listed with its home region and consumers, and the\nregion-prefix scheme stated (`@c5-trade`, `$c5-trade-obj`,\n`$c5-trade-resp`); build in dependency order and lint after every region.\nSmell figure: the flagship holds 431 nodes at depth 5. A hundred-node map\nat depth 1 is under-nested even if every line is well-formed. Its reader\nmeets a wall of top-level nodes and the fold control does nothing.\n\n## Workflow\n\n1. Skeleton: structure only, no numbers - three sub-passes (tut 5.1),\n   because the directions fail differently (top-down invents hubs the\n   source never asserted, which solve near-tautologous; bottom-up buries\n   the spine, W21, and double-counts shared grounds, gotcha 2):\n   (a) SPINE top-down, transcribed from the source's own overview (a\n   section-2 diagram, an abstract, a title conditional): top tier,\n   `focus:`, region list + prefix scheme, the manifest comment. Genre\n   flip: a debate asserts no overview up front - go bottom-up first and\n   write the spine after the meta-shape emerges (the wrap-up); never\n   fake a spine the source did not assert.\n   (b) REGIONS bottom-up, in source order, each step citing its\n   sentence: statement granularity (a label must be a proposition;\n   meta-principles and framing stay glosses, not conjuncts), linked vs\n   convergent (test in idiom 3), and per objection: which inference\n   does this grant, and which does it deny? (undercut vs rebuttal, the\n   most common first-pass error). Nest a cluster's internal traffic\n   under its target.\n   (c) RECONCILE: promote shared grounds discovered in (b) to the home\n   the burial test picks (the nearest container covering every\n   consumer, not blindly the document top); merge or partition\n   overlapping lines; set the tier by the source's own disclosure order\n   - headline, sinks, route hubs and burial-forced shared grounds on\n   top, single-region hubs one fold down, cross-tier edges as top-level\n   evidences or coarse hulls, never sunk in a statement block (spine\n   test, W21). Then lint, and nest-audit for missed fold candidates.\n2. Elicit blind by rubric. **Fix the rubric before assigning anything**:\n   keep two tables, one for statement registers and one for\n   inference-step language, plus **role defaults** for where the source\n   is silent (an unhedged asserted step, an objection raised to deflect,\n   …). You will need them. Convention: the rubric lives in a comment\n   block immediately after the frontmatter. When hedges stack the\n   outermost governs; when two readings are defensible author the weaker\n   and log both, and likewise when the source asserts one proposition at\n   two registers. A stated *rate* (\"one accident per twenty million\n   hours\") is not a stated credence. Keep it in the gloss and derive\n   from the assertion's register. In a source-faithful map a `# check:`\n   carries the source's own register for that conclusion, `?` and all.\n3. Review checklist: provenance traced; undercut targets typed; overlaps\n   merged / shared-source factored / partitioned (`AND ~@other-route`) or\n   declared independent in a comment; no dangling sub-conclusions\n   (every non-headline statement feeds some evidence, though the\n   headline itself is the one sink and is exempt); nesting present AND\n   the spine surfaced at a coarse tier (top-level evidences exist, W21\n   silent, top rank not a crowd; see the spine test's bounds);\n   full-source coverage (summarizing from memory under-extracts); defeat\n   presuppositions guarded (idiom 11); multi-voice overlaps deduplicated\n   (full concurrence = one line at the weaker register; a subset relation\n   = shared span plus a residual increment; an instance supports the\n   shared ground, not the downstream conclusion). After the skeleton and\n   after any restructuring pass, run `argmap-query nest-audit` (add\n   `--rank` for the fold-as-detail vs coarse-hull call): it sizes the top\n   tier against its genre (the ~40 bound is per group on an atlas map, per\n   tier on a spine map), names the boxes whose opened view is a wide and\n   deep wall, and lists cones ready to fold with the edges that block them,\n   counting each cone by what still stands at the statement's own tier.\n   Advice, not a check; declining a proposed fold is a normal outcome.\n4. Mechanical smoke: lint, parse (editor), solve (below).\n\nQuoting discipline: verbatim spans of at most one sentence (~25 words),\nnormally one per node; never alter a quote silently; never reproduce a\nself-contained creative unit (a parable, a poem) whole, but retell and\ncompress. Whole-map budget from one work: low hundreds of words, and\nproportionally less for a short source. Where the span goes is the\nthree-way test above: supporting quotes become `>` lines with a\n`[^locator]`; a fragment that is grammatically part of the gloss sentence\nstays inline in plain double quotes, optionally echoed by a `>` line. The\nbudget counts both.\n\n## Gotchas\n\n1. Undercut schema is exactly `$u q ~C | grounds AND $target`; dropping\n   the `AND $target` silently makes it a rebuttal.\n2. Convergent lines must not share grounds (independence is assumed);\n   merge, name the shared source, or partition.\n3. `AND` only if no conjunct alone suffices; overdetermined routes are\n   separate convergent lines.\n4. A sigil forgotten on a node line silently becomes gloss text, so heed\n   lint W3. The **inverse has no diagnostic and cannot get one**: a gloss\n   continuation line that *begins* `@`, `$`, `#`, `::` or `>` is consumed\n   as that construct, because dispatch is a first-character switch and by\n   then the parser has built a node with no idea prose was meant. Never\n   start a continuation line with a sigil character. Begin with a word.\n   (Quote lines cannot wrap, which is what keeps the exposure small.)\n   A whitespace-preceded `#` inside a gloss starts a comment,\n   and the split is **silent**: `…memory cell #2 is protected` parses as\n   gloss `…memory cell` plus trailing comment `2 is protected`, losing\n   the rest of the sentence from the display with no diagnostic. The\n   escape is to delete the space: `cell#2` stays in the gloss whole.\n   Reword or close the gap; never leave ` #` inside prose you meant to\n   keep.\n5. Asserting `@c | @a` alone drags P(@a) down (drift tax); author a value\n   on `@a`, or map the source's converse `~@c | ~@a` if it asserts one.\n6. Don't condition on a near-tautology premise (e.g. the OR of four of\n   five partition members): the floor semantics constrain both slabs, the\n   negated one is nearly empty, and the solve shows a large spurious\n   tension. Condition on the informative complement, or drop the premise\n   part.\n7. `#` section-heading comments are nesting debt (see above); the\n   exception is a *topic*, which is a declared group.\n\n## Pitfalls checklist (adversarial audit; tut 10.4)\n\nWork it against the finished map. Per item: what / how to see it / fix.\nLint = `python3 tools/argmap-lint.py FILE`; audits =\n`node mvp/packages/parser/bin/argmap-query.mjs FILE \u003caudit>` (advisory).\n\n1. Pin beside mapped support (T1) / **W25** / derive: number to\n   `# check:` at its register's interval, or the remainder as a pair.\n2. Pin + check on one head line / **W23** / drop the point (interior) or\n   the check (root), or write the remainder as a pair beside the check.\n3. Pinned root homed in a box it does not feed / `isolate-audit` /\n   derive from the container (inference test), re-home, or say why.\n4. Restatement wired as inference (`@psychosis` shape) / `restate-audit`\n   + the reading \"does the passage make this step?\" / delete the line,\n   cross-reference in a comment, or merge the docks.\n5. Two lines sharing a premise into one conclusion / `shared-cause` /\n   the deliberate shared conjunct (comment it), or factor out, or merge.\n6. A statement AND-ed with its own derivative (`$wst-race`) / the\n   reading: trace each AND premise two hops up (`neighbors ID --hops 2`);\n   `covariance_probe.py` at scale / drop the duplicate premise or\n   re-elicit on the derivative alone.\n7. A floor elicited from the total (T3's hazard) / the reading: a pair\n   beside a check is lint-silent, so a floor that would close the badge\n   alone, or one with no passage in the gloss, is the total / empty the\n   residual unless the text names a second unwired ground or a remainder\n   (`0.2?/0?`).\n8. A posterior elicited as direct evidence / the reading: a root hedged\n   because of a conclusion the map derives from it / no exact fix; keep\n   the widths, note it in the trailing comment, show interval and band.\n9. A definition as a p = 1 statement (T7, 1/w per junction) / grep\n   ` 1:` and ` 1?:`, lint silent / gloss or glossary; definitional claims\n   as p = 1 lines, the converse pair (T6).\n10. Malformed check interval / **W26** / a point in [0, 1] or `lo..hi`.\n11. Unstrengthed line left as structure / **I3** / commit a strength by\n    rubric or delete the line.\n12. Label whose pronoun has no antecedent (`@before-after-gap`, \"It must\n    hold ...\") / read every label cold and out of order / put the\n    subject in the label.\n13. Bundled label (\"X and Y\", \"X, so dismiss Y\") / grep labels for\n    ` and `, ` so `, `therefore`; could the halves be true separately? /\n    one proposition per statement, or derive the fused claim from its\n    halves.\n14. A refusal written as a number / a pair wider than 0.30 with no gloss\n    sentence, or a 0.5 with none / `0.1?/0.1?` + the gloss sentence, or\n    a blank marginal.\n15. A pair whose shape contradicts its register / compare with the table\n    (item 4 above) and the class token; a pin with no token is unaudited\n    / the table's row, or a per-node pair from the text with rationale.\n\nOrder: lint, the five audits (`isolate-audit`, `restate-audit`,\n`shared-cause`, `cook-audit`, `pinned-roots`), then the reading half over\nthe `pinned-roots` rows (items 3, 7, 8, 14, 15 live there).\n\n## Limitations\n\nKnown dead ends, with the standing workaround; none block parsing or\ndisplay, they bound what a solve can mean (tut 9):\n\n1. **Scope conditionals** (\"aligned now, degrades at superhuman scale\")\n   have no first-class form; nesting is a partial workaround, statement\n   granularity is your burden.\n2. **Undercut fan-out**: an undercut names one target, so class-level\n   objections (\"this is all unfalsifiable\") are under-stated. Give the\n   family a shared gate premise and rebut that once, or make the\n   objection a shared ground feeding several undercuts.\n3. **No statement re-opening** (D33): refinement is physical\n   indentation, so declare nodes at their refinement site and\n   forward-reference them (IDs are document-global).\n4. **Binary statements only**: categorical or continuous claims enter\n   through threshold-gate statements (\"X exceeds T\").\n5. **Credal links are second-order**: nothing computes \"if P(X) > t then\n   Y\", so use idiom 10 plus a `# gate: q($e) >= t => @c` comment audit.\n6. **Statement-level provenance** has no in-format home beyond footnotes\n   and ID prefixes; scope policing in multi-source maps is manual.\n7. **Independence is assumed** and dependence must be authored; there is\n   no correlation annotation.\n8. **Solver cost grows with treewidth** (the corpus solves in seconds at\n   treewidth ~7–9); width-not-depth authoring also keeps treewidth down.\n9. **Comment-layer slots are conventions**: `# check:` (a point or a\n   `lo..hi` interval) and `# gate:` are invisible to tools other than the\n   solver readouts and the lint.\n10. **Cross-map ID reuse is unchecked**, so verify the propositions\n    match before treating two maps' same-named nodes as the same claim.\n\n## Verify\n\n```bash\npython3 tools/argmap-lint.py FILE          # repo; in a bundle: python3 argmap-lint.py FILE\ncd experiments/solver-prototypes && python3 solve_map.py FILE --top 10   # bundle: cd solver/\npython3 solve_map.py FILE @headline --band\n```\n\nErrors must be zero. Warnings need explanations, not suppression: the\ndiscipline is not \"zero warnings\", it is \"every warning has an\nexplanation you could put in a comment\" (the flagship ships two\ndeliberate W1s).\n\n| Code | Meaning | Author action |\n|---|---|---|\n| E1 | duplicate ID (one namespace) | rename |\n| E2 | dangling reference | fix the ID |\n| E3 | `~$id` | rewrite as an undercut |\n| E4 | probability outside [0,1] | fix |\n| E5 | v0.3 pair without `argmap-version: 0.3` | declare the version |\n| E6 | malformed pair (`0.9/`, `/0.2`) | write both members |\n| E7 | `::id` used in an expression | a group takes no part in inference; reference a member instead |\n| E8 | a probability on a `::` line | groups have no credence slot; delete the number |\n| E9 | `>` outside an annotation block | move it under its node, before that node's first child |\n| E10 | `>` with no quote text | write the quote or delete the line |\n| W1 | evidence-in-premise, not undercut-shaped | usually a polarity slip; legitimate only for idiom 8, then comment it |\n| W2 | directed cycle | usually fine (mutual rebuttal); check it is not a zero-negation support cycle |\n| W3 | prose line resembling a node | you lost a sigil |\n| W4 | footnote used/defined mismatch | fix |\n| W5 | evidence label past 56 chars | an exact threshold, not a guideline: it fires at 57. Distill the warrant; depth to the gloss |\n| W6 | stranded node (validator only) | re-home it with its consumer |\n| W7 | pair sums > 1 | declared two-sided conflict or infeasible residual; confirm intended |\n| W8 | pair `0/0` | drop it |\n| W9 | pair entangled with undercut shape | check what the opposed side asserts |\n| W10 | pair syntax under a declared version \u003c 0.3 (validator only) | declare `argmap-version: 0.3` |\n| W11 | authored 0 strength | you probably mean an unstrengthed line |\n| W12/W13/W14 | group vs block mismatch | see the groups section |\n| W15 | quote line with no `[^locator]` | add it; provenance is the point |\n| W16 | leftover `[^` inside quote text | only a trailing ref is the locator; fix the stray/doubled one |\n| W17 | ` # ` inside quote text | quote lines have no trailing comment; move the note to `#[…]` |\n| W18 | quotes before the end of the gloss prose | reorder: gloss first, then quotes |\n| W19 | `>` under a declared version \u003c 0.3 | declare `argmap-version: 0.3` |\n| W20 | retired `~\"…\"` still in a gloss | migrate it (`>` line / plain marks / echo) |\n| W21 | buried spine (top-level statements unconnected in the flat projection) | lift the linking evidences it names (spine test) |\n| W22 | zero-node file | the parse went wrong; read the counts |\n| W23 | bare point + `# check:` on one head line | drop one, or the remainder as a pair beside the check |\n| W24 | `@id`/`$id` token in prose resolving to nothing | fix the typo or drop the sigil |\n| W25 | bare point beside mapped support | derive: number to `# check:`, or the remainder as a pair |\n| W26 | malformed `# check:` token | a point in [0, 1] or `lo..hi`, lo \u003c= hi |\n| I1 | isolated statements | connect or delete |\n| I2 | block inventory | read it; confirm the split you intended |\n| I3 | unstrengthed-line inventory | commit a strength by rubric, or delete the line |\n\nThree caveats. W6 and W10 live only in the TypeScript validator (visible\nin the editor), not in this lint. On expression-valued conclusions\n(`@a OR @b` left of the given bar) the lint skips the undercut-shape\nfamily (W1/W9) by design, because the editor validator covers those.\nAnd \"zero errors\" is a weaker gate than it sounds: the lint reports `ok`\non a file it finds no nodes in, so a truncated or mangled file passes\ncleanly and then fails in the solver with a raw traceback rather than a\ndiagnostic. Read the reported counts, not just the exit code:\n`0 statements, 0 evidences` on a file you know has nodes means the parse\nwent wrong. Without the editor, a successful `solve_map.py` run doubles\nas the parse gate: it loads the file through the real parser.\n\nReading the solve: **statement gaps** (authored/check vs solved) mean the\nmapped argument does not deliver the stated belief; **evidence tensions**\nmean the constraint set cannot honor that strength (look for an\noverlooked conflict with neighbouring lines); **spectator gaps** mean a\nrefinement delivers something different from its coarse summary (decide\nwhich side is wrong, since both happen). Investigate any tension above\n~0.15 before touching numbers, then fix structure or add named\nevidence, never tune silently. Numbers never move to make badges\ndisappear; a badge that stays is a finding. That ~0.15 is a rule of\nthumb for evidence tensions only; there is no ratified threshold for\nstatement or spectator gaps, so judge those by whether the gap would\nchange a reader's reading, and say in the log what you concluded.\n\nThe readout's own vocabulary: the header `NAME: 15+14 vars, width=4 |\n0.1s, conv=True` reports statements + evidences as solver variables, the\njunction-tree treewidth (cost grows with it), and whether the solve\nconverged. `conv=False` invalidates the numbers below it, so re-check\nbefore reading anything. Each evidence yields **two** tension rows,\n`P(E|phi)` and `P(E|~phi)`: the D36 floor is symmetric, so one authored\nstrength constrains both slabs (given the premises, and given their\nnegation). That is why conditioning on a near-tautology premise\nmisbehaves (gotcha 6). `--band` adds the **forced interval** for a named\nstatement: how far the constraints actually pin it, as against where\nmax-entropy settled inside that freedom. A wide band is not an error; it\nsays the exact point value is not load-bearing, so do not build an\nargument on its third decimal. An EMPTY band is the real signal: the\nconstraint set is infeasible at that node.\n\nFor translated maps, `python3 tools/translation-parity.py BASE TR`\nverifies the translation touches only free-text spans.\n";
   var a = document.getElementById('skill-download');
   if (!a || typeof Blob !== 'function' || !window.URL || !URL.createObjectURL) return;
   var url = URL.createObjectURL(new Blob([SKILL], { type: 'text/markdown;charset=utf-8' }));
