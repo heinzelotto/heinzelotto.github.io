@@ -47,12 +47,16 @@
 </div>
 
 <script type="text/plain" id="argmap-src">
-@rushed [Testing was rushed] 0.7: the schedule left less checking than usual.
-@bugs [Serious bugs reach users]: something bad gets through.
-@ship [The system ships on schedule]: the release goes out as planned.
+@rushed [Testing was rushed] 0.7: The date was fixed before the test plan was written.
+@new-team [The team is new to the codebase] 0.5: Half the engineers joined last quarter.
+@rollback [A rollback plan exists] 0.8: The last two releases were reverted in an hour.
+@scope-cut [The scope was cut early] 0.6: Two features moved to the next release.
+@ship [The system ships on schedule]: The release goes out on the announced date.
 
-$hurry [rushed testing lets bugs through] 0.6 @bugs | @rushed: less checking, more escapes.
-$slip [bugs delay the release] 0.5 ~@ship | @bugs: bugs bad enough to notice push the date.
+$hurry [rushed testing costs the date] 0.5 ~@ship | @rushed: Defects found late move it.
+$unfamiliar [newcomers hit the sharp edges] 0.4 ~@ship | @new-team: Traps are unwritten.
+$net [a rollback plan keeps the date] 0.3 @ship | @rollback: Revert is cheap, so ship.
+$trim [a smaller scope is easier] 0.6 @ship | @scope-cut: Less to build, less to slip.
 </script>
 
 <script>

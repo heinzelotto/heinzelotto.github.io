@@ -1484,7 +1484,7 @@ source asserts the converse, name it (flagship ~line 254, anchor
 
 ```argmap
 # fragment - not standalone
-$no-doom-otherwise [no build, no doom] 0.9? ~@everyone-dies | ~@if-built: the book's own converse of the title conditional
+$no-doom-otherwise [no build, no ASI doom] 0.9? ~@everyone-dies | ~@if-built: the book's own converse of the title conditional
 ```
 
 This is the cross-slab converse pair of 4.2: it cancels the drift tax
