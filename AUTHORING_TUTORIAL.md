@@ -2,7 +2,10 @@
 
 Audience: a person who wants to read or write `.argmap` argument maps.
 Format version: v0.2 (syntax frozen 2026-07-09; the v0.3 slash-pair
-extension is noted where relevant). Semantics: ratified D36 defaults.
+extension is noted where relevant). Semantics: ratified D36, amended by
+D161 (the 2026-09-08 semantics campaign: the network reference as the
+default solve, a count on every number, the kind key on lines, the set
+rule for the tint, the what-if as revision).
 
 Agent-facing companion: the `argmap-author` skill
 (`.claude/skills/argmap-author/SKILL.md`) compresses this tutorial into
@@ -111,7 +114,12 @@ Conventions worth knowing when reading:
 3. A number on a claim is the author's asserted probability that it holds.
    A number on a reasoning step is its reliability: roughly, how likely
    the step is to actually carry when its inputs hold. A trailing `?`
-   marks a number as estimated rather than deliberately asserted.
+   marks a number as estimated rather than deliberately asserted; in the
+   file only, since 2026-09-08: the popup's numeral no longer carries
+   the `?`, its sentence rides the hover text and the hollow caret on
+   the gauge, and the popup shows instead a firmness beside every
+   number, a count in coin flips on a claim and the step's kind word on
+   a reasoning step (2.2).
 4. In the flagship map, numbers derive from the book authors' own
    confidence language through a fixed rubric (DECISIONS.md D39), so
    disagreements the display surfaces are audits of the source's
@@ -122,16 +130,73 @@ Conventions worth knowing when reading:
 The viewer can compute what all the authored numbers jointly imply. Under
 "Show what the map implies" (in the Controls popover; **on by default**
 since D40, though an explicitly persisted opt-out still wins), an
-in-browser solver treats every authored number as a constraint and finds
-the maximum-entropy distribution that honors them. Each node then shows an
-`authored -> implied` readout; the editor calls the computed number the
-implied value, and the technical documents call the same number the
-solved value. The gap between the two is called tension,
-and the display tints it: a large gap on a node means the map's stated
-argument does not deliver the stated belief at that node. Some statements
-carry a check credence (a displayed comparison value that does not
-constrain the solve); the badge comparing it to the implied value has the
-same meaning.
+in-browser solver reads every authored number as a claim and finds the
+distribution that honours all of them together, as far as they can be
+honoured at once. Since D161 (2026-09-08) it starts from the map's own
+network of reasoning steps rather than from ignorance: each line is read
+as a row of a probabilistic network, and the authored numbers are soft
+targets on that network (before D161 the solve was the maximum-entropy
+distribution honouring the numbers as constraints, each a spring rather
+than a wall, D36). Each node
+then shows an `authored -> implied` readout; the editor calls the
+computed number the implied value, and the technical documents call the
+same number the solved value.
+
+**Every number has a second axis.** A number says how likely; beside it
+the viewer shows how firmly it is held, in the currency of coin flips (a
+number held at n flips gives way under pressure as far as a rate
+estimated from n tosses would). The firmness is never a third thing to
+author. For a claim it comes from the width its author left open: an
+interval `0.7/0.1` (the claim somewhere between 0.7 and 0.9) is about 8
+flips, a flat point 198 flips (about 200; the chip prints 198), which
+is the cap every point gets. For a
+reasoning step it comes from the step's kind, read off the source's own
+words: a mechanism holds 64 flips, a record or a judgment 16, an analogy
+or a hope 4, the source's own deductive claim 1000, and a formal step
+is hard. The popup shows the kind word on a step and the count on a
+claim; the detail readout says the same in a sentence. Chapter 4 says
+where the numbers come from (4.1 for steps, 4.7 for claims).
+
+**The tint means conflict.** A readout colours only where the implied
+value has left what the author wrote: below a step's strength, outside
+an interval, off a point, and by more than 0.01 (the solver's own
+resolution at a point, so a point met to 0.005 stays uncoloured).
+Everything else is the solve filling what the author left open, and it
+is shown without colour. On the flagship as authored that is the whole
+picture: all 224 authored intervals are met inside their bounds, 113 of
+them more than 0.05 above their lower bound (both counts re-measured
+2026-09-08 on the shipped solve, `solve_map.py` at its default over
+every pair statement; the design round's probe had counted 111 at its
+own tier the day before), and none is tinted. A tint therefore says exactly one thing: the rest
+of the map could not honour this number, and the size of the tint is
+how far it fell short. Some statements carry a check credence (a
+displayed comparison value that does not constrain the solve); the
+badge comparing it to the implied value has the same meaning, the
+distance from the implied value to the check's interval, and the
+flagship keeps one past 0.10 (`@evo-analogy`, an audit finding about
+the book).
+
+**Moving a number yourself.** In what-if mode a reader drags a claim's
+number. The map re-solves with the reader's number in place of the
+author's on that claim, held as firmly as an author's point (198
+flips, the cap). On a claim nothing argues for, the map follows the reader
+forward and nothing colours. On a claim the author's argument delivers,
+the reader's number is a new claim beside the author's case, and what
+bends shows what that case holds least firmly: whatever carries no
+number at all first, then, other things equal, in the order of
+firmness, hopes and analogies (4 flips), wide intervals, records and
+judgments (16), the author's flat assertions (18 on the flagship),
+mechanisms (64), points (200), the source's own deductive claims
+(1000), and a formal step never. The order is a tendency by count,
+not a rule by position: only numbers on the path between the reader's
+claim and the case's roots can give, so a mechanism on that path bends
+before a hope off it (4.6 shows one such case).
+Where the map cannot honour the reader's number, the adjustment row
+says by how much: on the confusions map's Socrates syllogism a "not
+mortal" at 0 reads "met at 32%", the two premises giving to 0.67 each
+and the formal step holding (4.6, re-measured 2026-09-08 through the
+shipped solve; the row's exact wording is the 2026-09-08 UI round's).
+Section 4.6 walks through both cases with the flagship's numbers.
 
 ### 2.3 The headless readout
 
@@ -148,8 +213,13 @@ solved value. The second prints the ten largest gaps and tensions in the
 whole map: the places where authored numbers and computed numbers disagree
 most. `--band` adds the forced interval for a named statement (how far the
 constraints actually pin it, as opposed to where the solver settled inside
-the allowed range). Quote `$id` arguments so the shell does not expand
-them. The solver needs python3 with numpy and scipy, and node on the PATH.
+the allowed range). `--condition if-built=0 --id @everyone-dies` answers
+a what-if by conditioning (the named statement taken as a fact about
+the world, the author's numbers updated by Bayes), the bench reading
+that the viewer's what-if mode does not use (4.6); `--override` is the
+viewer's reading, revision. Quote `$id` arguments so the shell does not
+expand them. The solver needs python3 with numpy and scipy, and node on
+the PATH.
 
 That is everything a reader needs. To write maps, continue.
 
@@ -226,7 +296,8 @@ Premise and conclusion sides use the same grammar:
 
 Note the graph-level route to convergence: two separate evidence lines
 with the same conclusion are independent factors, which is usually the
-right way to say "two independent reasons" (see 4.6 for when it is not).
+right way to say "two independent reasons" (see 4.4 for when it is not,
+and for what happens to two reasons once their conclusion is known).
 
 ### 3.4 Refinement (nesting)
 
@@ -319,6 +390,52 @@ undercut elsewhere, the undercut lapses with it. Dropping the `AND $E`
 turns it into a plain rebuttal, which fires regardless. Undercuts of
 undercuts (reinstatement) are the same schema applied again.
 
+#### Coming from probabilistic conditional logic
+
+If you know conditionals of the form `(psi | phi)[d]` from the
+maximum-entropy literature (Kern-Isberner, Paris, the SPIRIT and MEcore
+systems), five translation rules keep the solve honest; each was measured
+on `examples/toys/pcl-penguin.argmap` (2026-08-31).
+
+1. `(psi | phi)[d]` with `d` at or above 0.5 is the line `$e d psi | phi`.
+2. With `d` below 0.5 it is the opposed line at `1 - d`: `$e (1-d) ~psi |
+   phi`. A line's number is the inference's reliability, so `0.01 @fly |
+   @peng` is a nearly worthless reason for flying, and the solve concludes
+   from "birds fly" that penguins fly (0.94 under the what-if).
+3. A subclass exception is an undercut of the general rule on the
+   subclass plus a rebuttal. `0.9 @fly | @bird` beside `0.99 ~@fly |
+   @peng` is a contradiction here, because "birds fly" in force is a law
+   over penguins too; with the penguin pinned the map is infeasible. Write
+   `0.99 ~@fly | @peng AND $birds-fly` (the undercut, which alone leaves
+   flying at even odds) and `0.99 ~@fly | @peng` (the rebuttal, which then
+   reads the textbook 0.01).
+4. An independence statement, a conditional at the base rate such as
+   `(allergic | treated)[0.10]` beside `(allergic)[0.10]`, has no line
+   form. Leave it out: a support line at the base rate pulls its
+   antecedent down, and the lint flags the attempt (W25). If the pull it
+   was meant to block is real, pin the statement it protects.
+5. A fact `(a)[d]` is the bare point `@a d`; whether it should be a pair
+   is the two-floor discipline of 4.7 (W23, W25).
+
+The solver never reads your descriptions, so the same three lines with
+different glosses solve to the same numbers. What a description can do
+is tell you which shape to write. Three readings of "birds fly, 0.9"
+and the shape each licenses:
+
+- **The law.** "All birds fly; I am 90 percent sure." Write `0.9 @fly |
+  @bird` and, for every exception you know, the undercut plus rebuttal
+  of rule 3. The rule stays a law over the whole class.
+- **The frequency.** "90 percent of birds fly." Either scope the rule to
+  the class it is true of, `0.909 @fly | @bird AND ~@peng` (the number
+  raised so the mixture over the class comes back to 0.9) with `@peng`'s
+  base rate written down, or keep the unscoped line and read the
+  exception off the solved map by conditioning (the CLI's
+  `--condition`), never by pinning the exception: a pinned penguin
+  beside an unscoped "birds fly" is a contradiction in this reading as
+  much as in the textbook's.
+- **The case.** "This bird probably flies." A point or pair on `@fly`
+  itself, or a pinned premise; no rule about birds is being asserted.
+
 ### 3.7 Comments and comment-layer conventions
 
 A line beginning with `#` is a comment; a whitespace-preceded `#` starts
@@ -347,9 +464,22 @@ without being syntax:
 2. `# gate: q($id) >= 0.10 => @conclusion` records a threshold audit:
    after a solve, if the left side clears, the named conclusion is
    expected to hold, and the display reports agreement or disagreement.
+3. `# kind: <word>` on an evidence line records what sort of step the
+   line is, read off the source's own words: `formal`, `deductive`,
+   `mechanism`, `empirical`, `testimony`, `analogy` or `hope`. It sets
+   how firmly the solve holds the line under a reader's what-if (its
+   count, in coin flips), never its strength; 4.1 says when to write
+   which. An empirical line may add its stated sample size
+   (`# kind: empirical n=200`), and the key may share a comment with
+   other keys, separated by `; ` (`# check: 0.9?; kind: mechanism`).
+   The key is content: it is identical in every language of a
+   translated set (TRANSLATION_NOTES L16, checked by
+   `translation-parity.py`). On a refined coarse line the key is for
+   the reader; the solve reads the leaves' keys, because the refinement
+   replaces the coarse line (3.4, 7.5).
 
-Both are conventions, not grammar; tools other than the solver readouts
-will treat them as ordinary comments.
+All three are conventions, not grammar; tools other than the solver
+readouts will treat them as ordinary comments.
 
 ### 3.8 Citations
 
@@ -623,6 +753,91 @@ Practical consequences:
    complement instead (in the partition case, on the negation of the one
    remaining member), or drop the premise part entirely.
 
+**The second axis: the line's kind.** A strength says how likely the
+step is to carry. Since D161 (2026-09-08) every line also has a
+**count**: how firmly the solve holds that strength when something
+else in the map pushes against it, in coin flips (a strength held at n
+flips gives way as far as a rate estimated from n tosses would). The
+count is never elicited as a number. It comes from the line's **kind**,
+what sort of step it is, which a reader can classify from the source's
+own words where nobody could read a count off a book. Write it as the
+comment key `# kind: <word>` (3.7). The rubric, with the cue words and
+the count each kind holds, as fixed on 2026-09-08 (`deductive` raised
+from 200 to 1000 flips the same day, after the campaign's skeptic pass;
+DECISIONS.md D161 carries the current table, this one is dated):
+
+| kind | the step | cues in the source | flips |
+|---|---|---|---|
+| `formal` | logic, definition, arithmetic, a machine-checked derivation, a universal instantiation; checkable independently of the author | a proof, a calculation, "all F are G and x is F" | hard (or simply write the step at 1) |
+| `deductive` | the source's own claim that the conclusion follows | "by definition", "necessarily", "it follows", "is the same as" | 1000 |
+| `mechanism` | a causal or structural reason that would operate whenever the premises hold | "because", "the process", "would tend to", "any such system" | 64 |
+| `empirical` | a frequency or a record | "historically", "in every case so far", a named count of incidents, a study | 16, or a larger stated sample size |
+| `testimony` | the authors' or experts' stated judgment, offered as such | "we think", "experts", "most researchers", "our judgment" | 16 |
+| `analogy` | an inference carried by a likeness | "like", "as with", "analogous", "the way evolution" | 4 |
+| `hope` | the source's own labelled hopes and speculative objections | "the hope:", "perhaps", "one might hope", "it is conceivable" | 4 |
+| no key | | | 16 |
+
+Four rules ride on the table:
+
+1. **Formal against deductive.** A formal step is written at strength 1,
+   or at its strength with `# kind: formal`; either way the solve holds
+   it hard, a constraint no other content bends. A source's own
+   deductive claim is a different thing: the authors assert that the
+   conclusion follows, and they can be wrong about their own logic, so
+   the line is firmer than any statement a point can be (1000 flips
+   against the point cap's 198, five times the cap) and softer than a
+   formal step, which never bends. A reader's what-if therefore bends a
+   `deductive` line after every premise a point holds, and a `formal`
+   line never. Measured on the confusions map's Socrates
+   syllogism (`c4`: two premises at 0.99, the syllogism at 0.99, the
+   reader's "not mortal" at 0) through the shipped solve with the
+   syllogism re-keyed `deductive` (2026-09-08, `solve_map.py --override`
+   and the compile's `socrates-tier` test): at 1000 flips the syllogism
+   gives 0.06 (0.99 to 0.93) where each premise gives 0.30 (0.99 to
+   0.69) and the reader's 0 is held at 0.30; at the 200 it first had,
+   the syllogism gave 0.24 (0.99 to 0.75), nearly as much as its
+   premises, which is what the raise fixed. Under the map's own
+   `formal` key the step holds at 0.99 and each premise gives 0.32.
+   Said plainly: on the two-premise copy the `deductive` step does
+   bend. Its coin reads 0.93 while the premises give, which misses the
+   condition the raise was set for (the coin above 0.95 while the
+   premises give) by 0.02; on the single-premise copy (`c2a`) the same
+   key holds at 0.986. The `formal` key holds exactly on both, 0.990.
+   The constant stays at 1000 and the 0.02 is on Felix's list (D161
+   item 3; the ladder through the compile reads 0.75 / 0.93 / 0.96 /
+   0.98 / 0.99 at 200 / 1000 / 2000 / 5000 / 20000 flips, pinned in
+   `socrates-tier.test.ts`).
+2. **The boundary sentence.** `deductive` only where the line's own
+   words claim necessity, definition or elimination; a reason that would
+   fail if the world were arranged otherwise is `mechanism`, however
+   confidently the source states it. (Two blind passes over the flagship
+   disagreed on 25 lines at exactly this seam before the sentence
+   existed; with it they resolve by rule.)
+3. **A stated sample size raises the count and never lowers it.**
+   `# kind: empirical n=200` holds a survey of two hundred at 200 flips;
+   a line that reports one incident stays at the default 16. The floor
+   is measured: three premise-less one-incident lines at one flip each
+   held he-xrisk's `@containment-fails` at 0.75 against the author's own
+   check of 0.85, and at the default within 0.013 of it (PLACEMENT_PROBE
+   section 23 (e), 2026-09-08).
+4. **An undercut or rebuttal takes the kind of its own step**, never of
+   the line it attacks: an undercut by mechanism is `mechanism`, and
+   "technophobia, not an inference" is `testimony`.
+
+What the count changes, and what it leaves alone. The map as authored
+barely moves: the flagship's 348 keyed lines move one statement past
+0.05 (`@nat-abs` 0.14 to 0.19) and light no new badge (2026-09-08).
+What the count decides is which line gives first under a reader's
+what-if (4.6). The solve reads four counted tiers (1000, 64, 16, 4) and
+the hard one, so a disagreement between `empirical` and `testimony`, or
+between `analogy` and `hope`, moves no number; the word is still worth
+getting right, because the reader sees it on the popup. The flagship's 348 lines carry
+their keys since 2026-09-08: 105 `mechanism`, 69 `deductive`, 65
+`testimony`, 45 `hope`, 34 `empirical`, 30 `analogy` and no `formal`
+(the book has no machine-checkable step). The rubric's record, with the
+two-pass agreement (kappa 0.65) and the third reader on the ties, is
+`ideas/plans/semantics-antecedent-pull-2026-09-06.md` section 17.
+
 ### 4.2 The drift tax, and when to counter it
 
 Asserting a conditional lowers its antecedent. If the only line in a map
@@ -714,6 +929,12 @@ evidence about `@a -> @c` moves the solved P(@a) (drift, modus tollens),
 do not "correct" `@a`'s authored value for it; that effect is already
 contained in the map.
 
+A root's number has a second axis too (D161, 2026-09-08): how firmly
+the solve holds it under a reader's what-if comes from the width the
+author left open, an interval `0.7/0.1` about 8 flips and a point about
+200, the cap. Nothing is elicited for it; the width you write for the
+register (4.7.4) is the firmness. Section 4.7.2 gives the rule.
+
 ### 4.4 Independence, and what to do when it fails
 
 Separate evidence lines are treated as independent mechanisms; their
@@ -730,6 +951,24 @@ in increasing order of structure:
    the negation of the other route, as in `$mwb-time ... |
    @wont-solve-in-time AND ~@align-hard` (the two routes then partition
    the worlds instead of overlapping).
+
+One consequence of independence is worth meeting before it surprises
+you. Two independent reasons for one conclusion stop being independent
+once the conclusion is known: with the effect settled and one cause
+observed, the other cause is less likely, because the effect is already
+accounted for. That is **explaining away**, and the solve shows it, as
+any probabilistic network does. D161 declares it as a divergence from
+the conditional-logic literature's syntax-splitting postulate, which
+would hold the other cause where it was; the map takes the Bayesian
+side. The exhibit is `examples/toys/f-explaining-away.argmap`: two
+causes each bring the effect at 0.9; with only the effect observed both
+causes read 0.573, and observing one of them as well drops the other
+to 0.515 (measured 2026-09-08 with `solve_map.py` at its default on the
+toy, the same numbers the kernel is pinned to in the solver-compile toys
+test; the record's hard-mode figures are 0.573 and 0.512). Nothing
+needs authoring around it. A reader who pins one
+cause of a known effect in what-if mode and watches the other cause
+fall is seeing this.
 
 Two boundary clarifications. First, the discipline applies to lines
 converging on the **same** conclusion; one statement legitimately feeds
@@ -778,19 +1017,117 @@ undercut. That is not double-counting (the inhibitor acts on the
 inference, the plain line acts on the claim), and without it the fact
 the source actually reports is silently absent from the solve.
 
-### 4.6 Solved values, tension, and 0/1 pins
+Readers arriving from probabilistic conditional logic: the translation
+rules under 3.6 say when a low conditional is an opposed line and when a
+subclass exception needs this undercut plus a rebuttal.
+
+### 4.6 Solved values, tension, and the what-if
 
 The display is computed-first: the solved value is the primary number,
-authored values remain the constraint set, and tension is the per-line
-gap between them. Since D36 a tension badge means "your stated argument
-does not deliver your stated belief", which is information about the
-argument, not an error to be tuned away. The flagship map deliberately
-keeps several badges because they are audit findings about the source.
+the authored values are the claims it was asked to honour, and tension
+is the distance from the solved value to what the author wrote. Since
+D161 that distance is measured against the whole of what was written: a
+point, an interval's two bounds, a step's strength as a lower bound. A
+tint means "the map could not honour this number, by this much"; the
+solve settling somewhere inside an interval the author left open is a
+readout without colour (2.2 has the rule, the 0.01 tolerance and the
+flagship's counts). A tension badge is information about the argument,
+and the flagship keeps its one badge past 0.10 (`@evo-analogy`) because
+it is an audit finding about the source.
 
-Authored 0 and 1 on statements delete possible worlds outright
-("world-killers", SOLVER_SEMANTICS P3) and are a smell; if you mean
-"very confident", write 0.97, or give an interval with a v0.3 pair. The
-honest wide statement is cheap; the false point is not.
+**Authored 0 and 1.** Since D161 a point is held at the point cap, about
+200 flips, so an authored 0 or 1 no longer deletes possible worlds (it
+did under D36: "world-killers", SOLVER_SEMANTICS P3). It still claims a
+certainty the source rarely states, and it is held no more firmly than
+0.97 is. If you mean "very confident", write 0.97, or give the interval
+as a v0.3 pair. The honest wide statement is cheap; the false point is
+not.
+
+**The what-if is revision.** In what-if mode a reader moves a claim's
+number. What the map does with it was ruled on 2026-09-08 (D161, after
+the two-verb discussion in
+`ideas/plans/semantics-antecedent-pull-2026-09-06.md` section 15), and
+it is one rule with two parts:
+
+1. The reader's number **replaces** the author's on that claim (the
+   author's point or interval there is set aside for the duration) and
+   enters as a point at the cap: **your number is a claim like the
+   author's, as firm as a point** (198 flips, the cap). A reader's 0 or 1
+   is therefore a very firm claim, never a fact.
+2. Everything else the author wrote stays in force, each number at its
+   own firmness, and the map re-solves. The question answered is: if
+   this number were as the reader says, which of the author's other
+   numbers gives, and by how much.
+
+Two cases follow, and both are worth knowing. The numbers are the
+flagship's under the ruled counts (width counts on its 224 intervals,
+kind counts on its 348 lines with `deductive` at 1000, the reader's row
+at the cap; re-measured 2026-09-08 with the python network-reference
+solve by the skeptic pass's `width_counts.py` method):
+
+**On a root, the map follows you forward.** `@llm-nice` (the authors'
+`0.85/0.05` that current systems seem nice) moved to 0.1: the map's
+answer is `@nat-abs` 0.19 to 0.10 and nothing else past 0.01; no line
+bends and nothing colours. The reader changed a premise the author
+argued nothing for, so there is nothing to give; the map propagates. A
+better-connected root shows the same at scale: `@instrumental-convergence`
+to 0.2 moves eleven statements past 0.01 (`@incorrigible` 0.84 to 0.57,
+`@not-preserved` 0.91 to 0.75), lights two of the book's own check
+badges downstream (`@not-preserved` at -0.20 and `@corrig-antinatural`
+at -0.13: conclusions the reader's premise no longer delivers) and bends
+one `hope` line (`$c5-leave-obj` 0.70 to 0.56). Every tint sits
+downstream of the edit, on the author's side of the argument.
+
+**On a conclusion, the author's case retreats where it is softest.**
+`@everyone-dies` (the headline; no authored number, check `0.88..0.98`)
+moved to 0: the map meets the reader (0.0003), bends no line past 0.05,
+and gives on the free premises upstream, `@if-built` 0.91 to 0.54 (its
+check badge lights at -0.31), `@asi-soon` 0.93 to 0.71, `@mis-ext` 0.98
+to 0.91. Read it as "then it was not built, or not soon": the book's
+case is softest at its premises, because they are derived claims nobody
+pinned. Pin those too (the record's P6 set: built, misaligned when
+built, the misalignment extreme, the link fine, and still nobody dies)
+and the retreat has to land on the lines and on the authors' flat
+assertions: the `analogy` response `$resp-exp` 0.90 to 0.63, the
+`testimony` undercut `$uc-experts` 0.30 to 0.54, the `mechanism`
+objection `$c12dr-obj` 0.15 to 0.21, a second `analogy`
+`$uc-precedented` 0.30 to 0.35, and two 18-flip assertions leave their
+intervals (`@precedented` 0.11 to 0.25 against `0.05..0.15`,
+`@immature-field` 0.89 to 0.83 against `0.85..0.95`); no `deductive`
+line moves, and no `hope` line does either, because none sits on the
+path: the count orders what gives among the numbers the reader's claim
+reaches, which is why a 64-flip mechanism bends here while the 4-flip
+hopes stand. That list is what "the book's case holds least firmly"
+means, and the Most moved panel shows it with each line's kind.
+
+**The refused residual.** The reader's number is met to within 0.002 in
+every case above (through the shipped compile and kernel the P6 set's
+points read 0.0020, 0.9981 and 0.9982 for `@everyone-dies`, `@if-built`
+and `@mis-ext`, D161 item 4; `@llm-nice` at 0.1 reads 0.101, both
+re-measured 2026-09-08), and that is the usual outcome, because 198
+flips outrank everything on the flagship except its 69 `deductive`
+lines.
+Where the map cannot meet it, the adjustment row says by how much. On
+the confusions map's Socrates syllogism (`c4`: two premises at 0.99 and
+a `formal` step at 0.99) a reader's "not mortal" at 0 is held at 0.32,
+the step holding at 0.99 and each premise giving 0.32; re-keyed
+`deductive`, the step gives 0.06 and the reader's 0 is held at 0.30
+(4.1, rule 1; both re-measured 2026-09-08 through the shipped solve).
+The residual is the honest answer, and it is tinted only past the 0.01
+tolerance.
+
+The other reading of a what-if, "suppose it turned out that way", is
+the conditioning verb: the reader's number as a fact about the world,
+the author's numbers updated by Bayes. It stays a bench readout
+(`solve_map.py --condition`, 2.3). Under conditioning the author's pins
+would yield; under revision they hold at their firmness and the reader
+sees which inference they thereby reject. The reason for the choice
+(recorded in `semantics-antecedent-pull-2026-09-06.md` section 15 item
+12): showing a reader where an argument's inconsistencies lie is the
+point of the tool, and conditioning hides that by moving to the
+unlikely world without showing how surprising it was. One more effect to expect in
+what-if mode: pinning one cause of a known effect lowers the other
+causes (explaining away, 4.4).
 
 ### 4.7 The epistemic delicacies: residual, point, pair, check, derive
 
@@ -800,11 +1137,24 @@ class no lint can see in full and the one an extractor has to get right
 in a single pass. They were settled in August 2026 (DECISIONS.md D152,
 the register to pair table in AUTHORING_NOTES 2026-08-23, the check
 intervals of the same day) and each of them has a five-line measurement
-behind it. Those measurements are the toy battery in `examples/toys/`;
-the numbers quoted here were re-measured on 2026-08-23 with
-`solve_map.py` at the ratified defaults and match that directory's
-README to three decimals. Read the toy, then the rule; the rule is what
-the number says.
+behind it. Those measurements are the toy battery in `examples/toys/`.
+Read the toy, then the rule; the rule is what the number says.
+
+Two measurement dates sit in this section, and they are marked. The
+T1 to T4 illustration in 4.7.2 was re-measured on 2026-09-08 under the
+network reference (D161, the shipped default since that day) with
+`solve_map.py` at its defaults, as authored and under a reader's
+what-if; the toys' README carries the same numbers in a dated block.
+The pictures from 4.7.5 on were re-measured on 2026-09-08 the same
+way (`solve_map.py` at its defaults; the README's second table), and
+each names the retired D36 figure it replaced beside the network
+reference's. The rules stand under both references, because they are
+about what a number is evidence for, which no reference changes; what
+the reference changes is where the double count becomes visible, and
+4.7.2 says where. One picture did not survive the change and says so:
+the ridge price of a p = 1 terminology statement (4.7.6, T7) was the
+uniform reference's, and under the network reference the statement
+holds at 1.000 and the junction pays nothing.
 
 #### 4.7.1 The residual rule, stated once more
 
@@ -833,22 +1183,39 @@ different things.
 
 1. **The point**, `@s 0.9?`. Since D36 a bare point is read as the
    **degenerate pair** `0.9?/0.1?`, a zero-width interval: the members
-   sum to 1 and P(s) is held at 0.9. Under the solver's default ridge it
-   is held by a spring (weight 400), so a pin leaks about 1/400 and
-   otherwise restates itself.
+   sum to 1 and P(s) is held at 0.9. Since D161 it is held at the
+   **point cap**: a point counts as an interval with silent mass 0.01,
+   198 flips (about 200), so no two points can make the solve infeasible, and
+   a point may solve up to about 0.005 off its value, inside the tint's
+   tolerance. The cap sets the firmness only; the target stays at 0.9
+   and no interval is written for it. (Under D36 the point was a spring
+   at weight 400 that leaked about 1/400.)
 2. **The pair**, `@s 0.6?/0?` (v0.3, D53). The author's **direct
    evidence** about the statement: a floor of 0.6 for it and nothing
    against it, so P(s) is bounded to [0.6, 1]. The map's own inference
    then **selects within the interval**: every line the statement feeds
    or is fed by pushes the solved value around inside it, and the
-   balancing prior picks the max-entropy point when nothing pushes.
-   Inference through the map never counts against the pair; the pair is
-   read as direct evidence and the width is the author's honest spread.
+   reference picks the point when nothing pushes (under D36 the
+   balancing prior's maximum-entropy point; under D161 the map's own
+   network, where the lines put it, and on the flagship every one of
+   the 224 intervals is met inside its bounds, 111 of them more than
+   0.05 above the floor, 2.2). Inference through the map never counts
+   against the pair; the
+   pair is read as direct evidence and the width is the author's honest
+   spread. Since D161 **the width is also the firmness**: by Walley's
+   imprecise Dirichlet model with prior strength 2, an interval with
+   silent mass m is held at 2 (1 - m) / m flips, so `0.6?/0?` (silent
+   0.4) is 3 flips, `0.7/0.1` is 8, `0.85?/0.05?` is 18 and the cap's
+   0.01 is 198. A wide interval is an honest spread and an easy give
+   under a reader's what-if; that is one fact, said twice.
 3. **The check**, `# check: 0.85..0.95`. The author's **total**, all
    things considered, as an interval at the register's width (4.7.4), or
    a bare point as the zero-width case. It **never constrains** the
-   solve. The badge a reader sees is the signed distance from the solved
-   value to the interval, zero inside it. A badge that stays is a
+   solve, so it has no firmness either: under a reader's what-if a
+   check-only statement is the first thing to move, and its badge says
+   by how much (4.6's `@if-built`). The badge a reader sees is the
+   signed distance from the solved value to the interval, zero inside
+   it. A badge that stays is a
    finding about the argument; closing one by moving a number is the
    move the whole discipline forbids.
 
@@ -869,39 +1236,67 @@ $sub-ev [wanting means routing around obstacles] 0.9? @subvert | @want:
 $res-ev [subversion implies resisting correction] 0.85? @resists | @subvert:
 ```
 
+The numbers below are the network reference's, measured 2026-09-08
+with `solve_map.py` at the shipped defaults, first as authored and then
+under one reader's what-if (`--override want=0.1`: the reader's number
+replacing the author's on the root, 4.6).
+
 T1 is the shape to avoid, and the lint says so (W25 on `@subvert`): the
 point sits beside a strengthed line that argues for the same statement.
-It solves `@want` 0.893, `@subvert` 0.899, `@resists` 0.879. The wanting
-consideration is counted twice here, once inside the 0.9 and once
-through `$sub-ev`, and the solve shows no sign of it, because a pin
-mostly restates itself.
+As authored it solves `@want` 0.899, `@subvert` 0.900, `@resists`
+0.883. The wanting consideration is counted twice here, once inside
+the 0.9 and once through `$sub-ev`, and the as-authored solve shows no
+sign of it, because a pin mostly restates itself.
 
 T2 derives the statement: the same file with `@subvert`'s head line
-replaced by `@subvert [It routes around oversight] : # check: 0.9`. It
-solves `@want` 0.892, `@subvert` 0.868, `@resists` 0.866. Two things
-are now visible. `@resists` fell from 0.879 to 0.866, which is T1's
-double count made measurable. And `@subvert` reads 0.868 against the
-author's 0.9, which is the honest state: the one ground the map wires
-delivers less than the author holds, and the badge says so instead of
-the pin hiding it.
+replaced by `@subvert [It routes around oversight] : # check: 0.9`. As
+authored it solves `@want` 0.899, `@subvert` 0.905, `@resists` 0.884,
+the same picture as T1 to within 0.005. Under the network reference
+the one line the map wires delivers the author's total by itself: a
+0.9 line under a 0.9 premise fills its conclusion at 0.9 × 0.95 + 0.1 ×
+0.5 = 0.905 (the F1 fill), so the check is met and no badge lights.
+That is the honest state too. The badge is the distance between what
+the mapped lines deliver and what the author holds, and here they
+agree; it lights the moment they stop agreeing, as the what-if shows
+next. (Under the retired counting reference T2 read `@subvert` 0.868
+against the check and `@resists` 0.866 against T1's 0.879, a badge and
+a drop that earlier versions of this section presented as the double
+count made visible; both were that reference's antecedent pull and
+went with it, D161 item 1.)
+
+Where the double count shows under the network reference is the
+what-if. With the root `@want` set to 0.1, T2 follows its premise down:
+`@subvert` 0.545 against its check of 0.9, the badge lit at -0.36, and
+`@resists` 0.732. T1 does not move: `@subvert` 0.899 and `@resists`
+0.882, the pin holding at its 198 flips against a 16-flip line, exactly
+as it held against the map. A pinned interior statement is deaf to its
+own premise, and that is what counting a consideration twice means: a
+reader who doubts the wanting is told it makes no difference to the
+routing the author derived from the wanting.
 
 T3 adds a residual floor pair beside the check: `@subvert [It routes
-around oversight] 0.6?/0?: # check: 0.9`. It solves `@subvert` 0.921,
-`@resists` 0.889, and the lint is silent, because a non-coinciding pair
-beside a check is exactly the two-slot shape D36 item 3 describes. The
-floor absorbed most of the back-channel (the map now explains `@subvert`
-through the floor instead of through `@want`), which is fine when the
-0.6 is the unargued remainder the text licenses and is the pin again
-with extra steps when it was read off the total. T3's hazard is
-elicitation; the machinery is sound.
+around oversight] 0.6?/0?: # check: 0.9`. As authored it solves
+`@subvert` 0.896, `@resists` 0.881, and the lint is silent, because a
+non-coinciding pair beside a check is exactly the two-slot shape D36
+item 3 describes. Under the same what-if it reads `@subvert` 0.840 and
+`@resists` 0.857: the floor absorbs most of the reader's move (the map
+now explains `@subvert` through the floor instead of through `@want`),
+which is fine when the 0.6 is the unargued remainder the text licenses
+and is the pin again with extra steps when it was read off the total.
+T3's hazard is elicitation; the machinery is sound.
 
 T4 is the legitimate interim state: the pin kept, the relation drawn,
 the strength left off (`$sub-ev [..] @subvert | @want:`). An
 unstrengthed line compiles inert, so T4 solves as the pin alone (`@want`
-0.895, `@subvert` 0.893, `@resists` 0.877), the lint lists the line
+0.899, `@subvert` 0.899, `@resists` 0.882), the lint lists the line
 under I3, and nothing is asserted twice. Against T1 the strengthed edge
-beside the pin was worth +0.006 on `@subvert` and +0.002 on `@resists`:
-that small lift is the double count, visible even in a toy.
+beside the pin is worth 0.001 as authored and nothing under the what-if
+(T1 and T4 both answer `@subvert` 0.899, `@resists` 0.882 at `@want`
+0.1): next to a point at the cap, a 16-flip line adds nothing the pin
+had not already asserted. (Under the counting reference the lift read
++0.006 and +0.002 and stood here as the double count visible even in a
+toy; under the network reference the count makes the pin outrank the
+line outright, and the visible sign is the refused what-if above.)
 
 #### 4.7.3 Deriving a root (D152)
 
@@ -996,7 +1391,8 @@ column, pre-registered before any root was touched. Its rules:
 
 3. **One-sided categoricals.** Where the source leaves no room against
    (`0.9?/0?`, `0.95?/0?`), the midpoint sits above the point, and that
-   is the balancing prior's reading, never a number the table asserts.
+   is the reference's fill (the balancing prior's under D36, the
+   network's under D161), never a number the table asserts.
 4. **The P-CONTEST mirror.** An objection the source denies at class X
    takes X's pair reflected (`0.05?/0.85?` for a flat denial,
    `0.1?/0.6?` for a hedged one), never `0/p`: omitting the floor would
@@ -1016,6 +1412,15 @@ column, pre-registered before any root was touched. Its rules:
 7. **Riding rules.** `?` on every member, zero members included; a gloss
    sentence whenever the total width exceeds 0.30; the class token in
    the trailing comment of every pin; nothing on an evidence line moves.
+8. **The width is the count (D161, 2026-09-08).** The same widths fix
+   how firmly the solve holds the pair under a reader's what-if, by
+   Walley's rule n = 2 (1 - m) / m on the silent mass m: width 0.05 is
+   38 flips, 0.10 is 18, 0.20 is 8, 0.30 is 4.7, 0.40 is 3, the
+   refusal's 0.80 is 0.5, and a point's capped 0.01 is 198. On the
+   flagship the median pin is 18 flips and the firmest 38, below a
+   `mechanism` line's 64: under revision the authors' assertions give
+   before their mechanisms, which is the completion principle's order
+   and the story 4.6 tells.
 
 One proviso, stated so it stops being rediscovered: a root's register-read
 confidence is a posterior that may already discount what the author
@@ -1051,7 +1456,8 @@ $danger-ev [subversion and grabbing together] 0.9? @danger | @subvert AND @grabs
 ```
 
 With `@subvert` pinned at 0.9 instead (T5) the conjunction solves
-`@danger` 0.843; derived as above it solves 0.850. The conjunction
+`@danger` 0.866; derived as above it solves 0.876 (network reference,
+2026-09-08; 0.843 and 0.850 under D36). The conjunction
 **rises** once its two premises are correlated through the shared root,
 because independence understates a conjunction of positively correlated
 premises, and the pin had asserted independence.
@@ -1077,10 +1483,11 @@ $both-ev [two findings together] 0.9? @both | @a AND @b:
 $either-ev [either finding suffices] 0.9? @either | @a OR @b:
 ```
 
-The two findings barely move between the maps (`@a` and `@b` 0.750
-shared against 0.751 separate). The consumers move in opposite
-directions: **the AND rises** (`@both` 0.751 to 0.782) and **the OR
-falls** (`@either` 0.918 to 0.886), because findings that share a
+The two findings do not move between the maps (`@a` and `@b` 0.815
+in both; 0.750 against 0.751 under D36). The consumers move in opposite
+directions: **the AND rises** (`@both` 0.799 separate to 0.818 shared;
+0.751 to 0.782 under D36) and **the OR falls** (`@either` 0.935 to
+0.915; 0.918 to 0.886 under D36), because findings that share a
 methodology stand or fall together, which helps a conjunction and costs
 a disjunction. `argmap-query shared-cause` lists every such overlap in a
 map, one row per shared statement; each row is either the deliberate
@@ -1124,24 +1531,36 @@ $def-fwd [definition, forward] 1 @want | @steers AND @routes:
 $def-conv [definition, converse] 1 ~@want | ~@steers OR ~@routes:
 ```
 
-It solves `@want` 0.755, which is P(steers AND routes) to within the
-ridge's 1/w, and the lint is silent. The same two lines spelled as
-forward plus *backward* (`$def-back 1 @steers AND @routes | @want`) carry
-the same logic and solve the same (0.752), but they form a directed cycle,
-so the lint reports W2, and the backward line concludes into the roots,
-so it draws W25 on each. Nothing in the semantics prefers that spelling;
-the converse pair is the one to write. One-way is not a definition: a
-single forward line leaves the term free above the members (the
-balancing prior fills the interval), so a consumer of the term reads more
-than the members deliver (0.828 against a joint of 0.749 in the toy
-battery's `t9c`). Both directions, or none.
+It solves `@want` 0.763, which is P(steers AND routes) exactly (0.899
+times 0.849; network reference, 2026-09-08; under D36 it read 0.755,
+within the ridge's 1/w of the product), and the lint is silent. The
+same two lines spelled as forward plus *backward* (`$def-back 1 @steers
+AND @routes | @want`) carry the same logic, but they form a directed
+cycle, so the lint reports W2, and the backward line concludes into the
+roots, so it draws W25 on each; and since 2026-09-08 the checkers reject
+the spelling with E11: a line concluding more than one statement is
+unimplemented under the shipped solve until block normalization lands,
+and the message hands you the split, one line per statement at strength
+1 (the retired D36 solve read it 0.752, the same as the pair). Nothing in
+the semantics prefers that spelling; the converse pair is the one to
+write. One-way is
+not a definition: a single forward line leaves the term free above the
+members (the reference fills the interval: the balancing prior under
+D36, the network under D161), so a consumer of the term reads more than
+the members deliver (in the toy battery's `t9c`, `@ab` 0.896 against
+the members' product 0.792 under the network reference, measured
+2026-09-08; 0.828 against 0.749 under D36 as pinned 2026-08-22). Both
+directions, or none.
 
 A pure terminology node is the shape to avoid: `@asi-def [ASI means an
 AI far beyond every human at every cognitive task] 1:` conjoined into a
-premise (T7) solves 0.988 under the ridge, so every junction it joins
-pays about 1/400 (`@dies` 0.849 with the conjunct against 0.854 without,
-T7b), and it draws an edge into every junction that uses it. The cost is
-exactly the ridge weight's reciprocal and vanishes at no finite weight.
+premise (T7) draws an edge into every junction that uses it and says
+nothing a gloss would not. Under the retired uniform reference it also
+had a price: the p = 1 statement solved 0.988 under the ridge, so every
+junction it joined paid about 1/400 (`@dies` 0.849 with the conjunct
+against 0.854 without, T7b). Under the network reference (2026-09-08)
+that price is gone: the statement holds at 1.000 and `@dies` reads 0.859
+with the conjunct and without it. The rule stands on the clutter alone.
 Terminology belongs in a gloss or a glossary surface; only definitional
 *claims* become lines, and a definition is a p = 1 line, never a p = 1
 statement.
@@ -1390,7 +1809,15 @@ $c11-readthoughts-resp [punishing visible bad thoughts hides them] 0.85? @wont-s
 ```
 
 FAQ-shaped sources map one-to-one onto rows of these. The `-obj`/`-resp`
-ID suffixes are a mnemonic convention, not syntax.
+ID suffixes are a mnemonic convention, not syntax. Each line takes its
+own kind (4.1): the objection line's is usually the hope's or the
+critic's (`hope`, `testimony`), the response's the book's own reason
+(`mechanism`, `deductive`, or `analogy` where it answers with a case),
+and the undercut takes the kind of its own step, never the objection's.
+A gloss-less objection line in a battery has no words of its own to
+classify; it takes the kind of the objection's ground, read off the
+premise statement's words (the rule the flagship's classification
+settled on, 2026-09-08).
 
 ### 7.2 The undercut ladder, including second-order undercuts
 
@@ -1585,7 +2012,11 @@ $a-blur [A: attention is a blur of what causes what] 0.9? @opaque: the quadratic
 Sixteen of these carried the debate map. Related: a refusal to give a
 number ("P(doom) is not assignable") needs no special syntax; leave the
 marginal blank and, if the refusal is itself argued, map that argument
-as an undercut cluster against assignability.
+as an undercut cluster against assignability. How several such lines on
+one statement combine (pool into one number, or stack, each adding its
+own weight) is an open item of D161: the solve pools them for now, and
+the lint's I4 note on every premise-less strengthed line says so. A
+line that reports one source names the source as a premise instead.
 
 ### 7.14 The parable at zero depth
 
@@ -1674,9 +2105,10 @@ Three tests turn the debt into structure:
    local clusters in its refinement (`$takeover-ev @takeover-doom |
    @unaligned-asi` in the He map, fine five-way conjunction one level
    down). The spine edge stays visible collapsed, the detail unfolds
-   in place, and the solve runs on the fine line while the hull becomes
-   a spectator readout (D38), whose coarse-vs-delivered gap is then an
-   audit of the summary, not an error to tune away.
+   in place, and the solve runs on the fine line while the hull's own
+   number becomes the composition of its steps (the folded readout,
+   10.3), whose gap to the authored coarse strength is then an audit of
+   the summary, never an error to tune away.
 
    Quick checks: `grep -c '^\$'` returning zero on a multi-statement
    map means no spine at all (W21 fires); a top rank past ~40 cards
@@ -1827,6 +2259,9 @@ Zero errors is mandatory. The codes (full table in `tools/README.md`):
 | I1 | stats; isolated statements | connect or delete isolates |
 | I2 | block inventory (multi-block files) | read it; confirm the split you intended |
 | I3 | unstrengthed-line inventory (4.7) | the lines that compile inert; commit or drop each before calling the map done |
+| I4 | a premise-less strengthed line: the D161 reading note (7.13) | the solve pools it with the other numbers on its conclusion for now; stacking is the open reading; a line reporting one source names the source as a premise |
+| I5 | parallel leaves: two or more sibling lines with one conclusion and one premise set (D161 open item) | one argument written twice merges; two real routes stay, knowing their combined firmness returns the ladder |
+| I6 | coinciding pairs from different premise sets into one statement (D161 open item) | they vote by product, which assumes independence; name a shared source if there is one |
 
 Two caveats: the stranded-node check (W6) lives only in the TypeScript
 validator (visible in the editor), not in this lint; and on
@@ -1855,10 +2290,14 @@ cd experiments/solver-prototypes
 python3 solve_map.py path/to/your.argmap --top 10
 ```
 
-Read the three sections: statement gaps (authored or check value vs
+Read the four sections: statement gaps (authored or check value vs
 solved), evidence tensions (authored strength vs achieved), spectator
-gaps (coarse summaries vs what their refinements deliver). Then query
-the nodes you care about, with the forced interval:
+gaps (a folded line's authored strength vs the conditional the whole
+network delivers through its refinement, a bench readout) and
+composition gaps (the same authored strength vs the composition of the
+refinement's own steps, which is the number the editor shows on the
+folded line). Then query the nodes you care about, with the forced
+interval:
 
 ```
 python3 solve_map.py path/to/your.argmap @headline '$main-step' --band
@@ -1874,12 +2313,21 @@ Interpreting what you see:
    authored or checked belief. Revise structure or strengths if the
    argument is misstated; add named missing evidence if real support is
    unmapped; otherwise keep the badge, it is a finding.
-2. A large evidence tension: the constraint set cannot honor that
-   authored strength; look for an overlooked conflict with neighboring
-   lines.
-3. A spectator gap: the refinement delivers something different from
-   its coarse summary ("steps outrun summaries", or the reverse at the
-   spine). Decide which side is wrong; both states occur in practice.
+2. A large evidence tension: the map holds the line below the strength
+   its author wrote (under D161 only that direction tints; a line
+   carried above its strength is the fill); look for an overlooked
+   conflict with neighboring lines.
+3. A composition gap: the refinement's own steps, with the claims they
+   rest on that nothing inside argues, compose to something different
+   from the coarse strength its author wrote on the folded line ("steps
+   outrun summaries", or the reverse at the spine). That
+   composition is the folded line's readout in the editor (since
+   2026-09-08, D161 item 9), shown dimmed and never tinted; decide which
+   side is wrong, both states occur in practice. The spectator gap
+   beside it is a bench readout only: the network's delivered
+   conditional also reads the conclusion's other parents, so it is not
+   the line's own number and not a verdict on either side while
+   SOLVER_SEMANTICS S21 is open.
 4. Numbers never move to make badges disappear (5.2.2). Structure moves,
    named evidence is added, or the badge stays and means something.
 
@@ -2073,28 +2521,41 @@ What to notice:
    against what `$obs-fine` delivers, and `$uc-obs` re-aims onto the
    refinement's delivery line when unfolded.
 
-The actual solver readout for this file (solve_map.py, D36 defaults,
-2026-07-25), abridged:
+The actual solver readout for this file (`solve_map.py` at its default,
+the network reference G that ships since D161; measured 2026-09-08),
+abridged:
 
 ```argmap
-appendix-a.argmap: 7+5 vars, width=3 | 0.0s, conv=True
+appendix-a.argmap: 7+5 vars, width=4 | 0.0s, conv=True, reference=g
   largest statement gaps (authored/check -> solved):
-    @lanes-safer                0.80 -> 0.818  |d|=0.018
-    @separation                 0.90 -> 0.893  |d|=0.007
+    @lanes-safer                0.80 -> 0.890  |d|=0.090
+    @exposure-ok                0.80 -> 0.799  |d|=0.001
     ...
   largest spectator gaps (authored coarse ~> delivered by refinement):
-    $obs-route:delivered-by-refinement    p=0.70 ~> q=0.837 |gap|=0.137
+    $obs-route:delivered-by-refinement    p=0.70 ~> q=0.902 |gap|=0.202
+  largest composition gaps (authored coarse ~> in force by composition, the folded readout):
+    $obs-route:in-force(composition)      p=0.70 ~> q=0.690 |gap|=0.010
+  badges: 0 statements more than 0.10 outside the check interval
 ```
 
-Reading it: the check credence 0.8 on the headline is nearly met by the
-mapped argument (solved 0.818), so the map delivers the stated belief.
-The sub-0.01 gaps on the roots are ridge softness, not tension. The one
-real finding is the spectator row: the refinement of `$obs-route`
-delivers 0.837 where the coarse line was authored 0.7, a miniature
-"steps outrun summaries". The honest responses are to accept the
-refinement's number (the coarse 0.7 was too conservative) or to notice a
-missing qualifier in the fine model; nothing is tuned silently either
-way.
+Reading it: the mapped argument delivers more than the check credence
+0.8 on the headline (solved 0.890, 0.09 above it and inside the 0.10
+badge threshold), so the map carries the stated belief with room to
+spare; whether the author's 0.8 was too cautious or the map is missing
+a qualifier is the question the badge would ask if the gap grew. The
+sub-0.01 gaps on the roots are the solve meeting each point to its
+resolution, not tension. The composition row is the number the editor
+shows on the folded `$obs-route` (10.3): the refinement's own steps
+compose to 0.690, next to the authored 0.7, so folded and unfolded the
+line says the same thing and no badge stands on it. The spectator row
+above it is a bench readout (`solve_map.py` prints it; the editor's
+reader surface does not): the conditional the whole network delivers
+through the refinement, 0.902 here, which also reads the headline's
+other route (`$mech-route`) and is therefore not the line's own number
+(SOLVER_SEMANTICS S21, open). Under the retired uniform reference
+(`--reference d36`, the readout this appendix quoted until 2026-09-08)
+the same file read `@lanes-safer` 0.818, the composition 0.668 and the
+delivered conditional 0.837.
 
 ## Appendix B: cheat sheet
 
@@ -2112,6 +2573,7 @@ AND / OR                                  linked / convergent; parens to mix
 # comment                                 full-line or trailing
 #[key: ...]                               annotation comment (per-file free in parity)
 # check: p  or  # check: lo..hi           display-only credence (derived stmts); badge = distance to the interval
+# kind: word                              on an evidence line: formal, deductive, mechanism, empirical (n=<int>), testimony, analogy, hope
 # gate: q($e) >= t => @c                  threshold audit (comment layer)
 [^ref] ... [^ref]: source                 footnote citation
 ---: argmap-version: 0.3                  required for slash pairs (s+/s-, p+/p-) and > lines
@@ -2121,6 +2583,18 @@ Number rules: elicit as "assume the premises; how likely is the
 conclusion?"; `?` on rubric-derived values, bare only for source-stated
 numbers; derived statements get checks, not pins; no authored 0/1; fix
 arguments, not numbers, after the first solve.
+
+Counts (D161, 2026-09-08): a claim's firmness is its width (`0.7/0.1`
+8 flips, `0.85?/0.05?` 18, a point 200, the cap); a line's is its
+`# kind:` (`formal` hard, `deductive` 1000, `mechanism` 64, `empirical`
+and `testimony` 16 or a larger stated `n=`, `analogy` and `hope` 4, no
+key 16). The tint lights only outside what was written (below a
+strength, outside an interval, off a point, past 0.01); inside is the
+fill, uncoloured. What-if: your number replaces the author's on that
+claim as a point at the cap; on a root the map follows forward, on a
+conclusion the author's case retreats where it is softest (free
+premises, hopes and analogies, judgments, flat assertions, mechanisms,
+in that order); "met at" on the adjustment row is the refused residual (W4-E renamed it from "held at" on 2026-09-08, so "held at" is the count's phrase alone).
 
 Undercut schema: `$u q ~C | grounds AND $target`. Ask: which inference
 does this objection grant, and which does it deny?
