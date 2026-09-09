@@ -559,6 +559,22 @@ Use one to say "these nodes are one topic". Before `::`, the only way to
 say that was a `# ====` banner comment, which no tool could see, check,
 or draw.
 
+4. **A kind box is headed by its thesis** (Felix's ruling, 2026-09-09).
+   A group that boxes objections of one kind takes as its label the
+   shared thesis of its members, in the objector's voice and general
+   enough that every member is an instance of it:
+   `::halt-enforcement [A halt cannot be made to stick]`. A reader
+   arrives with a proposition in their head and matches by content; a
+   neutral question head (`Can the halt be made to stick?`) makes them
+   translate first. Check every member against the head before
+   committing; where one is not an instance, adjust the head, never the
+   member. The gloss opens on the member list, because the folded card's
+   popup shows it and it is the second discovery channel. The scope,
+   decided the same day: the rule binds a KIND card nested under an
+   objection shelf; a document-level shelf keeps its question or topic
+   head (`Is the worry real and near?`, `Objections to the halt`), which
+   reads well as it is and has no single thesis to state.
+
 **Groups and blocks.** A *block* is derived: a connected component of the
 graph, a set of nodes that reach each other. A group is authored. They
 usually coincide, and the validator checks the relationship: a group equal

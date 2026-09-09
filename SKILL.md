@@ -135,8 +135,13 @@ Before `::`, that could only be a `# ====` comment no tool could see.
 The workhorse case in practice is the **objection battery inside a
 box**: several answered attacks on the box's claim, grouped so they
 read (and fold) as one unit. Keep the family's lines contiguous; put a
-ground inside only if nothing outside the family consumes it; label
-with a short reader question. Every group folds to a summarizing card
+ground inside only if nothing outside the family consumes it. Head a
+box of ONE kind of objection with the members' shared thesis in the
+objector's voice, every member an instance of it (`[A halt cannot be
+made to stick]`; rule of 2026-09-09, AUTHORING_TUTORIAL 3.11 item 4),
+its gloss opening on the member list; the rule binds a kind card
+nested under an objection shelf, and a document-level shelf keeps its
+short reader question (decided 2026-09-09). Every group folds to a summarizing card
 (non-closed ones bundle their boundary edges into dashed summaries,
 D124), and a group nested in a refinement starts folded.
 
