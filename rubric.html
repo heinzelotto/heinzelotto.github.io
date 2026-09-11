@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The rubric behind ArgMap’s numbers</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fdfdfc;
+    --surface: #f1f1ee;
+    --border: #d8d8d2;
+    --text: #23272f;
+    --dim: #5c6470;
+    --accent: #3559c7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191d24;
+      --surface: #232833;
+      --border: #3a4150;
+      --text: #dde1e8;
+      --dim: #97a0ae;
+      --accent: #8fb0f5;
+    }
+  }
+  html { background: var(--bg); }
+  body {
+    margin: 0 auto;
+    max-width: 46rem;
+    padding: 1.5rem 1.25rem 4rem;
+    color: var(--text);
+    font: 400 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    /* Long ids, URLs and Unicode formulas must wrap rather than widen the page. */
+    overflow-wrap: break-word;
+  }
+  nav {
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--dim);
+  }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  h1, h2, h3 { line-height: 1.25; }
+  h2 { margin-top: 2.2em; border-bottom: 1px solid var(--border); padding-bottom: 0.2em; }
+  h3 { margin-top: 1.8em; }
+  code, pre {
+    /* The family list ends in the generic on purpose: the display-math blocks
+       carry Unicode operators (Σ ⫫ ⋀ ∇² λ) that a fixed first choice may not
+       cover, and per-glyph substitution needs a generic tail to fall back to.
+       No webfont — the notation ruling forbids one. */
+    font-family: ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    background: var(--surface);
+  }
+  code { padding: 0 3px; border-radius: 4px; }
+  pre {
+    /* Display math rides in indented/fenced blocks (the notation ruling), so
+       these get a little more air than a run of prose would want. */
+    margin: 1.1em 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  pre code { padding: 0; background: none; }
+  table { border-collapse: collapse; margin: 1em 0; }
+  th, td { border: 1px solid var(--border); padding: 4px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--surface); }
+  /* Wide tables scroll inside their own box (wrapTables); the PAGE never does. */
+  .table-scroll { margin: 1em 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-scroll > table { margin: 0; }
+  blockquote { margin: 1em 0; padding-left: 1em; border-left: 3px solid var(--border); color: var(--dim); }
+
+  :root {
+    --am-atom: #2f5fd0;
+    --am-evidence: #8a5a12;
+    --am-group: #6b4bb8;
+    --am-label: #1f6b52;
+    --am-number: #8f3a6b;
+    --am-keyword: #b4441f;
+    --am-operator: #6b7280;
+    --am-comment: #6b7280;
+    --am-meta: #6b7280;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --am-atom: #8fb0f5;
+      --am-evidence: #e0b476;
+      --am-group: #c0a8f2;
+      --am-label: #78d3ae;
+      --am-number: #f0a0c8;
+      --am-keyword: #ffa780;
+      --am-operator: #9aa3b2;
+      --am-comment: #98a1af;
+      --am-meta: #98a1af;
+    }
+  }
+  pre.argmap { tab-size: 2; }
+  pre.argmap .am-atom { color: var(--am-atom); }
+  pre.argmap .am-variableName { color: var(--am-evidence); }
+  pre.argmap .am-labelName { color: var(--am-group); font-weight: 600; }
+  pre.argmap .am-string { color: var(--am-label); }
+  pre.argmap .am-number { color: var(--am-number); }
+  pre.argmap .am-keyword { color: var(--am-keyword); font-weight: 600; }
+  pre.argmap .am-operator { color: var(--am-operator); }
+  pre.argmap .am-link { color: var(--am-atom); text-decoration: underline; text-underline-offset: 2px; }
+  pre.argmap .am-comment { color: var(--am-comment); font-style: italic; }
+  pre.argmap .am-annotation { color: var(--am-comment); font-style: italic; opacity: 0.75; }
+  pre.argmap .am-quote { color: var(--am-operator); }
+  pre.argmap .am-meta { color: var(--am-meta); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="./">&larr; ArgMap editor</a> &middot;
+  <a href="mathematics.html">the mathematics</a> &middot;
+  <a href="authoring-tutorial.html">authoring tutorial</a><span id="rubric-source"></span>
+</nav>
+<h1>The rubric behind the numbers</h1>
+<p>The flagship map on this site extracts the argument of the book <em>If Anyone
+Builds It, Everyone Dies</em> (Yudkowsky and Soares, 2025). Every claim on that
+map carries a number, and the book states almost none. So where do the
+numbers come from?</p>
+<p>They come from the authors&#39; own confidence language, read through a fixed
+table: &quot;repeated categorical assertion&quot; is 0.93, a flat unhedged assertion
+is 0.90, &quot;by default&quot; and &quot;our best guess&quot; are 0.85, &quot;we expect&quot; is 0.75,
+&quot;could well&quot; is 0.70. The table was written down before any number was
+assigned, and no number was moved afterwards to make the map come out
+better. This page is that table, the protocol that applied it, and the
+honest account of what it can and cannot support.</p>
+<p>Why it matters: the map&#39;s overlay marks places where the solved value and
+the authors&#39; own stated confidence disagree. If the mapmaker had picked the
+numbers, such a mark would only say &quot;the mapmaker disagrees with the book&quot;.
+Because the numbers are the authors&#39; words run through a table fixed in
+advance, the mark says something stronger: <strong>the book&#39;s own confidences do
+not add up to the book&#39;s own conclusion there.</strong> That claim is worth only as
+much as the pre-registration behind it, which is why the pre-registration is
+on this page.</p>
+<p>For what happens to the numbers after they are assigned (the probability
+model, the solve, what has been proved about it), see
+<a href="mathematics.html">the mathematics behind ArgMap</a>. For writing your own maps,
+see <a href="authoring-tutorial.html">the authoring tutorial</a>.</p>
+<hr>
+<h2>1. The protocol</h2>
+<p>The map-wide pass ran on 2026-07-19 as a pre-registered experiment. Its
+rules, as recorded that day:</p>
+<ol>
+<li><strong>The rubric first, blind.</strong> Each extension to the table (section 2) was
+derived by an independent agent from the relevant source pages, with no
+access to any solve.</li>
+<li><strong>Five independent elicitors, one per region.</strong> Each was given only the
+fixed rubric and their region&#39;s text with every number stripped to <code>?</code>.
+No elicitor saw another&#39;s region.</li>
+<li><strong>Every number registered before the region was solved once.</strong> One honest
+solve per region, after the numbers were fixed.</li>
+<li><strong>Nothing moved afterwards.</strong> Where the solve disagreed with the authors&#39;
+stated confidence, the disagreement was recorded as a finding, not
+repaired by editing a number.</li>
+<li><strong>Provenance on every value.</strong> A rubric-derived number carries the <code>?</code>
+marker in the map source. A bare number is reserved for figures the
+authors state as figures, and outside quoted insider odds the book states
+none.</li>
+<li><strong>The driving quote travels with the number.</strong> Each re-elicited node
+carries the sentence it was read from, either as an attributed quote line
+under the node or in the trailing comment that names its rubric class.</li>
+</ol>
+<p>Rule 4 is the one that does the work. A rubric with a repair step is a
+rubric that fits the conclusion; this one has none, and the map still
+carries the gaps that produced.</p>
+<h2>2. The tables</h2>
+<p>Class names are the ones used in the map&#39;s own trailing comments, so a
+number on the map can be traced back to the row that produced it. A trailer
+reading <code># R-COARSE C2: ...</code> names this table.</p>
+<h3>2.1 Statement registers</h3>
+<p>The base table, derived from the chapter 5 supplement pages before the pilot
+region was authored (2026-07-17) and unchanged since:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Class</th>
+<th>The source&#39;s language</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C1</td>
+<td>&quot;overwhelmingly&quot;, &quot;vanishingly&quot;</td>
+<td>0.97</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>&quot;extremely unlikely&quot;, &quot;highly doubt&quot; (title register)</td>
+<td>0.93</td>
+</tr>
+<tr>
+<td>C7</td>
+<td>flat unhedged assertion</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>&quot;quite unlikely&quot;, &quot;our top guess&quot;</td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>&quot;probably not&quot;</td>
+<td>0.75</td>
+</tr>
+<tr>
+<td>C5</td>
+<td>&quot;seems unlikely&quot;</td>
+<td>0.70</td>
+</tr>
+</tbody></table></div>
+<p>The classes are symmetric: a class states how firmly the authors hold a
+proposition, whichever way the proposition points.</p>
+<h3>2.2 R-STEP: the language of a reasoning step</h3>
+<p>A reasoning link carries its own number, and it is read from the language
+attached to the <strong>step</strong>, not to the conclusion. The lookup registered
+before the campaign:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Row</th>
+<th>The step&#39;s language</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>S1</td>
+<td>title register</td>
+<td>0.93</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>flat entailment</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>the chess register (&quot;you cannot predict its moves, but you can predict that it wins&quot;)</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>instrumental convergence</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>grown, therefore opaque</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>&quot;by default&quot;</td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>&quot;our best guess&quot;</td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>S8</td>
+<td>&quot;we expect&quot;</td>
+<td>0.75</td>
+</tr>
+<tr>
+<td>S9</td>
+<td>&quot;could well&quot;</td>
+<td>0.70</td>
+</tr>
+</tbody></table></div>
+<p>Two tables rather than one, kept separate on purpose even where the values
+coincide: how firmly an author holds a claim and how strongly they present a
+step are different measurements, and merging the tables would hide the
+difference.</p>
+<h3>2.3 R-NORM: deontic language</h3>
+<p>The policy half of the book asserts norms (&quot;no one may build this&quot;, &quot;it must
+be shut down&quot;) rather than predictions, so the deontic classes were
+registered separately:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Row</th>
+<th>The language</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>N1</td>
+<td>categorical, repeated, with the authors&#39; own anti-hyperbole note</td>
+<td>0.93</td>
+</tr>
+<tr>
+<td>N2</td>
+<td>unhedged deontic assertion</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>N3</td>
+<td>the &quot;insane gamble&quot; intensifier</td>
+<td>0.93</td>
+</tr>
+<tr>
+<td>N4</td>
+<td>hedged institutional claim</td>
+<td>0.75</td>
+</tr>
+<tr>
+<td>N5</td>
+<td>exploratory</td>
+<td>0.70</td>
+</tr>
+</tbody></table></div>
+<h3>2.4 R-OPP: the opponent&#39;s material</h3>
+<p>An objection on the map is a claim the authors do not hold, so its number is
+the authors&#39; credence in it, read from how they treat it:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Row</th>
+<th>How the authors treat the opposing premise</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P-FACT</td>
+<td>accepted as fact</td>
+<td>0.90</td>
+</tr>
+<tr>
+<td>P-GRANT</td>
+<td>granted for the sake of argument</td>
+<td>0.75</td>
+</tr>
+<tr>
+<td>P-CONTEST</td>
+<td>contested outright</td>
+<td>1 minus the class of the denial</td>
+</tr>
+</tbody></table></div>
+<p>P-CONTEST is the mirror rule: a premise the authors deny flatly (C7, 0.90)
+enters at 0.10, one they deny with a hedge enters higher. It never enters at
+0, because &quot;we do not think so&quot; is weaker than &quot;impossible&quot;.</p>
+<h3>2.5 The procedural rules</h3>
+<p>Three registered with the tables, plus the standing authoring convention
+the pass worked under:</p>
+<ul>
+<li><strong>R-FALLBACK, silence.</strong> Where the book and its supplement pages give no
+confidence language, the node keeps a role-based default, keeps its <code>?</code>,
+and is listed in the pass log as residual mapmaker voice. Never invent an
+author number. One inheritance exception is licensed: a step that restates
+a sentence the authors do assert takes that sentence&#39;s class, because the
+assertion is the step&#39;s own language.</li>
+<li><strong>R-COARSE, summary lines.</strong> A coarse summary line takes its number from
+the book&#39;s own one-sentence formulation of the step. The book&#39;s title
+sentence is at least C7, and C2 where the authors&#39; own disclaimer is
+attached to the summary sentence itself. A mismatch between a summary and
+the finer steps under it after solving is a readout, not an inconsistency
+to tune.</li>
+<li><strong>R-COMPOSE, stacked hedges.</strong> For &quot;we mostly expect that probably X&quot;,
+take the outermost hedge&#39;s class. Where two readings are genuinely
+defensible, record both in the log and author the weaker.</li>
+<li><strong>The residual rule.</strong> A statement&#39;s own number should carry evidence that
+is not already somewhere else on the map, because counting the same
+consideration twice is exactly what the accumulation machinery assumes
+away.</li>
+</ul>
+<h3>2.6 The pair extension (2026-08-23)</h3>
+<p>The book states neither points nor intervals: it states registers. Since
+2026-08-23 a statement&#39;s authored credence is a <strong>pair</strong>, a floor for the
+claim and a floor against it, with the gap between them the mass the authors
+leave open. The register table gained a pair column, registered before any
+node was touched, and each two-sided pair&#39;s midpoint is the class point
+above. The two one-sided rows leave nothing against, so their midpoint sits
+higher than their point: 0.95 for the deontic row, 0.975 for the categorical
+one.</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Register (class)</th>
+<th>Point</th>
+<th>Pair</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>repeated categorical, anti-hyperbole (C1)</td>
+<td>0.97</td>
+<td><code>0.95?/0?</code></td>
+</tr>
+<tr>
+<td>categorical deontic, &quot;insane gamble&quot; (N1, N3)</td>
+<td>0.93</td>
+<td><code>0.9?/0?</code></td>
+</tr>
+<tr>
+<td>title register (C2)</td>
+<td>0.93</td>
+<td><code>0.88?/0.02?</code></td>
+</tr>
+<tr>
+<td>flat unhedged assertion (C7, P-FACT)</td>
+<td>0.90</td>
+<td><code>0.85?/0.05?</code></td>
+</tr>
+<tr>
+<td>&quot;by default&quot;, &quot;our best guess&quot; (C3)</td>
+<td>0.85</td>
+<td><code>0.75?/0.05?</code></td>
+</tr>
+<tr>
+<td>&quot;we expect&quot;, a granted point (C4, P-GRANT)</td>
+<td>0.75</td>
+<td><code>0.6?/0.1?</code></td>
+</tr>
+<tr>
+<td>&quot;could well&quot; (C5)</td>
+<td>0.70</td>
+<td><code>0.55?/0.15?</code></td>
+</tr>
+<tr>
+<td>explicit refusal, &quot;nobody knows&quot;</td>
+<td>0.50</td>
+<td><code>0.1?/0.1?</code> and a gloss sentence</td>
+</tr>
+<tr>
+<td>an objection denied at class X (P-CONTEST)</td>
+<td>1 minus X</td>
+<td>the mirror of X&#39;s pair</td>
+</tr>
+</tbody></table></div>
+<p>The width does work of its own. Besides recording the mass the authors
+leave open, since 2026-09-08 it sets how firmly the solve holds the number
+when a reader drags it: a narrow pair takes many contrary flips to move, a
+wide one gives easily. On this map the middle pin is worth about 18 flips of
+evidence, which is less than a typical mechanism step: under a reader&#39;s
+what-if the authors&#39; assertions give before their mechanisms do.</p>
+<h2>3. Where a number can land</h2>
+<p>Three slots, and they are not interchangeable:</p>
+<ul>
+<li><strong>A pin</strong> on a claim nothing on the map argues for. These are the map&#39;s
+interface to everything outside it, and they constrain the solve.</li>
+<li><strong>A strength</strong> on a reasoning link, from R-STEP. Also constrains the
+solve.</li>
+<li><strong>A check</strong> on a claim the map does argue for, written
+<code># check: 0.88..0.98</code>. This is the authors&#39; own all-things-considered
+confidence, displayed against the computed value and <strong>never constraining
+the solve</strong>. It is how the map can say &quot;the argument delivers 0.83, and
+the authors state 0.88 to 0.98&quot; without either silently overwriting the
+other.</li>
+</ul>
+<p>The separation is what makes an audit possible. A claim the book argues for
+gets its number computed from the argument, and the authors&#39; own stated
+confidence in it stands beside that number as an independent reading.</p>
+<h2>4. The badge: how a disagreement is measured</h2>
+<p>The solved value of a claim is compared with its check interval. The
+<strong>badge</strong> is the signed distance from the computed value to that interval,
+zero anywhere inside it. Past 0.10 the map marks the claim, and that mark is
+the whole point of the exercise: it says the authors&#39; own numbers, run
+through the authors&#39; own steps, land more than ten points away from the
+authors&#39; own stated confidence.</p>
+<p>Two facts have to hold before a badge means that, and both are checkable:</p>
+<ol>
+<li><strong>The numbers are the authors&#39;, assigned in advance.</strong> Sections 1 and 2.</li>
+<li><strong>The badge is not an artifact of how the map is solved.</strong> This one was
+false for a while, and the project found it and said so. Until
+2026-09-08 the deployed solve used a uniform counting reference, under
+which asserting a conditional pulled its antecedent down. On the map as
+it stood on 2026-09-06, four of the five badges past 0.10 were partly
+that pull rather than the book, which was measured, recorded, and fixed
+by changing the reference (D159, D161), with the map text untouched. The
+mathematics page keeps the retired reference as a dated section so the
+old numbers stay reproducible.</li>
+</ol>
+<p><strong>Where the flagship stands today.</strong> Measured 2026-09-11 with
+<code>solve_map.py</code> at the shipped reference, on the map as deployed: <strong>no claim
+badges past 0.10.</strong> The largest single gap is <code>@everyone-dies</code>, the book&#39;s
+title claim, computed at 0.827 against a stated 0.88 to 0.98, short by
+0.053. The policy conclusion <code>@shutdown</code> computes at 0.994 against a stated
+0.90 to 1.00. Sixty claims on the map carry a check for the comparison to
+run against.</p>
+<p>That is a strong result for the book, and it is worth stating what it is
+not. It is not the map agreeing that the book is right. It says the authors&#39;
+stated confidences are mutually consistent under this model: their premises
+deliver their conclusions to within the badge threshold, and the two
+headline conclusions come out at or above what the authors claim for them.
+A perfectly coherent argument can still rest on false premises, and this
+instrument has no view on that.</p>
+<h2>5. What the audit found, and what happened to each finding</h2>
+<p>The 2026-07-19 pass ended with badges standing, and the rule was to keep
+them rather than repair them. Their history since is the honest test of that
+rule:</p>
+<ul>
+<li><strong>Steps outrun summaries, across the whole map.</strong> Where the authors argue
+flat, several convergent unhedged assertions compound to near-certainty
+while the authors&#39; own summary of that section stays hedged. Under the
+model that is a finding about the book&#39;s prose, not an error, and those
+gaps are still on the map: the ten largest today sit between 0.040 and
+0.053, and eight of the ten are claims the argument delivers <em>more</em> firmly
+than the authors state them (measured 2026-09-11).</li>
+<li><strong>The evolution analogy under-delivered.</strong> The pass computed
+<code>@evo-analogy</code> at 0.449 against a stated 0.85: the authors grant the
+disanalogy so thoroughly that their own concessions left the analogy
+standing at half their stated confidence. It stayed on the map as a badge
+for seven weeks. It closed on 2026-09-08, and the way it closed is the
+point: nobody moved a number. A later pass found that the chapter&#39;s own
+case for the analogy had never been mapped, mapped it, and the claim rose
+to 0.858 (measured 2026-09-11), inside its interval. A badge is a question
+about the map or the book, and the licensed answers are &quot;map the passage
+that was missed&quot; and &quot;leave it standing&quot;, never &quot;adjust the number&quot;.</li>
+<li><strong>The top line&#39;s residual.</strong> The pilot region reproduced the authors&#39;
+conclusion to within 0.07 and localised what was missing to one named
+conjunct and one deliberately excluded line, rather than leaving it a
+mystery. The exclusion was itself pre-registered: adding the line after
+seeing the solve would have broken rule 4.</li>
+</ul>
+<h2>6. Honest limits</h2>
+<ul>
+<li><strong>A verbal-to-probability table is a modeling decision.</strong> The table is
+fixed and public, which makes the numbers auditable. It does not make them
+correct. A different defensible table would move most of them, and the
+project claims only the first thing.</li>
+<li><strong>Reading a register as a credence has a known cost.</strong> An author&#39;s stated
+confidence in a claim may already discount what they believe about its
+consequences, so feeding it back in as evidence can apply the same
+reasoning twice. There is no operational alternative, because the text
+never gives the undiscounted figure. The size of the effect was measured
+and is small at these widths, and the compensation is to show the interval
+rather than present a midpoint as the author&#39;s number.</li>
+<li><strong>The classification is judgment, sometimes.</strong> A sentence can sit between
+two rows of the table, and by rule 2 each region&#39;s classes were read by a
+single elicitor, with no second reader over the class itself. Where a
+register was borderline, one person&#39;s ear settled it. The 2026-07-19 pass
+log records two numbers a second agent read differently, <code>@mis-ext</code> and
+<code>@precedented</code>, both settled by authoring the weaker of the two readings.
+The one label on this map that did get a systematic second pass is a
+different one, the kind of step each reasoning link makes: on 2026-09-08
+two blind passes over all 348 links disagreed on 68 of them, and a third
+reader settled those.</li>
+<li><strong>This rubric is for one book.</strong> It was derived from the confidence
+language of one text in one genre. A spoken debate needed its own table
+(the register for speech is looser than for edited prose), and maps
+written since carry their rubric inside the map file itself.</li>
+<li><strong>The solve is not a truth oracle.</strong> It says what a set of authored
+numbers jointly implies, and has no view on whether they are right.</li>
+</ul>
+<h2>7. The record</h2>
+<p>The dated registration entries, one per pass, live in the project&#39;s
+authoring log, which is not yet public along with the rest of the working
+repository. This page is the distillate of those entries and carries every
+rule they registered.</p>
+<p>What you can check without the repository is the map itself. Open any claim
+on the flagship map and its detail panel shows the authored number, the
+computed one, and the source passage the number was read from. The trailing
+comment on a node in the Editor pane names the rubric class that produced
+its value, so a number on the map traces to a row in section 2, and the
+quote lines under a node give the sentence it was read from, with its
+locator in the book.</p>
+<p>Numbers on this page were measured on 2026-09-11 against the deployed solve,
+and each says so where it appears.</p>
+
+<script>
+(function () {
+  var SRC = "---\nstatus: living doc, the public record of the pre-registered rubric behind the flagship map's numbers (DECISIONS.md D39). Authoritative for *what the rubric says and how it was applied*; the dated registration entries stay in the project's authoring log, and `MATH.md` remains the front door to the solve those numbers feed. Written 2026-09-11 for the release round; every measured number carries the date it was taken.\npurpose: let a reader check the claim \"the numbers come from the authors' own words by a table fixed in advance\" instead of taking it on trust. Published as `rubric.html` alongside the editor.\n---\n\n# The rubric behind the numbers\n\nThe flagship map on this site extracts the argument of the book *If Anyone\nBuilds It, Everyone Dies* (Yudkowsky and Soares, 2025). Every claim on that\nmap carries a number, and the book states almost none. So where do the\nnumbers come from?\n\nThey come from the authors' own confidence language, read through a fixed\ntable: \"repeated categorical assertion\" is 0.93, a flat unhedged assertion\nis 0.90, \"by default\" and \"our best guess\" are 0.85, \"we expect\" is 0.75,\n\"could well\" is 0.70. The table was written down before any number was\nassigned, and no number was moved afterwards to make the map come out\nbetter. This page is that table, the protocol that applied it, and the\nhonest account of what it can and cannot support.\n\nWhy it matters: the map's overlay marks places where the solved value and\nthe authors' own stated confidence disagree. If the mapmaker had picked the\nnumbers, such a mark would only say \"the mapmaker disagrees with the book\".\nBecause the numbers are the authors' words run through a table fixed in\nadvance, the mark says something stronger: **the book's own confidences do\nnot add up to the book's own conclusion there.** That claim is worth only as\nmuch as the pre-registration behind it, which is why the pre-registration is\non this page.\n\nFor what happens to the numbers after they are assigned (the probability\nmodel, the solve, what has been proved about it), see\n[the mathematics behind ArgMap](mathematics.html). For writing your own maps,\nsee [the authoring tutorial](authoring-tutorial.html).\n\n---\n\n## 1. The protocol\n\nThe map-wide pass ran on 2026-07-19 as a pre-registered experiment. Its\nrules, as recorded that day:\n\n1. **The rubric first, blind.** Each extension to the table (section 2) was\n   derived by an independent agent from the relevant source pages, with no\n   access to any solve.\n2. **Five independent elicitors, one per region.** Each was given only the\n   fixed rubric and their region's text with every number stripped to `?`.\n   No elicitor saw another's region.\n3. **Every number registered before the region was solved once.** One honest\n   solve per region, after the numbers were fixed.\n4. **Nothing moved afterwards.** Where the solve disagreed with the authors'\n   stated confidence, the disagreement was recorded as a finding, not\n   repaired by editing a number.\n5. **Provenance on every value.** A rubric-derived number carries the `?`\n   marker in the map source. A bare number is reserved for figures the\n   authors state as figures, and outside quoted insider odds the book states\n   none.\n6. **The driving quote travels with the number.** Each re-elicited node\n   carries the sentence it was read from, either as an attributed quote line\n   under the node or in the trailing comment that names its rubric class.\n\nRule 4 is the one that does the work. A rubric with a repair step is a\nrubric that fits the conclusion; this one has none, and the map still\ncarries the gaps that produced.\n\n## 2. The tables\n\nClass names are the ones used in the map's own trailing comments, so a\nnumber on the map can be traced back to the row that produced it. A trailer\nreading `# R-COARSE C2: ...` names this table.\n\n### 2.1 Statement registers\n\nThe base table, derived from the chapter 5 supplement pages before the pilot\nregion was authored (2026-07-17) and unchanged since:\n\n| Class | The source's language | Value |\n|---|---|---|\n| C1 | \"overwhelmingly\", \"vanishingly\" | 0.97 |\n| C2 | \"extremely unlikely\", \"highly doubt\" (title register) | 0.93 |\n| C7 | flat unhedged assertion | 0.90 |\n| C3 | \"quite unlikely\", \"our top guess\" | 0.85 |\n| C4 | \"probably not\" | 0.75 |\n| C5 | \"seems unlikely\" | 0.70 |\n\nThe classes are symmetric: a class states how firmly the authors hold a\nproposition, whichever way the proposition points.\n\n### 2.2 R-STEP: the language of a reasoning step\n\nA reasoning link carries its own number, and it is read from the language\nattached to the **step**, not to the conclusion. The lookup registered\nbefore the campaign:\n\n| Row | The step's language | Value |\n|---|---|---|\n| S1 | title register | 0.93 |\n| S2 | flat entailment | 0.90 |\n| S3 | the chess register (\"you cannot predict its moves, but you can predict that it wins\") | 0.90 |\n| S4 | instrumental convergence | 0.90 |\n| S5 | grown, therefore opaque | 0.90 |\n| S6 | \"by default\" | 0.85 |\n| S7 | \"our best guess\" | 0.85 |\n| S8 | \"we expect\" | 0.75 |\n| S9 | \"could well\" | 0.70 |\n\nTwo tables rather than one, kept separate on purpose even where the values\ncoincide: how firmly an author holds a claim and how strongly they present a\nstep are different measurements, and merging the tables would hide the\ndifference.\n\n### 2.3 R-NORM: deontic language\n\nThe policy half of the book asserts norms (\"no one may build this\", \"it must\nbe shut down\") rather than predictions, so the deontic classes were\nregistered separately:\n\n| Row | The language | Value |\n|---|---|---|\n| N1 | categorical, repeated, with the authors' own anti-hyperbole note | 0.93 |\n| N2 | unhedged deontic assertion | 0.90 |\n| N3 | the \"insane gamble\" intensifier | 0.93 |\n| N4 | hedged institutional claim | 0.75 |\n| N5 | exploratory | 0.70 |\n\n### 2.4 R-OPP: the opponent's material\n\nAn objection on the map is a claim the authors do not hold, so its number is\nthe authors' credence in it, read from how they treat it:\n\n| Row | How the authors treat the opposing premise | Value |\n|---|---|---|\n| P-FACT | accepted as fact | 0.90 |\n| P-GRANT | granted for the sake of argument | 0.75 |\n| P-CONTEST | contested outright | 1 minus the class of the denial |\n\nP-CONTEST is the mirror rule: a premise the authors deny flatly (C7, 0.90)\nenters at 0.10, one they deny with a hedge enters higher. It never enters at\n0, because \"we do not think so\" is weaker than \"impossible\".\n\n### 2.5 The procedural rules\n\nThree registered with the tables, plus the standing authoring convention\nthe pass worked under:\n\n- **R-FALLBACK, silence.** Where the book and its supplement pages give no\n  confidence language, the node keeps a role-based default, keeps its `?`,\n  and is listed in the pass log as residual mapmaker voice. Never invent an\n  author number. One inheritance exception is licensed: a step that restates\n  a sentence the authors do assert takes that sentence's class, because the\n  assertion is the step's own language.\n- **R-COARSE, summary lines.** A coarse summary line takes its number from\n  the book's own one-sentence formulation of the step. The book's title\n  sentence is at least C7, and C2 where the authors' own disclaimer is\n  attached to the summary sentence itself. A mismatch between a summary and\n  the finer steps under it after solving is a readout, not an inconsistency\n  to tune.\n- **R-COMPOSE, stacked hedges.** For \"we mostly expect that probably X\",\n  take the outermost hedge's class. Where two readings are genuinely\n  defensible, record both in the log and author the weaker.\n- **The residual rule.** A statement's own number should carry evidence that\n  is not already somewhere else on the map, because counting the same\n  consideration twice is exactly what the accumulation machinery assumes\n  away.\n\n### 2.6 The pair extension (2026-08-23)\n\nThe book states neither points nor intervals: it states registers. Since\n2026-08-23 a statement's authored credence is a **pair**, a floor for the\nclaim and a floor against it, with the gap between them the mass the authors\nleave open. The register table gained a pair column, registered before any\nnode was touched, and each two-sided pair's midpoint is the class point\nabove. The two one-sided rows leave nothing against, so their midpoint sits\nhigher than their point: 0.95 for the deontic row, 0.975 for the categorical\none.\n\n| Register (class) | Point | Pair |\n|---|---|---|\n| repeated categorical, anti-hyperbole (C1) | 0.97 | `0.95?/0?` |\n| categorical deontic, \"insane gamble\" (N1, N3) | 0.93 | `0.9?/0?` |\n| title register (C2) | 0.93 | `0.88?/0.02?` |\n| flat unhedged assertion (C7, P-FACT) | 0.90 | `0.85?/0.05?` |\n| \"by default\", \"our best guess\" (C3) | 0.85 | `0.75?/0.05?` |\n| \"we expect\", a granted point (C4, P-GRANT) | 0.75 | `0.6?/0.1?` |\n| \"could well\" (C5) | 0.70 | `0.55?/0.15?` |\n| explicit refusal, \"nobody knows\" | 0.50 | `0.1?/0.1?` and a gloss sentence |\n| an objection denied at class X (P-CONTEST) | 1 minus X | the mirror of X's pair |\n\nThe width does work of its own. Besides recording the mass the authors\nleave open, since 2026-09-08 it sets how firmly the solve holds the number\nwhen a reader drags it: a narrow pair takes many contrary flips to move, a\nwide one gives easily. On this map the middle pin is worth about 18 flips of\nevidence, which is less than a typical mechanism step: under a reader's\nwhat-if the authors' assertions give before their mechanisms do.\n\n## 3. Where a number can land\n\nThree slots, and they are not interchangeable:\n\n- **A pin** on a claim nothing on the map argues for. These are the map's\n  interface to everything outside it, and they constrain the solve.\n- **A strength** on a reasoning link, from R-STEP. Also constrains the\n  solve.\n- **A check** on a claim the map does argue for, written\n  `# check: 0.88..0.98`. This is the authors' own all-things-considered\n  confidence, displayed against the computed value and **never constraining\n  the solve**. It is how the map can say \"the argument delivers 0.83, and\n  the authors state 0.88 to 0.98\" without either silently overwriting the\n  other.\n\nThe separation is what makes an audit possible. A claim the book argues for\ngets its number computed from the argument, and the authors' own stated\nconfidence in it stands beside that number as an independent reading.\n\n## 4. The badge: how a disagreement is measured\n\nThe solved value of a claim is compared with its check interval. The\n**badge** is the signed distance from the computed value to that interval,\nzero anywhere inside it. Past 0.10 the map marks the claim, and that mark is\nthe whole point of the exercise: it says the authors' own numbers, run\nthrough the authors' own steps, land more than ten points away from the\nauthors' own stated confidence.\n\nTwo facts have to hold before a badge means that, and both are checkable:\n\n1. **The numbers are the authors', assigned in advance.** Sections 1 and 2.\n2. **The badge is not an artifact of how the map is solved.** This one was\n   false for a while, and the project found it and said so. Until\n   2026-09-08 the deployed solve used a uniform counting reference, under\n   which asserting a conditional pulled its antecedent down. On the map as\n   it stood on 2026-09-06, four of the five badges past 0.10 were partly\n   that pull rather than the book, which was measured, recorded, and fixed\n   by changing the reference (D159, D161), with the map text untouched. The\n   mathematics page keeps the retired reference as a dated section so the\n   old numbers stay reproducible.\n\n**Where the flagship stands today.** Measured 2026-09-11 with\n`solve_map.py` at the shipped reference, on the map as deployed: **no claim\nbadges past 0.10.** The largest single gap is `@everyone-dies`, the book's\ntitle claim, computed at 0.827 against a stated 0.88 to 0.98, short by\n0.053. The policy conclusion `@shutdown` computes at 0.994 against a stated\n0.90 to 1.00. Sixty claims on the map carry a check for the comparison to\nrun against.\n\nThat is a strong result for the book, and it is worth stating what it is\nnot. It is not the map agreeing that the book is right. It says the authors'\nstated confidences are mutually consistent under this model: their premises\ndeliver their conclusions to within the badge threshold, and the two\nheadline conclusions come out at or above what the authors claim for them.\nA perfectly coherent argument can still rest on false premises, and this\ninstrument has no view on that.\n\n## 5. What the audit found, and what happened to each finding\n\nThe 2026-07-19 pass ended with badges standing, and the rule was to keep\nthem rather than repair them. Their history since is the honest test of that\nrule:\n\n- **Steps outrun summaries, across the whole map.** Where the authors argue\n  flat, several convergent unhedged assertions compound to near-certainty\n  while the authors' own summary of that section stays hedged. Under the\n  model that is a finding about the book's prose, not an error, and those\n  gaps are still on the map: the ten largest today sit between 0.040 and\n  0.053, and eight of the ten are claims the argument delivers *more* firmly\n  than the authors state them (measured 2026-09-11).\n- **The evolution analogy under-delivered.** The pass computed\n  `@evo-analogy` at 0.449 against a stated 0.85: the authors grant the\n  disanalogy so thoroughly that their own concessions left the analogy\n  standing at half their stated confidence. It stayed on the map as a badge\n  for seven weeks. It closed on 2026-09-08, and the way it closed is the\n  point: nobody moved a number. A later pass found that the chapter's own\n  case for the analogy had never been mapped, mapped it, and the claim rose\n  to 0.858 (measured 2026-09-11), inside its interval. A badge is a question\n  about the map or the book, and the licensed answers are \"map the passage\n  that was missed\" and \"leave it standing\", never \"adjust the number\".\n- **The top line's residual.** The pilot region reproduced the authors'\n  conclusion to within 0.07 and localised what was missing to one named\n  conjunct and one deliberately excluded line, rather than leaving it a\n  mystery. The exclusion was itself pre-registered: adding the line after\n  seeing the solve would have broken rule 4.\n\n## 6. Honest limits\n\n- **A verbal-to-probability table is a modeling decision.** The table is\n  fixed and public, which makes the numbers auditable. It does not make them\n  correct. A different defensible table would move most of them, and the\n  project claims only the first thing.\n- **Reading a register as a credence has a known cost.** An author's stated\n  confidence in a claim may already discount what they believe about its\n  consequences, so feeding it back in as evidence can apply the same\n  reasoning twice. There is no operational alternative, because the text\n  never gives the undiscounted figure. The size of the effect was measured\n  and is small at these widths, and the compensation is to show the interval\n  rather than present a midpoint as the author's number.\n- **The classification is judgment, sometimes.** A sentence can sit between\n  two rows of the table, and by rule 2 each region's classes were read by a\n  single elicitor, with no second reader over the class itself. Where a\n  register was borderline, one person's ear settled it. The 2026-07-19 pass\n  log records two numbers a second agent read differently, `@mis-ext` and\n  `@precedented`, both settled by authoring the weaker of the two readings.\n  The one label on this map that did get a systematic second pass is a\n  different one, the kind of step each reasoning link makes: on 2026-09-08\n  two blind passes over all 348 links disagreed on 68 of them, and a third\n  reader settled those.\n- **This rubric is for one book.** It was derived from the confidence\n  language of one text in one genre. A spoken debate needed its own table\n  (the register for speech is looser than for edited prose), and maps\n  written since carry their rubric inside the map file itself.\n- **The solve is not a truth oracle.** It says what a set of authored\n  numbers jointly implies, and has no view on whether they are right.\n\n## 7. The record\n\nThe dated registration entries, one per pass, live in the project's\nauthoring log, which is not yet public along with the rest of the working\nrepository. This page is the distillate of those entries and carries every\nrule they registered.\n\nWhat you can check without the repository is the map itself. Open any claim\non the flagship map and its detail panel shows the authored number, the\ncomputed one, and the source passage the number was read from. The trailing\ncomment on a node in the Editor pane names the rubric class that produced\nits value, so a number on the map traces to a row in section 2, and the\nquote lines under a node give the sentence it was read from, with its\nlocator in the book.\n\nNumbers on this page were measured on 2026-09-11 against the deployed solve,\nand each says so where it appears.\n";
+  var slot = document.getElementById('rubric-source');
+  if (!slot || typeof Blob !== 'function' || !window.URL || !URL.createObjectURL) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([SRC], { type: 'text/markdown;charset=utf-8' }));
+  a.setAttribute('download', 'RUBRIC.md');
+  a.textContent = 'download RUBRIC.md';
+  a.title = 'The exact source of this page (' + SRC.length + ' characters)';
+  slot.appendChild(document.createTextNode(' · source: '));
+  slot.appendChild(a);
+})();
+</script>
+</body>
+</html>

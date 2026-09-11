@@ -97,7 +97,17 @@ $trim [a smaller scope is easier] 0.6 @ship | @scope-cut: Less to build, less to
       if (frame) return;
       frame = document.createElement('iframe');
       frame.setAttribute('title', 'ArgMap: an explorable argument map');
-      frame.src = VIEWER;
+      // A START VIEW TRAVELS WITH THE PAGE (ratified 2026-09-11): the shim hands
+      // the viewer its own query string, so `?sel=<id>&unfold=<id>,<id>` on the
+      // page hosting the shim decides which node the map opens on and which
+      // boxes are already open. Ids name nodes in the map above, so a published
+      // post survives re-layout; an id that names nothing is dropped.
+      //
+      // Inside a LessWrong widget the shim is `about:srcdoc` and has no query of
+      // its own. An author publishing there names the view in the VIEWER
+      // constant above instead, by ending it with ?sel=ship.
+      var q = window.location.search || '';
+      frame.src = VIEWER + (VIEWER.indexOf('?') < 0 ? q : q.replace('?', '&'));
       stage.appendChild(frame);
       poster.remove();
     });
