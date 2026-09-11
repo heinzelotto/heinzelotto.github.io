@@ -462,7 +462,8 @@ undercuts (reinstatement) are the same schema applied again.</p>
 <p>If you know conditionals of the form <code>(psi | phi)[d]</code> from the
 maximum-entropy literature (Kern-Isberner, Paris, the SPIRIT and MEcore
 systems), five translation rules keep the solve honest; each was measured
-on <code>examples/toys/pcl-penguin.argmap</code> (2026-08-31).</p>
+on <code>examples/toys/pcl-penguin.argmap</code> (2026-08-31; in the app, the Semantics
+audit map <code>audit-prior-art</code>, group P1).</p>
 <ol>
 <li><code>(psi | phi)[d]</code> with <code>d</code> at or above 0.5 is the line <code>$e d psi | phi</code>.</li>
 <li>With <code>d</code> below 0.5 it is the opposed line at <code>1 - d</code>: <code>$e (1-d) ~psi | phi</code>. A line&#39;s number is the inference&#39;s reliability, so <code>0.01 @fly | @peng</code> is a nearly worthless reason for flying, and the solve concludes
@@ -1029,7 +1030,8 @@ accounted for. That is <strong>explaining away</strong>, and the solve shows it,
 any probabilistic network does. D161 declares it as a divergence from
 the conditional-logic literature&#39;s syntax-splitting postulate, which
 would hold the other cause where it was; the map takes the Bayesian
-side. The exhibit is <code>examples/toys/f-explaining-away.argmap</code>: two
+side. The exhibit is <code>examples/toys/f-explaining-away.argmap</code> (in the app,
+the Semantics audit map <code>audit-forks</code>, group F6): two
 causes each bring the effect at 0.9; with only the effect observed both
 causes read 0.573, and observing one of them as well drops the other
 to 0.515 (measured 2026-09-08 with <code>solve_map.py</code> at its default on the
@@ -1190,8 +1192,10 @@ class no lint can see in full and the one an extractor has to get right
 in a single pass. They were settled in August 2026 (DECISIONS.md D152,
 the register to pair table in AUTHORING_NOTES 2026-08-23, the check
 intervals of the same day) and each of them has a five-line measurement
-behind it. Those measurements are the toy battery in <code>examples/toys/</code>.
-Read the toy, then the rule; the rule is what the number says.</p>
+behind it. Those measurements are the toy battery in <code>examples/toys/</code>; a
+reader-facing selection of them ships in the picker&#39;s Semantics audit group
+(<code>examples/audit/</code>, generated from the toys with the measured answers in the
+group heads). Read the toy, then the rule; the rule is what the number says.</p>
 <p>Two measurement dates sit in this section, and they are marked. The
 T1 to T4 illustration in 4.7.2 was re-measured on 2026-09-08 under the
 network reference (D161, the shipped default since that day) with

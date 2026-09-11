@@ -395,7 +395,8 @@ undercuts (reinstatement) are the same schema applied again.
 If you know conditionals of the form `(psi | phi)[d]` from the
 maximum-entropy literature (Kern-Isberner, Paris, the SPIRIT and MEcore
 systems), five translation rules keep the solve honest; each was measured
-on `examples/toys/pcl-penguin.argmap` (2026-08-31).
+on `examples/toys/pcl-penguin.argmap` (2026-08-31; in the app, the Semantics
+audit map `audit-prior-art`, group P1).
 
 1. `(psi | phi)[d]` with `d` at or above 0.5 is the line `$e d psi | phi`.
 2. With `d` below 0.5 it is the opposed line at `1 - d`: `$e (1-d) ~psi |
@@ -976,7 +977,8 @@ accounted for. That is **explaining away**, and the solve shows it, as
 any probabilistic network does. D161 declares it as a divergence from
 the conditional-logic literature's syntax-splitting postulate, which
 would hold the other cause where it was; the map takes the Bayesian
-side. The exhibit is `examples/toys/f-explaining-away.argmap`: two
+side. The exhibit is `examples/toys/f-explaining-away.argmap` (in the app,
+the Semantics audit map `audit-forks`, group F6): two
 causes each bring the effect at 0.9; with only the effect observed both
 causes read 0.573, and observing one of them as well drops the other
 to 0.515 (measured 2026-09-08 with `solve_map.py` at its default on the
@@ -1153,8 +1155,10 @@ class no lint can see in full and the one an extractor has to get right
 in a single pass. They were settled in August 2026 (DECISIONS.md D152,
 the register to pair table in AUTHORING_NOTES 2026-08-23, the check
 intervals of the same day) and each of them has a five-line measurement
-behind it. Those measurements are the toy battery in `examples/toys/`.
-Read the toy, then the rule; the rule is what the number says.
+behind it. Those measurements are the toy battery in `examples/toys/`; a
+reader-facing selection of them ships in the picker's Semantics audit group
+(`examples/audit/`, generated from the toys with the measured answers in the
+group heads). Read the toy, then the rule; the rule is what the number says.
 
 Two measurement dates sit in this section, and they are marked. The
 T1 to T4 illustration in 4.7.2 was re-measured on 2026-09-08 under the
