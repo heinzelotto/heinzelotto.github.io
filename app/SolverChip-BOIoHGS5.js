@@ -1,8 +1,0 @@
-import{o as L,u as m,b9 as $,e5 as f,e6 as O,e7 as C,e8 as F,e9 as S,ea as T,eb as E,ec as N,ed as R,ee as D,bx as _,ef as y,aL as B,bz as P,eg as j,bA as z,bB as I,n as W,bC as w}from"./styles-DbH5hsYH.js";const H=B.en;function U({id:o,vocab:p}){var u,d,h,v;const e=L(s=>s.index.get(o)),x=m(s=>s.analysis.statements),t=m(s=>s.analysis.byId.get(o)),g=$(s=>s.overrides[o]);if(!e||e.solved===null)return null;const l=(t==null?void 0:t.kind)==="evidence"&&t.strength?f(g,e.authored,t.strength.value,((u=t.strength.opposed)==null?void 0:u.value)??null,O(t.children)):null,i=(t==null?void 0:t.kind)==="evidence"&&l?C(F(t.trailingComment,l.strength,l.opposed)):(t==null?void 0:t.kind)==="statement"&&t.marginal?S(T(t.marginal.value,((d=t.marginal.opposed)==null?void 0:d.value)??null)):null,a=e.spectator===!0,n=e.kind==="statement"&&e.authored===null&&!a?E(x).get(o)??null:null,r=n===null?null:Math.abs(N(n,e.solved)),b=a?R:e.kind==="statement"?"marginal":"in-force rate",c=((h=e.set)==null?void 0:h.shape)==="pair"?D(e.set):e.authored!==null?e.authored.toFixed(2):null,k=r??_(e),A=`${y(p??H,c,e.solved.toFixed(2),a)}
-implied ${b} ${e.solved.toFixed(3)}`+(e.authored!==null?`
-authored ${c}, ${e.set?P(e.solved,e.set):`tension ${((v=e.delta)==null?void 0:v.toFixed(3))??"—"}`}`:n!==null?`
-authors’ check ${j(n)}, badge ${r.toFixed(3)}`+(n.lo===n.hi?"":" (zero inside the check interval)"):`
-this line authors no number`)+(a?`
-${z}`:"")+(i!==null?`
-${i}`:"")+`
-${I}`;return W.jsx("span",{className:"chip chip--solved"+(a?" chip--spectator":""),style:{color:w(k,"var(--text-dim-bench)")},title:A,children:e.solved.toFixed(2)})}export{U as default};

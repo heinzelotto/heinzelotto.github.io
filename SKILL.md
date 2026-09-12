@@ -526,6 +526,23 @@ in `examples/` (see its README).
    in the refinement: the spine edge survives folding, because a
    refinement folds to its visible coarse line where a statement block
    folds to nothing (spine test).
+   **Pick the coarse strength at or below the weakest step you are about
+   to write under it.** The folded line reads the composition of its
+   block, and required steps multiply: four steps at 0.9 show about 0.65
+   on the fold, and the refinement pays again for every interior ground
+   the coarse line does not carry. A chain can never come out above its
+   weakest step, whatever you believe about how the steps hang together,
+   so a summary firmer than any step belongs in a `# check:` on the
+   conclusion with the line's strength at or below the weakest step. If
+   the source gives several grounds and you wired them as one chain,
+   write them convergent instead (idiom 4) and the fold saturates. The
+   mirror case: a family of parallel objections that all fail for one
+   reason should take that reason as a premise in every member (idiom 9),
+   or the family ORs upward, and judge that repair by the conclusion's
+   own value, since a conjunct repeating the coarse line's own premise
+   cannot move the fold. Check with `argmap-query fold-audit`, which
+   lists every folded line with its weakest required step and flags the
+   ones above it (advisory).
 6. **Complementary partition, "even if"** (tut 7.6, anchor `$mwb-time`).
    Make two overlapping routes disjoint by conjoining the negation of
    the other: `$r2 0.9? @c | @route2-ground AND ~@route1-ground`. That

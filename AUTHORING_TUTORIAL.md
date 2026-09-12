@@ -324,6 +324,11 @@ A statement may also carry an indented block; that refines the implicit
 factor asserting the statement's own marginal, and the statement itself
 remains.
 
+Refinement changes what the folded line reads: a folded evidence shows
+the composition of the block under it, so the steps you write below a
+coarse line decide the number the reader sees on it. 7.5 says how to pick
+the coarse strength so the two agree.
+
 IDs are document-global: a node declared inside a refinement can be
 referenced from anywhere, and forward references (using an ID before its
 declaration) are legal. Where you nest is a real authoring decision, not
@@ -1901,6 +1906,80 @@ refinement replaces it); it is the evidence-side check, displayed
 against what the refinement delivers. Recommended practice: author the
 coarse strength as your holistic judgment of the whole implication
 before trusting the steps; the comparison is a free audit.
+
+**What the refinement delivers, and why it sits lower than you expect.**
+The folded line shows the *composition* of the block under it: the steps
+composed the way the block wires them. Steps the argument all requires
+multiply. So a refinement of four required steps at 0.9 each shows 0.656
+on the fold, and one of two steps at 0.9 shows 0.810 (both measured
+2026-09-12 on a chain standing on its own). That is the price of writing
+the steps down, and the first time you see it the number looks like a
+bug. It is the arithmetic of a chain: every step is one more thing that
+has to hold. A conclusion the rest of the map argues against reads lower
+still, because the fold is read on the solved joint like every other
+number.
+
+There is a second factor, and it pushes the same way. The folded reading
+asks whether the steps are in force *and* whether what they need holds,
+given the premises the coarse line itself carries. A refinement usually
+reaches for grounds the coarse line does not carry (the interior roots
+its steps stand on), and it pays for each of them. A fold whose
+refinement is written on firm ground and short chains sits close to its
+coarse number; a fold four steps deep over five borrowed grounds sits far
+below it. Both are honest readings of what you wrote.
+
+**The rule, stated positively: pick the coarse strength at or below the
+weakest step you are about to write under it.** A chain of required steps
+can never come out above its weakest step, whatever you believe about how
+the steps hang together: each step is one more condition on the same
+event, so the conjunction is at most as likely as the least likely of
+them. This is arithmetic and there is no way to author around it. If the
+summary you want to write is firmer than any step under it, put the
+summary where a summary belongs: a `# check:` on the conclusion, which
+records your holistic judgment and lets the solve be audited against it,
+with the line's own strength set at or below the weakest step.
+
+Three honest repairs when a coarse number sits above its weakest step,
+and the source decides between them. The step may be under-elicited, in
+which case go back to the passage and read its register again. The
+summary may be your holistic judgment rather than a claim about this
+chain, in which case it is a `# check:`. Or, most often, the source gives
+several grounds and the map wired them as one chain: write them as
+convergent lines into the conclusion (7.4), and the fold saturates
+instead of multiplying.
+
+**A family of parallel objections that all fail for one reason takes that
+reason as a premise.** The same reading has a consequence for the other
+direction. When a refinement holds k objections that the source answers
+with one move, the objections OR upward: each one is another way for the
+block to deliver, so the folded number climbs above what you meant the
+family to carry. The repair is 7.9's shared latent conjunct: name the one
+reason they all fail as a statement, and conjoin it into every member of
+the family, so the members stand or fall together the way the source says
+they do. The flagship's `$hope-harmless` is the worked example and the
+one left undone: four hopes that a superintelligence's goals never touch
+us (a digital realm, a cosmos elsewhere, no evolved greed, boredom), and
+the book answers all four with one fact, that material resources serve
+almost any goal. The coarse line carries that fact as its premise; the
+four objections under it do not, so the fold reads 0.313 against an
+authored 0.07 (measured 2026-09-12). Judge the repair by the conclusion's
+own value rather than by the fold: a conjunct that repeats the coarse
+line's own premise cannot show up in the folded number, because the fold
+is already read given that premise.
+
+**The check.** `argmap-query fold-audit` lists every strengthed refined
+line in a file with its authored strength, the weakest required step of
+its refinement, the premises the refinement introduces that the coarse
+line does not carry, and a flag where the authored strength is above that
+weakest step:
+
+```
+node mvp/packages/parser/bin/argmap-query.mjs my-map.argmap fold-audit
+```
+
+It is advice and never a diagnostic: a summary written in the author's
+own holistic register is a legitimate thing to write down, and the audit
+only tells you that it is what you wrote.
 
 A layout-driven special case is the **coarse hull** (see the spine test,
 8): when the fine conjunction mixes one cross-region premise with hubs
