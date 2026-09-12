@@ -12,6 +12,12 @@
     1. the map, in the <script type="text/plain"> block near the bottom;
     2. POSTER, if you have generated one; otherwise the placeholder is drawn.
 
+  A BIG MAP TRAVELS BY NAME INSTEAD. Set DOC to the slug of a map p1graph.org
+  ships (for example iabied-comprehensive-en), leave the map block empty, and
+  the viewer fetches the map itself. That keeps the flagship's 330 KB out of
+  your post. The trade: a named map is the live one, so it follows the site,
+  while a map pasted in below is the version your post published.
+
   Why a nested iframe rather than loading the viewer's script straight in here:
   this document is `about:srcdoc`, which INHERITS THE PARENT'S CSP. A nested
   frame at a real https URL does not. Measured on a LessWrong draft 2026-08-24:
@@ -61,6 +67,11 @@ $trim [a smaller scope is easier] 0.6 @ship | @scope-cut: Less to build, less to
 
 <script>
   var VIEWER = 'https://www.p1graph.org/embed.html';
+  // A SHIPPED MAP BY NAME, instead of the block above. Empty means "use the
+  // map below"; a slug such as 'iabied-comprehensive-en' means the viewer
+  // fetches that map from p1graph.org. Set one or the other, not both: a map
+  // in the block below wins, and the fetch would be a download nobody reads.
+  var DOC = '';
   // Drawn by `npm run embed-poster`, and kept fresh by refresh-pins.sh's
   // family 8. Replace it when you replace the map below.
   var POSTER = 'https://www.p1graph.org/embed/default.png';
@@ -83,6 +94,11 @@ $trim [a smaller scope is easier] 0.6 @ship | @scope-cut: Less to build, less to
     // The handshake. Both documents are opaque origins, so targetOrigin must be
     // '*' and the nonce is what pairs a reply with its request when an article
     // holds several embeds.
+    //
+    // AN EMPTY BLOCK IS STILL AN ANSWER, and answering with it is what makes
+    // DOC quick: the viewer treats an empty payload as "this host has no map"
+    // and moves on at once, instead of waiting out its handshake timeout for a
+    // reply that was never coming.
     window.addEventListener('message', function (ev) {
       var d = ev.data;
       if (!d || d.type !== 'argmap-embed-ready') return;
@@ -106,8 +122,16 @@ $trim [a smaller scope is easier] 0.6 @ship | @scope-cut: Less to build, less to
       // Inside a LessWrong widget the shim is `about:srcdoc` and has no query of
       // its own. An author publishing there names the view in the VIEWER
       // constant above instead, by ending it with ?sel=ship.
-      var q = window.location.search || '';
-      frame.src = VIEWER + (VIEWER.indexOf('?') < 0 ? q : q.replace('?', '&'));
+      //
+      // DOC, when set, is forwarded as `doc=<slug>` here. The page's own query
+      // is kept beside it, so `?sel=` still names the start view of a map that
+      // arrives by fetch.
+      var parts = [];
+      if (DOC) parts.push('doc=' + encodeURIComponent(DOC));
+      var q = (window.location.search || '').replace(/^\?/, '');
+      if (q) parts.push(q);
+      var tail = parts.join('&');
+      frame.src = VIEWER + (tail ? (VIEWER.indexOf('?') < 0 ? '?' : '&') + tail : '');
       stage.appendChild(frame);
       poster.remove();
     });
