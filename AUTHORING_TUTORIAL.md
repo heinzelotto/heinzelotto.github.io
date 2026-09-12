@@ -521,6 +521,14 @@ conjunct like `... AND @shutdown` on strategy-advice lines, which makes
 the goal premise-referenced without arguing from it. The list is
 complete, not additive.
 
+One key is a display hint: `fold-links: on` (D162) asks the viewer to
+open your map with its "Fold links" mode on, so a folded branch shows
+which other branches it touches. Declare it when your map's branches
+cross each other and a reader needs to see that at a glance; leave it
+out otherwise, since the mode is off by default and it does reshape the
+folded layout. A reader's own checkbox in the graph controls still wins
+for their session.
+
 Top-level order is free; the graph defines the structure. Convention:
 put the document's headline claim first, then work down its support.
 
