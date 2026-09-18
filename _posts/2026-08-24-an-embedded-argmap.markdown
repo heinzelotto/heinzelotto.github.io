@@ -98,3 +98,88 @@ Let's see whether it works:
 </script>
 {% endraw %}
 
+## The flagship by name (added 2026-09-19)
+
+Since 2026-09-12 a widget can NAME a big map instead of carrying it: the shim sets `DOC` to a slug and the viewer fetches `maps/<slug>.json` from p1graph.org (378 KB for the comprehensive map, against the 6 KB widget). The two embeds below are the release shape: the whole "If Anyone Builds It, Everyone Dies" map, folded to its ten top-level nodes, opened on the title inference (`?sel=link`).
+
+The plain iframe, same origin:
+
+<iframe src="/embed.html?doc=iabied-comprehensive-en&sel=link&layout=graph"
+        style="width:100%;height:560px;border:0;border-radius:4px"
+        title="ArgMap: If Anyone Builds It, Everyone Dies, by name"></iframe>
+
+And the LessWrong rehearsal of the same map: the minted widget (`embed/widgets/iabied-launch-2026-09-18.html`, made with `embed-snippet.mjs --doc iabied-comprehensive-en`) fetched into a sandboxed `srcdoc` frame with LessWrong's resize script appended, capped at 681px. The poster is the drawn placeholder until a flagship poster exists.
+
+<div id="rehearsal-flagship" style="max-width:681px;margin:1.5rem 0"></div>
+
+{% raw %}
+<script>
+(function () {
+  var RESIZE_SCRIPT =
+    '<script>\n' +
+    '(function() {\n' +
+    '  function postHeight() {\n' +
+    '    var body = document.body;\n' +
+    '    if (!body) return;\n' +
+    '    var cs = getComputedStyle(body);\n' +
+    '    var h = body.offsetHeight\n' +
+    '      + (parseFloat(cs.marginTop) || 0)\n' +
+    '      + (parseFloat(cs.marginBottom) || 0);\n' +
+    "    parent.postMessage({ type: 'iframe-widget-resize', height: Math.ceil(h) }, '*');\n" +
+    '  }\n' +
+    "  if (document.readyState === 'loading') {\n" +
+    "    document.addEventListener('DOMContentLoaded', postHeight);\n" +
+    '  } else {\n' +
+    '    postHeight();\n' +
+    '  }\n' +
+    "  if (typeof ResizeObserver !== 'undefined') {\n" +
+    '    var raf;\n' +
+    '    new ResizeObserver(function() {\n' +
+    '      cancelAnimationFrame(raf);\n' +
+    '      raf = requestAnimationFrame(postHeight);\n' +
+    '    }).observe(document.documentElement);\n' +
+    '  }\n' +
+    "  window.addEventListener('message', function(event) {\n" +
+    "    if (event.data && event.data.type === 'iframe-widget-request-resize') {\n" +
+    '      postHeight();\n' +
+    '    }\n' +
+    '  });\n' +
+    "  window.addEventListener('resize', postHeight);\n" +
+    '})();\n' +
+    '<' + '/script>';
+
+  var slot = document.getElementById('rehearsal-flagship');
+  var frame = null;
+
+  // The minted widget is fetched, not pasted: it contains closing script tags,
+  // and fetching the hosted copy means this rehearsal tests the file a post
+  // would carry, byte for byte.
+  fetch('/embed/widgets/iabied-launch-2026-09-18.html')
+    .then(function (r) {
+      if (!r.ok) throw new Error('iabied-launch-2026-09-18.html: HTTP ' + r.status);
+      return r.text();
+    })
+    .then(function (widget) {
+      frame = document.createElement('iframe');
+      frame.setAttribute('sandbox', 'allow-scripts');
+      frame.setAttribute('title', 'ArgMap, the flagship map loaded the way LessWrong loads a widget');
+      frame.style.cssText = 'width:100%;height:400px;border:none;border-radius:4px';
+      frame.srcdoc = widget + RESIZE_SCRIPT;
+      frame.addEventListener('load', function () {
+        frame.contentWindow.postMessage({ type: 'iframe-widget-request-resize' }, '*');
+      });
+      slot.appendChild(frame);
+    })
+    .catch(function (e) {
+      slot.textContent = 'The flagship rehearsal widget did not load: ' + e.message;
+    });
+
+  window.addEventListener('message', function (event) {
+    if (!frame || event.source !== frame.contentWindow) return;
+    if (!event.data || event.data.type !== 'iframe-widget-resize') return;
+    var h = Math.max(50, Math.min(5000, Math.round(event.data.height)));
+    frame.style.height = h + 'px';
+  });
+})();
+</script>
+{% endraw %}
