@@ -31,7 +31,7 @@ Maps render at p1graph.org (text / outline / graph panes; solved
 values, "implied" in the UI, are on by default and the "Show what the
 map implies" Controls toggle turns them off, `authored -> implied`).
 Headless query, from `experiments/solver-prototypes/` (needs python3 +
-numpy + scipy + node): `python3 solve_map.py FILE @node '$edge' --band`
+numpy + scipy + node): `python3 solve_map.py FILE @node '$edge'`
 or `--top 10`.
 
 Three things a reader sees since D161 (2026-09-08; tut 2.2, 4.6):
@@ -174,7 +174,11 @@ no tool could see.
   > quite skeptical that gradient descent will stumble across the same shortcut [^supp-ch5]
 ```
 
-Rules: **verbatim, never paraphrased**; **always give a locator** (W15:
+Rules: **verbatim, never paraphrased**; **a budget** (tut 5.4: at most
+one sentence per line, normally one per node, low hundreds of words from
+any one work and proportionally less from a short source, a tenth of
+which is already far too much; quote the fragment a strength or a
+ruling rests on and retell the rest in the gloss); **always give a locator** (W15:
 chapter, supplement page, or transcript timestamp, whatever the source
 allows); **only a trailing `[^id]` is the locator**, anything else on the
 line is verbatim text including a mid-line `[^…]` (W16); **no trailing
@@ -256,7 +260,12 @@ junctions.
    direction the source asserts.
 2. `?` on every rubric-derived value; bare numbers only where the source
    states a number. Fix the verbal->probability rubric BEFORE assigning;
-   never move a number after the first solve.
+   never move a number after the first solve. The table follows the
+   SOURCE's register, not the speaker's: a transcript takes the spoken
+   table (R-SPOKEN), a written column the written one (D39), even when
+   one speaker has both on one map, and the notes entry says per line
+   which table was used (a column reads uniformly flat: expect every
+   line at the unhedged class).
 3. Residual rule: frontier roots keep authored values; derived statements
    get `# check: p` trailing comments, never pins, because authoring
    both the support and the conclusion double-counts. Never both on one
@@ -712,7 +721,25 @@ meets a wall of top-level nodes and the fold control does nothing.
    presuppositions guarded (idiom 11); multi-voice overlaps deduplicated
    (full concurrence = one line at the weaker register; a subset relation
    = shared span plus a residual increment; an instance supports the
-   shared ground, not the downstream conclusion). After the skeleton and
+   shared ground, not the downstream conclusion; a joint line QUOTES both
+   speakers saying the sentence, so if its gloss has to argue that one of
+   them concurs, he has not, and a grant is joint only when the granted
+   sentence is also the other speaker's own words; read a quote to its
+   full stop before it carries anything); on a multi-voice map, a
+   speaker's SPOKEN refusal to price a claim is a `>` quote line of theirs
+   on that statement plus the claim under their key in the frontmatter's
+   `declines:` block (`a: everyone-dies [^t012346]`, D164), so their view
+   shows the refusal where a number would stand. Never use it for a claim
+   merely left unpriced: without the quote the entry is rejected. A later
+   DATED source for a speaker already on the map (a column after a
+   transcript) is a new speaker key that `updates:` the old one in the
+   frontmatter (`updates:` then `  s: a`; the September view keeps the
+   January lines), its lines and quotes prefixed with the new key's
+   letter; a proposition asserted at both dates is ONE factor (a
+   restatement is a prefixed quote line under the existing line, a new
+   joint proposition a `<old><new>`-keyed line, never a second factor),
+   and absence in the later source is not retraction (AUTHORING_NOTES
+   2026-09-18). After the skeleton and
    after any restructuring pass, run `argmap-query nest-audit` (add
    `--rank` for the fold-as-detail vs coarse-hull call): it sizes the top
    tier against its genre (the ~40 bound is per group on an atlas map, per
@@ -854,7 +881,7 @@ display, they bound what a solve can mean (tut 9):
 ```bash
 python3 tools/argmap-lint.py FILE          # repo; in a bundle: python3 argmap-lint.py FILE
 cd experiments/solver-prototypes && python3 solve_map.py FILE --top 10   # bundle: cd solver/
-python3 solve_map.py FILE @headline --band
+python3 solve_map.py FILE @headline
 ```
 
 Errors must be zero. Warnings need explanations, not suppression: the
@@ -942,8 +969,9 @@ before reading anything. Each evidence yields **two** tension rows,
 `P(E|phi)` and `P(E|~phi)`: the D36 floor is symmetric, so one authored
 strength constrains both slabs (given the premises, and given their
 negation). That is why conditioning on a near-tautology premise
-misbehaves (gotcha 6). `--band` adds the **forced interval** for a named
-statement: how far the constraints actually pin it, as against where
+misbehaves (gotcha 6). `--reference d36 --band` (a bench instrument of the
+retired uniform reference; its numbers do not describe the shipped solve)
+adds the **forced interval** for a named statement: how far the constraints actually pin it, as against where
 max-entropy settled inside that freedom. A wide band is not an error; it
 says the exact point value is not load-bearing, so do not build an
 argument on its third decimal. An EMPTY band is the real signal: the

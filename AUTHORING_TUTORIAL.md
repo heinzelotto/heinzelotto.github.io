@@ -211,9 +211,12 @@ python3 solve_map.py ../llm-extraction/iabied-comprehensive-en.argmap --top 10
 The first form prints, for each named node, the authored value and the
 solved value. The second prints the ten largest gaps and tensions in the
 whole map: the places where authored numbers and computed numbers disagree
-most. `--band` adds the forced interval for a named statement (how far the
-constraints actually pin it, as opposed to where the solver settled inside
-the allowed range). `--condition if-built=0 --id @everyone-dies` answers
+most. `--reference d36 --band` adds the forced interval for a named
+statement (how far the constraints actually pin it, as opposed to where the
+solver settled inside the allowed range); it is a bench instrument of the
+retired uniform reference, so it has to be asked for with that reference
+and its numbers do not describe the shipped solve.
+`--condition if-built=0 --id @everyone-dies` answers
 a what-if by conditioning (the named statement taken as a fact about
 the world, the author's numbers updated by Bayes), the bench reading
 that the viewer's what-if mode does not use (4.6); `--override` is the
@@ -528,6 +531,17 @@ cross each other and a reader needs to see that at a glance; leave it
 out otherwise, since the mode is off by default and it does reshape the
 folded layout. A reader's own checkbox in the graph controls still wins
 for their session.
+
+A second display hint belongs to multi-voice maps: `declines:` (D164)
+lists, per speaker key, the claims that speaker refused on the record
+to put a number on, as `a: everyone-dies [^t012346]`, ids without the
+`@`. In that speaker's view the claim then shows a blank gauge with
+their words where the view's arithmetic would stand. Use it only for a
+spoken refusal, never for a claim the speaker merely left unpriced:
+every entry needs a verbatim `>` quote line by that speaker on that
+statement, and the optional `[^locator]` picks which one the reader
+sees. The solve ignores the hint, so everything downstream of the claim
+keeps its value in that view.
 
 Top-level order is free; the graph defines the structure. Convention:
 put the document's headline claim first, then work down its support.
@@ -1758,7 +1772,23 @@ Two additions from later passes:
    one line at the weaker register; a subset relation is the shared span
    plus a residual increment elicited conditional on it; an instance
    supports the shared ground, not the downstream conclusion; genuinely
-   disjoint mechanisms stay independent with a comment saying so.
+   disjoint mechanisms stay independent with a comment saying so. A joint
+   line quotes both speakers saying the sentence: if its gloss has to
+   argue that one of them concurs, he has not, and a grant of the other
+   speaker's point is joint only when the granted sentence is also that
+   speaker's own words on the map (a grant of a program the other never
+   states as that sentence is the granter's line). Read a quote to its
+   full stop before any part of it carries a line; a sentence cut at a
+   comma carried a joint line for one afternoon on the debate map before
+   its second half put it back in one voice (AUTHORING_NOTES 2026-09-17
+   and 2026-09-18).
+10. **A spoken refusal to price.** On a multi-voice map, when a speaker
+   says on the record that they will not put a number on a claim, put
+   their words on that statement as a `>` quote line and list the claim
+   under their key in the frontmatter's `declines:` block (section 3.9's
+   display hints, D164). Their view then shows the refusal where a
+   number would stand. Without the quote on the statement the entry is
+   rejected.
 
 ### 5.4 Quoting and citation discipline
 
@@ -2403,14 +2433,15 @@ gaps (a folded line's authored strength vs the conditional the whole
 network delivers through its refinement, a bench readout) and
 composition gaps (the same authored strength vs the composition of the
 refinement's own steps, which is the number the editor shows on the
-folded line). Then query the nodes you care about, with the forced
-interval:
+folded line). Then query the nodes you care about:
 
 ```
-python3 solve_map.py path/to/your.argmap @headline '$main-step' --band
+python3 solve_map.py path/to/your.argmap @headline '$main-step'
 ```
 
-(`--band` needs the optional `band_probe.py` next to `solve_map.py`, and
+(The forced interval is a bench instrument of the retired uniform
+reference: add `--reference d36 --band`. It needs the optional
+`band_probe.py` next to `solve_map.py`, and
 `--influence` needs `influence_probe.py`; the plain readout needs
 neither.)
 
