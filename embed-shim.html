@@ -83,6 +83,14 @@ $trim [a smaller scope is easier] 0.6 @ship | @scope-cut: Less to build, less to
     if (!stage || !poster || !srcEl) throw new Error('shim: its own markup is missing');
     var source = srcEl.textContent.trim();
     var frame = null;
+    // What this document last saw of the viewer frame: on screen or not, or
+    // null before the first answer. See the observer in the click handler.
+    var visible = null;
+    function tellVisibility() {
+      if (frame && frame.contentWindow && visible !== null) {
+        frame.contentWindow.postMessage({ type: 'argmap-embed-visibility', visible: visible }, '*');
+      }
+    }
 
     if (POSTER) {
       var img = document.createElement('img');
@@ -107,6 +115,9 @@ $trim [a smaller scope is easier] 0.6 @ship | @scope-cut: Less to build, less to
         { type: 'argmap-embed-source', source: source, nonce: d.nonce },
         '*'
       );
+      // and what this document has seen so far, which the viewer was not yet
+      // listening for when the observer first answered
+      tellVisibility();
     });
 
     poster.addEventListener('click', function () {
@@ -134,6 +145,21 @@ $trim [a smaller scope is easier] 0.6 @ship | @scope-cut: Less to build, less to
       frame.src = VIEWER + (tail ? (VIEWER.indexOf('?') < 0 ? '?' : '&') + tail : '');
       stage.appendChild(frame);
       poster.remove();
+
+      // WHETHER THE MAP IS ON SCREEN, relayed to the viewer (2026-09-23). The
+      // viewer gives its solver's memory back while it is off screen, and it
+      // judges that with an observer of its own, which Firefox stops updating
+      // once an out-of-process frame has scrolled away (measured, Firefox 156).
+      // This document shares the page's process, where the observer answers in
+      // both engines, so it watches the frame and says what it sees.
+      if (typeof IntersectionObserver === 'function') {
+        new IntersectionObserver(function (entries) {
+          var last = entries[entries.length - 1];
+          if (!last) return;
+          visible = last.isIntersecting;
+          tellVisibility();
+        }).observe(frame);
+      }
     });
   })();
 </script>

@@ -1,8 +1,0 @@
-import{o as $,u as m,b7 as L,er as O,es as S,et as T,eu as f,ev as C,ew as F,ex as E,ey as R,ez as N,eA as y,bO as D,eB as _,aP as P,bQ as B,eC as j,bR as w,bS as z,n as I,bT as W}from"./styles-CY4jZgze.js";const H=P.en;function Q({id:o,vocab:p}){var u,d,h,v;const e=$(s=>s.index.get(o)),x=m(s=>s.analysis.statements),t=m(s=>s.analysis.byId.get(o)),g=L(s=>s.overrides[o]);if(!e||e.solved===null)return null;const l=(t==null?void 0:t.kind)==="evidence"&&t.strength?O(g,e.authored,t.strength.value,((u=t.strength.opposed)==null?void 0:u.value)??null,S(t.children)):null,i=(t==null?void 0:t.kind)==="evidence"&&l?T(f(t.trailingComment,l.strength,l.opposed)):(t==null?void 0:t.kind)==="statement"&&t.marginal?C(F(t.marginal.value,((d=t.marginal.opposed)==null?void 0:d.value)??null)):null,a=e.spectator===!0,n=e.kind==="statement"&&e.authored===null&&!a?E(x).get(o)??null:null,r=n===null?null:Math.abs(R(n,e.solved)),b=a?N:e.kind==="statement"?"marginal":"in-force rate",c=((h=e.set)==null?void 0:h.shape)==="pair"?y(e.set):e.authored!==null?e.authored.toFixed(2):null,k=r??D(e),A=`${_(p??H,c,e.solved.toFixed(2),a)}
-implied ${b} ${e.solved.toFixed(3)}`+(e.authored!==null?`
-authored ${c}, ${e.set?B(e.solved,e.set):`tension ${((v=e.delta)==null?void 0:v.toFixed(3))??"—"}`}`:n!==null?`
-authors’ check ${j(n)}, badge ${r.toFixed(3)}`+(n.lo===n.hi?"":" (zero inside the check interval)"):`
-this line authors no number`)+(a?`
-${w}`:"")+(i!==null?`
-${i}`:"")+`
-${z}`;return I.jsx("span",{className:"chip chip--solved"+(a?" chip--spectator":""),style:{color:W(k,"var(--text-dim-bench)")},title:A,children:e.solved.toFixed(2)})}export{Q as default};

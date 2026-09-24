@@ -1,6 +1,6 @@
 ---
 name: argmap-author
-description: Recipe for reading and authoring .argmap (v0.3) maps: syntax crib incl. declared groups and source quote lines, the D36 number rules as amended by D161 (counts from width and kind, the set rule for the tint, the what-if as revision), label/gloss discipline, the structural-idiom catalog, nesting discipline, the extraction workflow, and the lint + solve verification loop.
+description: Recipe for reading and authoring .argmap (v0.3) maps: syntax crib incl. declared groups and source quote lines, the D36 number rules as amended by D161 (counts from width and kind, the set rule for the tint, the what-if as revision) and D166 (lines for and against a statement that meet in one case are one draw), label/gloss discipline, the structural-idiom catalog, nesting discipline, the extraction workflow, and the lint + solve verification loop.
 ---
 
 # Authoring .argmap maps
@@ -45,8 +45,9 @@ Three things a reader sees since D161 (2026-09-08; tut 2.2, 4.6):
    implied value has left what the author wrote (below a line's
    strength, outside an interval, off a point) by more than 0.01; the
    solve filling an interval the author left open is shown uncoloured.
-   The flagship as authored tints nowhere and keeps one check badge
-   past 0.10 (`@evo-analogy`).
+   The flagship as authored keeps no check badge past 0.10 (the widest
+   gap is the headline's, 0.796 against 0.88..0.98) and two lines read
+   just under their strength (measured 2026-09-23).
 3. **What-if mode is revision.** The reader's number replaces the
    author's on that claim as a point at the cap and the map re-solves.
    On a root the map follows forward (nothing bends, nothing colours);
@@ -336,23 +337,28 @@ reader's 0 is held at 0.30; as keyed (`formal`) the step holds at
 
 Four consequences that trip authors (tut 4.2, 4.4, 4.5):
 
-1. **Drift tax.** Asserting `$imp 0.8 @c | @a` alone drags solved P(@a)
-   to ~0.36. Two remedies, both ordinary authoring: author a value on
-   `@a`; or, if the source asserts the converse, write the cross-slab
-   pair `~@c | ~@a` (idiom 7 below). Do not confuse that with the
-   same-slab pair (`@c | @a` opposed by `~@c | @a`), which compounds the
-   drift instead of cancelling it.
-   The tax follows the premise's **polarity**, in both directions: with
-   `$e 0.9? @c | ~@a` the same mechanism pushes P(@a) *up* (0.5 → 0.651,
-   the exact mirror of 0.349). Conditioning on a negated statement is
-   therefore an implicit vote *for* it. Expect it, and check the sign
-   before calling the result a bug.
-   When the premise is itself **derived** (concluded into by other
-   lines), rule 3 wins and the first remedy is off the table: do not pin
-   it. Author the missing counter-evidence as its own named line at the
-   source's register instead, the same move as the direct-assertion
-   pattern (idiom 13). A pin would fight the very lines that conclude
-   into it; a named line accumulates with them and stays criticizable.
+1. **An unpriced ground reads one half.** Asserting `$imp 0.8 @c | @a`
+   alone leaves solved P(@a) at 0.500 (and P(@c) at 0.700), the
+   network's fill for a claim nothing speaks to; a premise on the
+   negated side, `@c | ~@a`, stays at 0.500 too. The checkers name such
+   a statement **I7**. The 0.5 is a placeholder, so price the ground:
+   author a value on a frontier root; give a premise the source asserts
+   as a claim of its own an attributed premise-less line at its register
+   (idiom 13); or fold a premise that was only ever part of the step
+   into the line and re-elicit the line's strength. A converse the
+   source asserts (`~@c | ~@a`, idiom 7) is content about the
+   conclusion: it fills the worlds where the premise fails, moves `@c`
+   and leaves `@a` where it was. A premise moves on information about
+   what follows from it, and each move is the map's own inference, to be
+   left standing: a confirmed consequence raises it (`@c` pinned 0.9
+   beside the lone line: `@a` 0.593), a refuted one lowers it, and a
+   support and an objection on the same premise that sum past one make
+   their shared case rarer (0.8 against 0.3: `@a` 0.466; 0.8 against
+   0.15, which fit: 0.500). Measured 2026-09-24 with `solve_map.py` at
+   its default (`examples/toys/a10-t2.argmap`; tut 4.2). Until
+   2026-09-08 this item was the **drift tax** of the retired uniform
+   reference (the lone line dragged `@a` to 0.365, the negated premise
+   pushed it to 0.651), which the shipped solve does not have.
 2. **Independence is assumed**: separate lines accumulate noisy-OR, so
    convergent lines with overlapping grounds double-count. Three repairs
    in increasing order of structure: merge into one evidence; name the
@@ -365,6 +371,18 @@ Four consequences that trip authors (tut 4.2, 4.4, 4.5):
    with the effect observed both causes read 0.57, observe one and the
    other drops to 0.51, network reference, 2026-09-08). Expect it in
    what-if mode; nothing needs authoring around it.
+   **Opposite sides are read together** (D166, since 2026-09-23; tut
+   4.4): a line for a statement and a line against it that apply to the
+   same case are one draw. They never fire together, each keeps its
+   share, and independence is what gives where the numbers do not fit.
+   A granted objection caps the supports in its case however many there
+   are (five 0.9 supports beside a 0.15 objection read 0.90 there, 1.00
+   under the evidence weighing it replaced); to move it, undercut it,
+   lower it, or doubt its grounds. Where the strongest support and the
+   strongest objection sum past one, the overlap is a contradiction that
+   makes the case rarer, pressing on its grounds. If the two lines are
+   really about different cases, name the statement that separates
+   them.
 3. **Stacking to ~0.99 is not automatically an error.** Four genuinely
    independent 0.85 routes compound past 0.99; if the source really
    asserts four sufficient reasons, that is its own logic, and a lower
@@ -378,21 +396,29 @@ Four consequences that trip authors (tut 4.2, 4.4, 4.5):
    a pure **inhibitor** of its target: it carries no floor of its own
    (SOLVER_SEMANTICS §1.2, the factored-A compile), so the negated
    conclusion it names gets no independent push from it. Two measured
-   consequences: an undercut whose target is unstrengthed moves nothing
-   at all (0.500 → 0.500); and an undercut of a rebuttal reinstates the
-   claim only *toward* the value it would have with the rebuttal absent,
-   never past it (0.500 → 0.866 against a rebuttal-free 0.898).
+   consequences (tut 4.5, the shipped solve, 2026-09-24): an undercut
+   whose target is unstrengthed moves nothing at all (0.500 → 0.500);
+   and an answer to an objection (an undercut of the rebuttal)
+   reinstates the claim only *toward* the value it would have with the
+   objection absent, never past it (0.823 → 0.852 against an
+   objection-free 0.859; `examples/toys/u-grounds.argmap ::guard-sup`).
+   Without a support the answer lifts the claim only back toward 0.5
+   (the objection alone 0.450, answered 0.488, `::guard`).
    The authoring consequence, and it is easy to miss: when the source
    also asserts the **fact** the objection rests on, and you want that
    fact to bear on the conclusion, the undercut cannot carry it. Author
    the fact as an ordinary evidence line beside the undercut. The two do
    not double-count: the inhibitor acts on the inference, the plain
-   line acts on the claim.
+   line acts on the claim. The same holds for an answer's ground: as its
+   own line beside a guardless answer it brings the claim to 0.879,
+   inside the answer's guard 0.488 (`u-grounds`, `::split` against
+   `::guard`).
 5. **Coming from probabilistic conditional logic** (tut 3.6; measured
-   on `examples/toys/pcl-penguin.argmap`, 2026-08-31): `(psi|phi)[d]`
+   on `examples/toys/pcl-penguin.argmap`, 2026-08-31, re-measured under
+   the shipped solve 2026-09-24): `(psi|phi)[d]`
    with d >= 0.5 is `$e d psi | phi`; with d < 0.5 it is the opposed
    line `$e (1-d) ~psi | phi`, never a d-strength support (a 0.01
-   support is near-inert, and penguins fly at 0.94). A subclass
+   support is near-inert, and penguins fly at 0.95). A subclass
    exception is an undercut of the general rule on the subclass PLUS a
    rebuttal: a low conditional beside the general rule is a
    contradiction under the law reading (hard-infeasible once the
@@ -405,7 +431,8 @@ Four consequences that trip authors (tut 4.2, 4.4, 4.5):
 
 The rules that keep a lint-clean map from counting one consideration
 twice. Each has a five-line toy behind it in `examples/toys/` with its
-measured numbers (re-measured 2026-08-23).
+measured numbers (the toys README carries them under the shipped
+solve).
 
 1. **Residual rule.** A statement's own number is evidence NOT already
    in the map. A frontier root (no strengthed incoming line) keeps its
@@ -420,13 +447,16 @@ measured numbers (re-measured 2026-08-23).
    `0.6?/0?` 3, `0.7/0.1` 8, `0.85?/0.05?` 18). Check `# check:
    0.85..0.95` = the author's total as an interval at the register's
    width; never constrains; the badge is the distance from the solved
-   value to the interval, zero inside. The toy numbers (D36 counting
-   reference, 2026-08-23; the network-reference re-pin is wave 2's):
-   T1 (pin beside `$sub-ev`): `@subvert` 0.899, `@resists` 0.879, W25.
-   T2 (derived, `# check: 0.9`): 0.868 / 0.866, the double count made
-   visible and the honest badge. T3 (`0.6?/0?` + check): 0.921 / 0.889,
-   silent; right when 0.6 is the remainder, the pin again when read off
-   the total.
+   value to the interval, zero inside. The toy numbers (tut 4.7.2, the
+   shipped solve, re-measured 2026-09-24): as authored the three read
+   alike, T1 (pin beside `$sub-ev`, W25) `@subvert` 0.900 / `@resists`
+   0.883, T2 (derived, `# check: 0.9`) 0.905 / 0.884 with the check
+   met, T3 (`0.6?/0?` + check) 0.896 / 0.881, silent. The double count
+   shows under the what-if (`--override want=0.1`): T2 follows its
+   premise (`@subvert` 0.545, the badge at -0.36), T1 does not move
+   (0.899: the pin is deaf to its own premise), T3 gives part way
+   (0.840); T3 is right when 0.6 is the remainder, the pin again when
+   read off the total.
 3. **Derive a root** = give a pinned root its first strengthed incoming
    line. One test: does the line carry an INFERENCE? A restatement or
    co-reference at a second dock (`@psychosis` / `@c13ws-retrain`) gets a
@@ -434,8 +464,9 @@ measured numbers (re-measured 2026-08-23).
    real inference the source omits is mapped, with a comment). Never
    withhold a derivation for what it does downstream: completion is
    always licensed, and the movement is the audit working
-   (`@steering-finds-subversion` 0.893 to 0.628, `@goals` 0.842 to 0.712
-   on the flagship). Then the obligation: the old point becomes the
+   (`@steering-finds-subversion` 0.899 to 0.843 and `@incorrigible`
+   0.856 to 0.834 on the flagship under the shipped solve, 2026-09-24;
+   0.893 to 0.628 under the retired reference, tut 4.7.3). Then the obligation: the old point becomes the
    check at its register's interval, and the residual stays EMPTY unless
    the text names a second unwired ground (floor at that ground's
    register, gloss naming the passage) or says the grounds are a subset
@@ -472,8 +503,10 @@ measured numbers (re-measured 2026-08-23).
    to say two lines co-vary is a shared statement both cite. Name the
    overlap as a statement and condition both lines on it. Fingerprint:
    the AND consumer RISES and the OR consumer FALLS when premises share a
-   cause (T8 vs T8b: `@both` 0.751 to 0.782, `@either` 0.918 to 0.886;
-   T5 vs T5b: `@danger` 0.843 to 0.850). `argmap-query shared-cause`
+   cause (T8b vs T8: `@both` 0.799 to 0.818, `@either` 0.935 to 0.915;
+   T5 vs T5b: `@danger` 0.866 to 0.876; the shipped solve, re-measured
+   2026-09-24; tut 4.7.5 keeps the retired reference's figures beside
+   them). `argmap-query shared-cause`
    lists the rows. Never AND a statement with its own derivative
    (`$wst-race`, `@race-dynamics AND @one-cavalier-suffices` where
    `$ocs-ev` derives the second from the first): drop the duplicate
@@ -484,12 +517,15 @@ measured numbers (re-measured 2026-08-23).
    halves (one line per ground). A definition that does inferential
    work is a **p = 1 evidence line** (a biconditional is two, spelled as
    the converse pair `1 @want | @a AND @b` plus `1 ~@want | ~@a OR ~@b`,
-   T6: `@want` 0.755 = P(steers AND routes), lint-silent; the
-   forward/backward spelling draws W2 and W25 for nothing), never a p = 1
-   statement:
-   `@asi-def [..] 1` conjoined into a premise solves 0.988 and taxes
-   every junction it joins by 1/w (T7 `@dies` 0.849 vs 0.854 without).
-   Terminology goes in a gloss.
+   T6: `@want` 0.763 = P(steers AND routes), lint-silent; the
+   forward/backward spelling draws W2, W25 and now E11 for nothing),
+   never a p = 1 statement: `@asi-def [..] 1` conjoined into a premise
+   draws an edge into every junction it joins and says nothing a gloss
+   would not (T7: under the shipped solve it holds at 1.000 and `@dies`
+   reads 0.859 with it and without it, so the rule stands on the clutter
+   alone; the 1/w tax it once carried, 0.849 against 0.854, was the
+   retired reference's; re-measured 2026-09-24). Terminology goes in a
+   gloss.
 
 ## Structural idioms
 
@@ -558,8 +594,10 @@ in `examples/` (see its README).
    `~` conjunct is the source's own "even if X were false".
 7. **Balancing evidence** (tut 7.7, anchor `$no-doom-otherwise`): a
    conditional says nothing outside its slab. If the source asserts the
-   converse, name it: `$conv 0.9? ~@c | ~@a`. Cancels the drift tax and
-   keeps a contested claim on the map instead of hiding it in a prior.
+   converse, name it: `$conv 0.9? ~@c | ~@a`. It fills the worlds where
+   the premise fails, so it moves the conclusion and leaves the premise
+   alone, and it keeps a contested claim on the map instead of hiding it
+   in a prior.
 8. **Conditioning on an inference** (tut 7.8, anchor `$shutdown-ev`), a
    policy that hangs on an implication, not on a fact:
    `$policy 0.93? @should-act | $link`. Conditioning on the implication's
@@ -606,9 +644,11 @@ in `examples/` (see its README).
     Sixteen of these carried the debate map. A refusal to give a number
     needs no syntax: leave the marginal blank, and if the refusal is
     itself argued, map that as an undercut cluster against assignability.
-    How several premise-less lines on one statement combine (pool or
-    stack) is an open item of D161: the solve pools them for now and
-    the lint's I4 note on each says so; a line reporting one source
+    How several premise-less lines on one statement combine is decided
+    (D166 item 4: a line with no premise is a line whose premise is
+    every case, so same-side lines stack where nothing opposes them)
+    and applied after the release; until then the solve pools them, and
+    the lint's I4 note on each says so. A line reporting one source
     names the source as a premise instead.
 14. **The parable at zero depth** (tut 7.14, anchor `a parable`):
     narrative goes in folded gloss continuation lines, not in nodes. A
@@ -781,13 +821,17 @@ budget counts both.
    escape is to delete the space: `cell#2` stays in the gloss whole.
    Reword or close the gap; never leave ` #` inside prose you meant to
    keep.
-5. Asserting `@c | @a` alone drags P(@a) down (drift tax); author a value
-   on `@a`, or map the source's converse `~@c | ~@a` if it asserts one.
-6. Don't condition on a near-tautology premise (e.g. the OR of four of
-   five partition members): the floor semantics constrain both slabs, the
-   negated one is nearly empty, and the solve shows a large spurious
-   tension. Condition on the informative complement, or drop the premise
-   part.
+5. A premise no line concludes and no value prices reads one half, the
+   network's placeholder, left for its consumers to settle (I7): price
+   it (a value on a root, an attributed floor line) or fold it into the
+   line that uses it. It is not dragged anywhere; the drift tax that
+   used to sit here was the retired reference's (consequence 1).
+6. A near-tautology premise (e.g. the OR of four of five partition
+   members) is harmless: the shipped solve holds a line's rate once, on
+   its own coin (a 0.8 line on a premise pinned 0.98 reads 0.800, no
+   tension). The spurious tension this gotcha used to warn of was the
+   retired reference's row on the nearly empty side (0.079 off; tut 4.1
+   item 5, measured 2026-09-24).
 7. `#` section-heading comments are nesting debt (see above); the
    exception is a *topic*, which is a declared group.
 
@@ -928,9 +972,9 @@ deliberate W1s).
 | I1 | isolated statements | connect or delete |
 | I2 | block inventory | read it; confirm the split you intended |
 | I3 | unstrengthed-line inventory | commit a strength by rubric, or delete the line |
-| I4 | premise-less strengthed line: the D161 reading note | the solve pools it with its conclusion's other numbers for now (stacking is open); a line reporting one source names the source as a premise |
-| I5 | parallel leaves: sibling lines sharing one conclusion and one premise set (D161 open) | merge one argument written twice; two real routes stay, their combined firmness returns the ladder |
-| I6 | coinciding pairs from different premise sets into one statement (D161 open) | they vote by product, assuming independence; name a shared source if there is one |
+| I4 | premise-less strengthed line: the reading note | the solve pools it with its conclusion's other numbers for now; the stacking reading is decided (D166 item 4) and lands in a later release; a line reporting one source names the source as a premise |
+| I5 | parallel leaves: sibling lines sharing one conclusion and one premise set (settled, D166) | they are same-side shares of one population, independent where nothing opposes them; merge one argument written twice |
+| I6 | coinciding pairs from different premise sets into one statement (settled, D166) | where their premises hold together they are one draw and the strongest share on each side holds, so agreeing lines read as either one alone |
 
 Three caveats. W6 and W10 live only in the TypeScript validator (visible
 in the editor), not in this lint. On expression-valued conclusions
@@ -962,14 +1006,18 @@ statement or spectator gaps, so judge those by whether the gap would
 change a reader's reading, and say in the log what you concluded.
 
 The readout's own vocabulary: the header `NAME: 15+14 vars, width=4 |
-0.1s, conv=True` reports statements + evidences as solver variables, the
-junction-tree treewidth (cost grows with it), and whether the solve
-converged. `conv=False` invalidates the numbers below it, so re-check
-before reading anything. Each evidence yields **two** tension rows,
-`P(E|phi)` and `P(E|~phi)`: the D36 floor is symmetric, so one authored
-strength constrains both slabs (given the premises, and given their
-negation). That is why conditioning on a near-tautology premise
-misbehaves (gotcha 6). `--reference d36 --band` (a bench instrument of the
+0.1s, conv=True, reference=g, cell-draw=chain` reports the statements
+plus the compile's other variables (the lines' coins and its
+auxiliaries), the junction-tree treewidth (cost grows with it), whether
+the solve converged, and the reading it ran (the shipped one: the
+network reference and the one draw). `conv=False` invalidates the
+numbers below it, so re-check before reading anything. Each strengthed
+line yields one row, `$id:P(E0)=p n=<flips>`, with `q` its solved
+in-force rate and `|d|` its distance from the strength (the tint counts
+only a fall below it); the rate is held once, on the line's own coin. (`--reference d36` prints the
+retired reference's two rows per line, `P(E|phi)` and `P(E|~phi)`, one
+on each side of the premise; gotcha 6 is what that cost.)
+`--reference d36 --band` (a bench instrument of the
 retired uniform reference; its numbers do not describe the shipped solve)
 adds the **forced interval** for a named statement: how far the constraints actually pin it, as against where
 max-entropy settled inside that freedom. A wide band is not an error; it
