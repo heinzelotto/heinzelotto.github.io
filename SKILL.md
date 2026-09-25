@@ -46,8 +46,11 @@ Three things a reader sees since D161 (2026-09-08; tut 2.2, 4.6):
    strength, outside an interval, off a point) by more than 0.01; the
    solve filling an interval the author left open is shown uncoloured.
    The flagship as authored keeps no check badge past 0.10 (the widest
-   gap is the headline's, 0.796 against 0.88..0.98) and two lines read
-   just under their strength (measured 2026-09-23).
+   gap is `@fragile`'s, 0.796 against 0.85..0.95; the headline reads
+   0.710 against its check 0.75..0.95, re-read on 2026-09-25 from the
+   book's unconditional sentences with five other checks the dock audit
+   found reading another quantity) and two lines read just under their
+   strength (measured 2026-09-25).
 3. **What-if mode is revision.** The reader's number replaces the
    author's on that claim as a point at the cap and the map re-solves.
    On a root the map follows forward (nothing bends, nothing colours);
@@ -228,11 +231,19 @@ Three slots, three different jobs (tut 6):
 
 1. **Statement label** = the claim itself, a proposition, may be a full
    sentence. Not length-linted.
-2. **Evidence label** = the headline warrant: *why* the premises bear on
-   the conclusion, in a phrase. Crops at ~56 chars in the graph (W5), so
-   distill. Not every evidence needs one. An obvious deductive
-   connector is better unlabeled than filler-labeled (about half the
-   flagship's evidences carry labels).
+2. **Evidence label** = the step, in one plain clause, premise to
+   conclusion, naming its subject: "a tiny target and imprecise training
+   make alignment hard" (tut 6 item 2, sharpened 2026-09-25: the layout
+   shows a line before its premises, so the label is read first and
+   cold). Never the warrant alone as a fragment, never a bare "it", never
+   a figure unless it is the source's own image and the gloss unpacks
+   it, never a premise's label said again. Every strengthed line gets
+   one (an unlabelled line shows its gloss's first sentence, written as
+   depth). Objection lines in the objector's voice, responses in the
+   answer's, a battery's voice marker kept ("the hope: ..."). Crops at
+   ~56 chars in the graph (W5) and must fit its plate at its size tier
+   (`label-crop.test.ts`): where a plain clause cannot fit, keep the
+   subject and the verb and let the gloss carry the rest.
 3. **Gloss** = the depth tier: full reasoning, qualifications, source
    voice, quotes. Never length-linted.
 
@@ -702,7 +713,10 @@ When all three fail and the heading is still real, the section is a
 For maps past ~150 nodes: **width, not depth** (every new objection
 cluster is a sibling under its target, never a deeper chain; when a
 sub-debate wants an eighth level, promote the deep node to a shared
-top-level node, so node count can triple while max depth stays flat); a
+top-level node, so node count can triple while max depth stays flat;
+width is for distinct considerations: a sibling line that restates one
+the map already carries is a second dock and counts it twice, so give its
+passage a second `>` quote on the existing line, checklist item 18); a
 **manifest comment block** at the top with the coarse spine in ASCII,
 every shared node listed with its home region and consumers, and the
 region-prefix scheme stated (`@c5-trade`, `$c5-trade-obj`,
@@ -883,10 +897,50 @@ Lint = `python3 tools/argmap-lint.py FILE`; audits =
 15. A pair whose shape contradicts its register / compare with the table
     (item 4 above) and the class token; a pin with no token is unaudited
     / the table's row, or a per-node pair from the text with rationale.
+16. A restatement under two labels, and the wrong door (the flagship's
+    `@asi-soon` -> `@if-built` until 2026-09-25: one event, two labels, the
+    source's reason in the gloss and not the premises, so a what-if on the
+    premise left the conclusion at the 50% fill; and `@int-power` reaching
+    the title only through that line) / `restate-audit` only where docks
+    share a locator; otherwise the drag: zero each hub's premise
+    (`solve_map.py --override`), a landing near 0.5 is the shape;
+    `consumers` for the single-consumer orphan; `inverse-audit --all` for
+    the check-priced hubs with no inverse / one proposition per label, the
+    source's reason as the premises, the orphan wired where the source
+    uses it, the analytic inverse where one holds by meaning
+    (`~@if-built | ~@asi-soon`, deductive). AUTHORING_NOTES 2026-09-25.
+17. An evidence label that is not the step (no label; a warrant
+    fragment; a figure the gloss does not unpack; the premise's label
+    said again) / read every strengthed line's label sorted, away from
+    its premises:
+    `grep -oE '^\s*\$[A-Za-z0-9_-]+ (\[[^]]*\] )?[0-9.]+\??' FILE | sed -E 's/^\s+//' | sort -t'[' -k2`
+    (bare rows sort first); does each name its subject and say which
+    conclusion the premises give? / one plain clause, premise to
+    conclusion, the objector's voice on an objection line. Parallel
+    lines into one claim need different words, or `cook-audit`'s label
+    overlap (0.75 and up) flags them as duplicates. AUTHORING_NOTES
+    2026-09-25, the label pass.
+18. One consideration at two docks (`$ext-core` beside `$ext-incidental`
+    into `@mis-ext`, a rule beside its instance, one answer given in two
+    paragraphs, a premise restating its conclusion; the flagship until
+    2026-09-25): same-side lines stack where nothing opposes them, so the
+    second dock counts it twice / the reading, triggered by every
+    `shared-cause` row (read the pair against the source: one answer?);
+    disjoint-premise pairs show on no instrument, so read each
+    multi-line conclusion's lines side by side / one consideration, one
+    dock: a second passage becomes a second `>` quote on the same line,
+    never a second line; a rule feeding an instance becomes one statement
+    with its own box; one answer at two docks becomes one line (AND, or OR
+    where either suffices); a line at the wrong door is re-aimed; never
+    nest the fix inside an evidence. AUTHORING_NOTES 2026-09-25, the
+    cleanup.
 
 Order: lint, the five audits (`isolate-audit`, `restate-audit`,
-`shared-cause`, `cook-audit`, `pinned-roots`), then the reading half over
-the `pinned-roots` rows (items 3, 7, 8, 14, 15 live there).
+`shared-cause`, `cook-audit`, `pinned-roots`) plus `inverse-audit --all`,
+then the reading half over the `pinned-roots` rows (items 3, 7, 8, 14, 15
+live there), the drag over the hubs (item 16), the sorted label
+listing (item 17) and every multi-line conclusion read side by side,
+from the `shared-cause` rows first (item 18).
 
 ## Limitations
 

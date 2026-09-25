@@ -173,9 +173,13 @@ how far it fell short. Some statements carry a check credence (a
 displayed comparison value that does not constrain the solve); the
 badge comparing it to the implied value has the same meaning, the
 distance from the implied value to the check's interval. On the
-flagship none sits past 0.10 as authored: the widest is the headline
-`@everyone-dies`, 0.796 against 0.88..0.98, an audit finding about the
-book (2026-09-24; the last badge past 0.10, `@evo-analogy`'s, closed on
+flagship none sits past 0.10 as authored: the widest is `@fragile`,
+0.796 against 0.85..0.95, an audit finding about the book, and the
+headline `@everyone-dies` reads 0.710 against 0.75..0.95 (re-measured
+2026-09-25, after that day's restructure and cleanup, which re-read the
+headline's check from the book's unconditional sentences, and five
+other checks, each from the sentence that prices its own quantity;
+the last badge past 0.10 before that day, `@evo-analogy`'s, closed on
 2026-09-08 when the chapter's own case for the analogy was mapped).
 
 **Moving a number yourself.** In what-if mode a reader drags a claim's
@@ -1228,7 +1232,8 @@ conclusion the reader's premise no longer delivers) and bends three
 `$c5-leave-obj` to 0.68). Every tint sits downstream of the edit.
 
 **On a conclusion, the author's case retreats where it is softest.**
-`@everyone-dies` (the headline; no authored number, check `0.88..0.98`)
+`@everyone-dies` (the headline; no authored number, check `0.88..0.98`
+when these figures were measured, re-read to `0.75..0.95` on 2026-09-25)
 moved to 0: the map meets the reader (0.0005), bends no line past 0.05,
 and gives on the free premises upstream, `@if-built` 0.88 to 0.53 (its
 check badge lights at -0.32), `@asi-soon` 0.89 to 0.70, `@mis-ext` 0.97
@@ -1922,13 +1927,39 @@ Statement labels and evidence labels do different jobs.
 
 1. A **statement label** is the claim itself, a proposition, and may be a
    full sentence. Statement labels are not length-linted.
-2. An **evidence label** is the headline warrant: why the premises bear
-   on the conclusion, in a phrase. Evidence labels crop at about 56
-   characters in the graph (lint W5), so distill; the depth goes in the
-   gloss. Not every evidence needs a label: structural connectors
-   (an obvious deductive step) are better left unlabeled than given a
-   filler label. In the flagship corpus about half the evidences carry
-   labels.
+2. An **evidence label** states the step. It names its subject and
+   says, in plain words and one clause, what the premises give the
+   conclusion: "a tiny target and imprecise training make alignment
+   hard". *(Sharpened 2026-09-25, Felix's ruling on the flagship's
+   `@align-hard` box; AUTHORING_NOTES 2026-09-25, the label pass. It
+   read "the headline warrant, in a phrase" until then.)* The reason is
+   the layout: a line sits where the eye lands first and its premises
+   in a stack the reader skips, so the label is read before its
+   premises, and cold. Four consequences:
+   1. Never the warrant alone as a fragment ("the hardness route",
+      "concedes the abstraction, denies the rescue"), and never a bare
+      "it" whose noun is on another card (10.4 item 12).
+   2. No figure of speech unless it is the source's own image and the
+      gloss unpacks it ("a tiny target, aimed at with blunt tools" was
+      neither).
+   3. Never a restatement of a premise's label ("what can be built, gets
+      built" under the premise "What physics permits, someone eventually
+      builds"): a reader who skipped the premise gains nothing, and one
+      who read it reads it twice.
+   4. Every strengthed line gets one. An unlabelled line renders the
+      first sentence of its gloss, which was written as depth, not as a
+      headline, or its humanized id when the gloss is empty; the older
+      advice to leave an obvious deductive connector unlabelled is
+      withdrawn for strengthed lines.
+
+   Objection lines speak in the objector's voice ("the worry is just
+   chatbots, so no ASI is in prospect"), response lines in the answer's,
+   and a battery that marks its voice keeps the marker ("the hope: ...").
+   Evidence labels crop at about 56 characters in the graph (lint W5)
+   and must fit their plate at the node's size tier (TRANSLATION_NOTES
+   L14, pinned by `label-crop.test.ts`), so distill: where a plain
+   clause cannot fit, keep the subject and the verb and let the gloss
+   carry the rest.
 3. The **gloss** is the depth tier: the full reasoning, qualifications,
    asides, source voice, quotes. Glosses are never length-linted.
 
@@ -2287,7 +2318,11 @@ depth 5. The disciplines that made that possible (AUTHORING_NOTES
 1. **Width, not depth.** Every new objection cluster is a sibling under
    its target, never a deeper chain. When a sub-debate wants an eighth
    level, promote the deep node to a shared top-level node instead.
-   Node count can triple while max depth stays flat.
+   Node count can triple while max depth stays flat. Width is for
+   distinct considerations (2026-09-25): a sibling line that restates a
+   consideration the map already carries is a second dock of it, and two
+   same-side lines stack, so it is counted twice. Give its passage a
+   second `>` quote on the existing line instead (10.4 item 18).
 2. **A manifest comment block at the top, past about 150 nodes**: the
    coarse spine drawn in ASCII, every shared node listed with its home
    region and consumers, and the region-prefix scheme stated
@@ -2705,11 +2740,82 @@ rationale for each item is 4.7.
     the class token in the trailing comment (a pin with no class token
     is unaudited). Fix: the table's row, or a per-node pair from the
     text with the rationale beside it.
+16. **A restatement under two labels, and the wrong door.** A line whose
+    premise and conclusion describe one event under two labels
+    (`@asi-soon` "ASI arrives this century" feeding `@if-built` "anyone
+    builds an ASI" on the flagship until 2026-09-25): the line carries no
+    inference, its gloss tends to carry the source's real reason (there,
+    the chapter 12 race) that its premises do not name, and a what-if
+    that zeroes the premise leaves the conclusion at the reference fill,
+    which a reader sees as a broken sum (50%). Its companion is a claim
+    whose only consumer is that line (`@int-power`, chapter 1's power,
+    reached the title only through the build), so a whole chapter's case
+    enters the argument through the wrong door. See it: `restate-audit`
+    only where the docks share a locator; otherwise the reading, which
+    the drag makes cheap: for each strengthed line into a hub, zero its
+    premise (`solve_map.py --override`) and read the hub; a landing near
+    0.5 is the shape. `consumers` on each top-level statement finds the
+    single-consumer case; `inverse-audit --all` lists the hubs a check
+    prices and no inverse line does. Fix: give each label its own
+    proposition (feasibility here, the build there), put the source's
+    reason in the premises, wire the orphan where the source uses it,
+    and write the analytic inverse where one holds by the meaning of the
+    two claims (`~@if-built | ~@asi-soon`, deductive, no passage
+    needed). Rule: AUTHORING_NOTES 2026-09-25.
+17. **An evidence label that is not the step.** A strengthed line with
+    no label, or one whose label is a warrant fragment, a figure the
+    gloss does not unpack, or its premise's label said again. The reader
+    meets the line before its premises (section 6 item 2), so none of
+    these tells them what the step is about or where it lands. See it:
+    the reading. List every strengthed line's head sorted by label, so
+    each is read without its neighbours:
+    `grep -oE '^\s*\$[A-Za-z0-9_-]+ (\[[^]]*\] )?[0-9.]+\??' FILE | sed -E 's/^\s+//' | sort -t'[' -k2`
+    (the rows with no bracket sort first: those lines have no label;
+    on the flagship, 363 rows and 82 of them bare before the 2026-09-25
+    pass, 0 after). Ask of each: does
+    it name its subject, and does it say which conclusion the premises
+    give? Fix: one plain clause, premise to conclusion ("our
+    intelligence remade the planet, so it is powerful"), in the
+    objector's voice on an objection line. Parallel lines into one claim
+    need different words: `cook-audit` reads a label overlap of 0.75 or
+    more as a duplicate support. Rule: AUTHORING_NOTES 2026-09-25, the
+    label pass.
+18. **One consideration at two docks.** Two strengthed lines into one
+    claim that are one argument read twice: one motive under two labels
+    (`$ext-core` and `$ext-incidental` into `@mis-ext` on the flagship
+    until 2026-09-25), a rule beside its instance (`$soon-frame` beside
+    `$built-ev`), one answer the source gives in two paragraphs (the
+    hired hands and the robot bodies into `@wed-lose`), or a premise
+    that restates the conclusion (`$fragile-count`). Same-side lines are
+    independent draws that stack where nothing opposes them (D161,
+    D166), so the second dock counts the consideration twice and the
+    claim reads above what the source's one argument delivers; at rest a
+    saturated claim hides it, so a drag does not find it either. See it:
+    the reading, and `shared-cause` is its trigger: every row it prints
+    (lines into one claim sharing a premise, outright or through a
+    refinement) is a pair to read against the source, asking whether
+    the two passages are one answer. `cook-audit` catches only
+    near-identical labels, and a pair with disjoint premises (a rule and
+    its instance, one answer in two paragraphs) shows on no instrument,
+    so read the lines of every multi-line conclusion side by side
+    against their passages. Fix, by the rule one consideration, one
+    dock: a second passage on the same consideration becomes a second
+    `>` quote on the same line, never a second line; where a rule feeds
+    an instance, the rule becomes one statement with its own box and one
+    line takes it; where two passages are one answer, the lines merge
+    into one (conjoin the premises, or OR them where either suffices:
+    one line, one coin); where a line sits at the wrong door, re-aim it.
+    Never nest the fix inside an evidence. Rule: AUTHORING_NOTES
+    2026-09-25, the cleanup.
 
 Run the mechanical half first (lint, then the five audits: `isolate-audit`,
-`restate-audit`, `shared-cause`, `cook-audit`, `pinned-roots`), then the
+`restate-audit`, `shared-cause`, `cook-audit`, `pinned-roots`, and
+`inverse-audit --all` for the hubs a drag would expose), then the
 reading half over the statements `pinned-roots` lists, since those are
-the rows where items 3, 7, 8, 14 and 15 live.
+the rows where items 3, 7, 8, 14 and 15 live, the drag over the hubs
+for item 16, the sorted label listing for item 17, and a side-by-side
+reading of every multi-line conclusion for item 18, starting from the
+rows `shared-cause` prints.
 
 ## Appendix A: a complete worked example
 
