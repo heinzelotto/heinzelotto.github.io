@@ -892,6 +892,11 @@ their keys since 2026-09-08: 105 `mechanism`, 69 `deductive`, 65
 (the book has no machine-checkable step). The map has grown to 361
 lines since, every one keyed (2026-09-24: 108 `mechanism`, 69
 `deductive`, 68 `testimony`, 48 `hope`, 36 `empirical`, 32 `analogy`).
+Since 2026-09-26 two of them are `formal`: the analytic inverses
+`$not-feasible-not-built` and `$no-win-no-extinction`, each true by the
+meaning of its terms, at 0.99 (recount that day: 106 `mechanism`, 69
+`testimony`, 66 `deductive`, 48 `hope`, 35 `empirical`, 31 `analogy`, 2
+`formal`).
 The rubric's record, with the
 two-pass agreement (kappa 0.65) and the third reader on the ties, is
 `ideas/plans/semantics-antecedent-pull-2026-09-06.md` section 17.
