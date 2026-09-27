@@ -67,7 +67,9 @@ An `.argmap` file describes a bipartite factor graph with two node kinds:
    that can be true or false, optionally annotated with the author's
    credence that they hold.
 2. **Evidences** (written with the `$` sigil) are factors: reasoning steps
-   that connect statements, optionally annotated with a reliability.
+   that connect statements, optionally annotated with a reliability. An
+   evidence line is one evidence written on one line of the file; readers
+   see it as a reasoning link.
 
 Roles such as premise, lemma, and conclusion are never declared; they are
 derived from the graph topology (a statement nothing points into is a
@@ -173,14 +175,16 @@ how far it fell short. Some statements carry a check credence (a
 displayed comparison value that does not constrain the solve); the
 badge comparing it to the implied value has the same meaning, the
 distance from the implied value to the check's interval. On the
-flagship none sits past 0.10 as authored: the widest is `@fragile`,
-0.796 against 0.85..0.95, an audit finding about the book, and the
-headline `@everyone-dies` reads 0.710 against 0.75..0.95 (re-measured
-2026-09-25, after that day's restructure and cleanup, which re-read the
-headline's check from the book's unconditional sentences, and five
-other checks, each from the sentence that prices its own quantity;
-the last badge past 0.10 before that day, `@evo-analogy`'s, closed on
-2026-09-08 when the chapter's own case for the analogy was mapped).
+flagship one sits past 0.10 as authored, and it is the headline:
+`@everyone-dies` reads 0.617 against 0.75..0.95, 0.133 short, an audit
+finding about the book; the next widest is `@fragile`, 0.796 against
+0.85..0.95 (measured 2026-09-27, after the two inverses on the title
+claim took out the reference fill that had held the headline at 0.708,
+D168). The headline's check was re-read on 2026-09-25 from the book's
+unconditional sentences, with five other checks, each from the
+sentence that prices its own quantity; the badge past 0.10 before
+that, `@evo-analogy`'s, closed on 2026-09-08 when the chapter's own
+case for the analogy was mapped.
 
 **Moving a number yourself.** In what-if mode a reader drags a claim's
 number. The map re-solves with the reader's number in place of the
@@ -199,9 +203,10 @@ claim and the case's roots can give, so a mechanism on that path bends
 before a hope off it (4.6 shows one such case).
 Where the map cannot honour the reader's number, the adjustment row
 says by how much: on the confusions map's Socrates syllogism a "not
-mortal" at 0 reads "met at 32%", the two premises giving to 0.67 each
+mortal" at 0 reads "reached 32%", the two premises giving to 0.67 each
 and the formal step holding (4.6, re-measured 2026-09-08 through the
-shipped solve; the row's exact wording is the 2026-09-08 UI round's).
+shipped solve; the row's exact wording is of 2026-09-27, when "met at"
+became "reached").
 Section 4.6 walks through both cases with the flagship's numbers.
 
 ### 2.3 The headless readout
@@ -896,7 +901,9 @@ Since 2026-09-26 two of them are `formal`: the analytic inverses
 `$not-feasible-not-built` and `$no-win-no-extinction`, each true by the
 meaning of its terms, at 0.99 (recount that day: 106 `mechanism`, 69
 `testimony`, 66 `deductive`, 48 `hope`, 35 `empirical`, 31 `analogy`, 2
-`formal`).
+`formal`). Since 2026-09-27 a third line is `formal`,
+`$harmless-no-extinction`, one of the two inverses on the title claim
+(7.7, D168).
 The rubric's record, with the
 two-pass agreement (kappa 0.65) and the third reader on the ties, is
 `ideas/plans/semantics-antecedent-pull-2026-09-06.md` section 17.
@@ -2203,6 +2210,35 @@ fails, so it moves the conclusion there and leaves the premise alone,
 and it keeps a contested base-rate claim on the map, right of a given
 bar, instead of hiding it in a prior.
 
+**Close the set on a spine line** (D168, 2026-09-27). A conjunctive
+line into a claim the map leads with has one failure branch per
+premise, and the solve fills every branch nothing speaks to at one
+half, which then shows as part of the headline. So give each premise
+its inverse where one holds: by the meaning of the two claims (`#
+kind: formal`, 0.99, as for the pillar inverses), or in the source's
+own words (the sentence's rubric row and kind). Where neither holds,
+invent nothing: the fill stays, and the band beside the number shows
+its share. The flagship's `$link-fine` conjoins `@if-built`,
+`@misaligned-when-built` and `@mis-ext`; `$no-doom-otherwise` covered
+the first branch, and the other two now read:
+
+```argmap
+# fragment - not standalone
+$aligned-no-extinction [an ASI aimed at what we want does not kill everyone] 0.9? ~@everyone-dies | ~@misaligned-when-built:  # S2, chapter 12's flat "would"; kind: deductive
+$harmless-no-extinction [if a misaligned ASI is not lethal, not everyone dies] 0.99? ~@everyone-dies | @misaligned-when-built AND ~@mis-ext:  # by meaning; kind: formal
+```
+
+Keep a by-meaning line strictly by meaning: the second line's
+`@misaligned-when-built` conjunct keeps it off the aligned worlds, where
+`~@mis-ext` says nothing about what an aligned ASI does (without the
+conjunct the misalignment drag reads 0.032 in place of 0.044, the
+extra drop being no argument of the book's). Find the shape with the
+drag a reader is likeliest to make: before these lines, zeroing
+`@misaligned-when-built` left the title claim at 0.427, nearly all of
+it fill, and about 9 of the 0.708 points at rest were fill too; after
+them the title reads 0.617 at rest and 0.044 under that drag
+(measured 2026-09-27, AUTHORING_NOTES of that date).
+
 ### 7.8 Conditioning on an inference (the designed W1)
 
 A policy conclusion that hangs on an implication, not on a fact
@@ -2615,7 +2651,8 @@ Interpreting what you see:
    from the coarse strength its author wrote on the folded line ("steps
    outrun summaries", or the reverse at the spine). That
    composition is the folded line's readout in the editor (since
-   2026-09-08, D161 item 9), shown dimmed and never tinted; decide which
+   2026-09-08, D161 item 9), marked by a dotted track and, since
+   2026-09-12, tinted like any other gap (D38 as amended); decide which
    side is wrong, both states occur in practice. The spectator gap
    beside it is a bench readout only: the network's delivered
    conditional also reads the conclusion's other parents, so it is not
@@ -2970,7 +3007,7 @@ fill, uncoloured. What-if: your number replaces the author's on that
 claim as a point at the cap; on a root the map follows forward, on a
 conclusion the author's case retreats where it is softest (free
 premises, hopes and analogies, judgments, flat assertions, mechanisms,
-in that order); "met at" on the adjustment row is the refused residual (W4-E renamed it from "held at" on 2026-09-08, so "held at" is the count's phrase alone).
+in that order); "reached" on the adjustment row is the refused residual (W4-E renamed it from "held at" on 2026-09-08, so "held at" is the count's phrase alone; "met at" became "reached" on 2026-09-27).
 
 Undercut schema: `$u q ~C | grounds AND $target`. Ask: which inference
 does this objection grant, and which does it deny?
