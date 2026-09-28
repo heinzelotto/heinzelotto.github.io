@@ -45,12 +45,14 @@ Three things a reader sees since D161 (2026-09-08; tut 2.2, 4.6):
    implied value has left what the author wrote (below a line's
    strength, outside an interval, off a point) by more than 0.01; the
    solve filling an interval the author left open is shown uncoloured.
-   The flagship as authored keeps no check badge past 0.10 (the widest
-   gap is `@fragile`'s, 0.796 against 0.85..0.95; the headline reads
-   0.710 against its check 0.75..0.95, re-read on 2026-09-25 from the
-   book's unconditional sentences with five other checks the dock audit
-   found reading another quantity) and two lines read just under their
-   strength (measured 2026-09-25).
+   On the flagship as authored one check badge sits past 0.10, the
+   headline's: 0.617 against its check 0.75..0.95, 0.133 short, since the
+   two inverses on the title claim took out the reference fill that had
+   read 0.708 (D168); the next widest gap is `@fragile`'s, 0.796 against
+   0.85..0.95 (measured 2026-09-27). The headline's check was re-read on
+   2026-09-25 from the book's unconditional sentences, with five other
+   checks the dock audit found reading another quantity, and two lines
+   read just under their strength (measured 2026-09-25).
 3. **What-if mode is revision.** The reader's number replaces the
    author's on that claim as a point at the cap and the map re-solves.
    On a root the map follows forward (nothing bends, nothing colours);
@@ -59,7 +61,7 @@ Three things a reader sees since D161 (2026-09-08; tut 2.2, 4.6):
    records, flat assertions, mechanisms, deductive claims, and a formal
    step never. Where the map cannot meet the reader's number, the
    adjustment row says by how much (on the confusions map's Socrates
-   syllogism, a "not mortal" at 0 reads "met at 32%"): the refused
+   syllogism, a "not mortal" at 0 reads "reached 32%"): the refused
    residual. The other reading, conditioning ("suppose it turned out
    that way"), is the bench's `solve_map.py --condition`.
 
@@ -608,7 +610,16 @@ in `examples/` (see its README).
    converse, name it: `$conv 0.9? ~@c | ~@a`. It fills the worlds where
    the premise fails, so it moves the conclusion and leaves the premise
    alone, and it keeps a contested claim on the map instead of hiding it
-   in a prior.
+   in a prior. **Close the set on a spine line** (D168): each premise of
+   a conjunctive line into a claim the map leads with gets its inverse
+   where one holds, by the meaning of the two claims (`formal`, 0.99,
+   e.g. `~@c | @p1 AND ~@p2`, the `@p1` conjunct keeping it strictly by
+   meaning) or in the source's own words (its rubric row and kind);
+   where neither holds, invent none and let the band show the fill. The
+   reader's likeliest drag finds the shape: zero a premise, and a
+   conclusion near 0.5 is the fill (the flagship's title claim read
+   0.427 under the misalignment drag and 0.708 at rest before its two
+   inverses, 0.044 and 0.617 after; 2026-09-27).
 8. **Conditioning on an inference** (tut 7.8, anchor `$shutdown-ev`), a
    policy that hangs on an implication, not on a fact:
    `$policy 0.93? @should-act | $link`. Conditioning on the implication's
