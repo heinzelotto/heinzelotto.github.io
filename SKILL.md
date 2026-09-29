@@ -46,10 +46,11 @@ Three things a reader sees since D161 (2026-09-08; tut 2.2, 4.6):
    strength, outside an interval, off a point) by more than 0.01; the
    solve filling an interval the author left open is shown uncoloured.
    On the flagship as authored one check badge sits past 0.10, the
-   headline's: 0.617 against its check 0.75..0.95, 0.133 short, since the
-   two inverses on the title claim took out the reference fill that had
-   read 0.708 (D168); the next widest gap is `@fragile`'s, 0.796 against
-   0.85..0.95 (measured 2026-09-27). The headline's check was re-read on
+   headline's: 0.603 against its check 0.75..0.95, 0.147 short (0.617
+   from the two inverses on the title claim that took out the reference
+   fill that had read 0.708, D168, to the objection rewiring of D170);
+   the next widest gap is `@mis-ext`'s, 0.795 against 0.85..0.95, then
+   `@fragile`'s, 0.796 (measured 2026-09-28). The headline's check was re-read on
    2026-09-25 from the book's unconditional sentences, with five other
    checks the dock audit found reading another quantity, and two lines
    read just under their strength (measured 2026-09-25).
@@ -426,6 +427,14 @@ Four consequences that trip authors (tut 4.2, 4.4, 4.5):
    own line beside a guardless answer it brings the claim to 0.879,
    inside the answer's guard 0.488 (`u-grounds`, `::split` against
    `::guard`).
+   **Which objections are undercuts** (D170, 2026-09-28): ask what is
+   true instead if the objection is right. "The step is unreliable" is
+   an undercut; "claim X is false" is a line into `~X` (the map's inverse
+   lines carry a win onward), with the answers that deny its inference
+   kept as undercuts. Flagship: `$uc-experts` stays an undercut;
+   `$uc-precedented` and `$c12dr-obj` are lines against `@mis-ext` (won
+   outright, the title claim falls to 0.10; as an undercut the second
+   left it at 0.37).
 5. **Coming from probabilistic conditional logic** (tut 3.6; measured
    on `examples/toys/pcl-penguin.argmap`, 2026-08-31, re-measured under
    the shipped solve 2026-09-24): `(psi|phi)[d]`
@@ -619,7 +628,8 @@ in `examples/` (see its README).
    reader's likeliest drag finds the shape: zero a premise, and a
    conclusion near 0.5 is the fill (the flagship's title claim read
    0.427 under the misalignment drag and 0.708 at rest before its two
-   inverses, 0.044 and 0.617 after; 2026-09-27).
+   inverses, 0.044 and 0.617 after; 2026-09-27; 0.603 at rest since
+   2026-09-28, D170).
 8. **Conditioning on an inference** (tut 7.8, anchor `$shutdown-ev`), a
    policy that hangs on an implication, not on a fact:
    `$policy 0.93? @should-act | $link`. Conditioning on the implication's

@@ -176,11 +176,12 @@ displayed comparison value that does not constrain the solve); the
 badge comparing it to the implied value has the same meaning, the
 distance from the implied value to the check's interval. On the
 flagship one sits past 0.10 as authored, and it is the headline:
-`@everyone-dies` reads 0.617 against 0.75..0.95, 0.133 short, an audit
-finding about the book; the next widest is `@fragile`, 0.796 against
-0.85..0.95 (measured 2026-09-27, after the two inverses on the title
-claim took out the reference fill that had held the headline at 0.708,
-D168). The headline's check was re-read on 2026-09-25 from the book's
+`@everyone-dies` reads 0.603 against 0.75..0.95, 0.147 short, an audit
+finding about the book; the next widest is its third premise `@mis-ext`,
+0.795 against 0.85..0.95, a hair ahead of `@fragile` at 0.796 (measured
+2026-09-28, after the two objections that deny `@mis-ext` were aimed at
+it, D170; 0.617 on 2026-09-27, after the two inverses on the title claim
+took out the reference fill that had held the headline at 0.708, D168). The headline's check was re-read on 2026-09-25 from the book's
 unconditional sentences, with five other checks, each from the
 sentence that prices its own quantity; the badge past 0.10 before
 that, `@evo-analogy`'s, closed on 2026-09-08 when the chapter's own
@@ -936,7 +937,7 @@ authoring:
    that uses it and re-elicit that line's strength.
 
 A converse is a different thing, and still worth writing. If the source
-also asserts "and otherwise not" ("no build, no doom"), write it as a
+also asserts "and otherwise not" ("nobody builds it, it kills nobody"), write it as a
 second line on the other side of the premise, `~@c | ~@a`. It speaks to
 the worlds the first line leaves open, the ones where the premise
 fails, so it moves the conclusion and leaves the premise alone: with a
@@ -1179,6 +1180,21 @@ beside a guardless answer, the ground brings C to 0.879 where the same
 ground inside the answer's guard gave 0.488 (`u-grounds`, `::split`
 against `::guard`, measured the same day).
 
+**Which objections are undercuts at all** (D170, 2026-09-28). An
+undercut says a step is unreliable; where it holds, it says nothing about
+which way the claim goes, so a reader who wins an undercut outright is
+left with cases no link speaks to, and those count as even odds. Before
+wiring an objection, ask what is true instead if it is right. If the
+answer is that the step cannot be trusted, it is an undercut. If the
+answer names a claim that is false, it is an ordinary line into that
+claim's negation, and the answers that say its inference fails stay
+undercuts of it. On the flagship, "experts disagree" stays an undercut of
+`$link-fine`, while "if building killed the builders, they would stop"
+and "nothing so far has ended us" are lines against `@mis-ext`. Won
+outright, each now takes the title claim to 0.10 through
+`$harmless-no-extinction`; as undercuts, the first left it at 0.37
+(measured 2026-09-28 with `solve_map.py` at its default).
+
 Readers arriving from probabilistic conditional logic: the translation
 rules under 3.6 say when a low conditional is an opposed line and when a
 subclass exception needs this undercut plus a rebuttal.
@@ -1264,13 +1280,18 @@ line moves, and no `hope` line does either, because none sits on the
 path: the count orders what gives among the numbers the reader's claim
 reaches, which is why a 64-flip mechanism bends here while the 4-flip
 hopes stand. That list is what "the book's case holds least firmly"
-means, and the Most moved panel shows it with each line's kind.
+means, and the Most moved panel shows it with each line's kind. Since
+2026-09-28 the two objections that deny `@mis-ext` argue against it
+instead of doubting the step (D170, section 4.5), so the step keeps one
+doubt to bend, and the same set's retreat lands on `$uc-experts`, 0.30
+to 0.98, and `$resp-exp`, 0.90 to 0.27, alone.
 
 **The refused residual.** The reader's number is met to within 0.002 in
 every case above (through the shipped compile and kernel the P6 set's
 points read 0.0020, 0.9981 and 0.9982 for `@everyone-dies`, `@if-built`
 and `@mis-ext`, D161 item 4; `@llm-nice` at 0.1 reads 0.101, both
-re-measured 2026-09-08), and that is the usual outcome, because 198
+re-measured 2026-09-08; since 2026-09-28 the P6 points read 0.0044,
+0.9956 and 0.9956, one undercut being left to bend), and that is the usual outcome, because 198
 flips outrank everything on the flagship except its 69 `deductive`
 lines.
 Where the map cannot meet it, the adjustment row says by how much. On
@@ -2202,7 +2223,7 @@ source asserts the converse, name it (flagship ~line 254, anchor
 
 ```argmap
 # fragment - not standalone
-$no-doom-otherwise [no build, no ASI doom] 0.9? ~@everyone-dies | ~@if-built: the book's own converse of the title conditional
+$no-doom-otherwise [if nobody builds it, it kills nobody] 0.9? ~@everyone-dies | ~@if-built: the book's own converse of the title conditional
 ```
 
 This is the converse of 4.2: it speaks to the worlds where the premise
@@ -2237,7 +2258,9 @@ drag a reader is likeliest to make: before these lines, zeroing
 `@misaligned-when-built` left the title claim at 0.427, nearly all of
 it fill, and about 9 of the 0.708 points at rest were fill too; after
 them the title reads 0.617 at rest and 0.044 under that drag
-(measured 2026-09-27, AUTHORING_NOTES of that date).
+(measured 2026-09-27, AUTHORING_NOTES of that date; 0.603 at rest and
+still 0.044 under the drag since the objection rewiring of 2026-09-28,
+D170).
 
 ### 7.8 Conditioning on an inference (the designed W1)
 
