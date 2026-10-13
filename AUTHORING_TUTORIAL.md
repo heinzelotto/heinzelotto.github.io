@@ -165,23 +165,28 @@ an interval, off a point, and by more than 0.01 (the solver's own
 resolution at a point, so a point met to 0.005 stays uncoloured).
 Everything else is the solve filling what the author left open, and it
 is shown without colour. On the flagship as authored that is the whole
-picture: all 239 authored intervals are met inside their bounds, 112 of
+picture: all 237 authored intervals are met inside their bounds, 111 of
 them more than 0.05 above their lower bound (both counts re-measured
-2026-09-24 on the shipped solve, `solve_map.py` at its default over
-every pair statement; 224 and 113 on 2026-09-08, before the map's later
-content and the one draw), and none is tinted. A tint therefore says exactly one thing: the rest
+2026-10-07 on the shipped solve, `solve_map.py` at its default over
+every pair statement; 239 and 112 on 2026-09-24, 224 and 113 on
+2026-09-08, before the map's later content and the one draw), and none
+is tinted. A tint therefore says exactly one thing: the rest
 of the map could not honour this number, and the size of the tint is
 how far it fell short. Some statements carry a check credence (a
 displayed comparison value that does not constrain the solve); the
 badge comparing it to the implied value has the same meaning, the
 distance from the implied value to the check's interval. On the
 flagship one sits past 0.10 as authored, and it is the headline:
-`@everyone-dies` reads 0.603 against 0.75..0.95, 0.147 short, an audit
+`@everyone-dies` reads 0.609 against 0.75..0.95, 0.141 short, an audit
 finding about the book; the next widest is its third premise `@mis-ext`,
-0.795 against 0.85..0.95, a hair ahead of `@fragile` at 0.796 (measured
-2026-09-28, after the two objections that deny `@mis-ext` were aimed at
-it, D170; 0.617 on 2026-09-27, after the two inverses on the title claim
-took out the reference fill that had held the headline at 0.708, D168). The headline's check was re-read on 2026-09-25 from the book's
+0.779 against 0.85..0.95, then `@fragile` at 0.796 (measured 2026-10-07,
+`solve_map.py` at its default, after the title claim's last step
+`$link-fine` went to 0.99 by the meaning of its terms on 2026-10-06;
+0.591 on 2026-09-29, after one objection's strength was re-derived under
+the rubric; 0.603 on 2026-09-28, after the two objections that deny
+`@mis-ext` were aimed at it, D170; 0.617 on 2026-09-27, after the two
+inverses on the title claim took out the reference fill that had held
+the headline at 0.708, D168). The headline's check was re-read on 2026-09-25 from the book's
 unconditional sentences, with five other checks, each from the
 sentence that prices its own quantity; the badge past 0.10 before
 that, `@evo-analogy`'s, closed on 2026-09-08 when the chapter's own
@@ -904,7 +909,10 @@ meaning of its terms, at 0.99 (recount that day: 106 `mechanism`, 69
 `testimony`, 66 `deductive`, 48 `hope`, 35 `empirical`, 31 `analogy`, 2
 `formal`). Since 2026-09-27 a third line is `formal`,
 `$harmless-no-extinction`, one of the two inverses on the title claim
-(7.7, D168).
+(7.7, D168), and since 2026-10-06 a fourth, `$link-fine`, the title
+claim's last step, which holds once its three premises do (recount
+2026-10-07: 106 `mechanism`, 69 `testimony`, 67 `deductive`, 48 `hope`,
+35 `empirical`, 31 `analogy`, 4 `formal`).
 The rubric's record, with the
 two-pass agreement (kappa 0.65) and the third reader on the ties, is
 `ideas/plans/semantics-antecedent-pull-2026-09-06.md` section 17.
@@ -1191,9 +1199,11 @@ claim's negation, and the answers that say its inference fails stay
 undercuts of it. On the flagship, "experts disagree" stays an undercut of
 `$link-fine`, while "if building killed the builders, they would stop"
 and "nothing so far has ended us" are lines against `@mis-ext`. Won
-outright, each now takes the title claim to 0.10 through
-`$harmless-no-extinction`; as undercuts, the first left it at 0.37
-(measured 2026-09-28 with `solve_map.py` at its default).
+outright, each now takes the title claim to about 0.11 through
+`$harmless-no-extinction` (0.106 and 0.108, each objection at 1 and its
+answers at 0, measured 2026-10-07 with `solve_map.py` at its default;
+0.10 on 2026-09-28); as undercuts, the first left it at 0.37 (measured
+2026-09-28 the same way).
 
 Readers arriving from probabilistic conditional logic: the translation
 rules under 3.6 say when a low conditional is an opposed line and when a
@@ -1210,8 +1220,8 @@ tint means "the map could not honour this number, by this much"; the
 solve settling somewhere inside an interval the author left open is a
 readout without colour (2.2 has the rule, the 0.01 tolerance and the
 flagship's counts). A tension badge is information about the argument,
-and it stays: the flagship's widest, the headline 0.084 short of its
-check, is an audit finding about the source (2.2).
+and it stays: the flagship's widest, the headline 0.141 short of its
+check (2026-10-07), is an audit finding about the source (2.2).
 
 **Authored 0 and 1.** Since D161 a point is held at the point cap, about
 200 flips, so an authored 0 or 1 no longer deletes possible worlds (it
@@ -1240,10 +1250,11 @@ it is one rule with two parts:
 Two cases follow, and both are worth knowing. The numbers are the
 flagship's under the ruled counts (width counts on its intervals, kind
 counts on its lines with `deductive` at 1000, the reader's row at the
-cap; re-measured 2026-09-23 on the map as it now stands with
-`solve_map.py` under the shipped solve, the one draw of MATH §3.8
-included; the 2026-09-08 figures this section quoted before came from an
-earlier state of the map and the rule before the one draw):
+cap; re-measured 2026-10-07 on the map as it now stands with
+`solve_map.py` at its default, the one draw of MATH §3.8 included, every
+node read before and after each what-if; the 2026-09-23 and 2026-09-08
+figures this section quoted before came from earlier states of the map,
+and the 2026-09-08 ones from the rule before the one draw):
 
 **On a root, the map follows you forward.** `@llm-nice` (the authors'
 `0.85/0.05` that current systems seem nice) moved to 0.1: the map's
@@ -1251,21 +1262,24 @@ answer is `@nat-abs` 0.20 to 0.11 and nothing else past 0.01; no line
 bends further and nothing new colours. The reader changed a premise the
 author argued nothing for, so there is nothing to give; the map
 propagates. A better-connected root shows the same at scale:
-`@instrumental-convergence` to 0.2 moves eleven statements past 0.01
-(`@incorrigible` 0.83 to 0.57, `@not-preserved` 0.89 to 0.77), lights one
-of the book's own check badges downstream (`@not-preserved` at -0.18: a
-conclusion the reader's premise no longer delivers) and bends three
-`hope` lines, the hopes that argue against that conclusion
+`@instrumental-convergence` to 0.2 moves thirteen other statements past
+0.01 (`@incorrigible` 0.83 to 0.57, `@not-preserved` 0.89 to 0.76,
+`@mis-ext` 0.78 to 0.71), lights one of the book's own check badges
+downstream (`@mis-ext` at -0.14: a conclusion the reader's premise no
+longer delivers; the headline's, already lit, deepens from -0.14 to
+-0.20) and bends the `hope` lines that argue against `@not-preserved`
 (`$c5-selfish-obj` 0.70 to 0.63, `$c5-digital-obj` to 0.67,
-`$c5-leave-obj` to 0.68). Every tint sits downstream of the edit.
+`$c5-leave-obj` to 0.685). Every tint sits downstream of the edit.
 
 **On a conclusion, the author's case retreats where it is softest.**
 `@everyone-dies` (the headline; no authored number, check `0.88..0.98`
 when these figures were measured, re-read to `0.75..0.95` on 2026-09-25)
-moved to 0: the map meets the reader (0.0005), bends no line past 0.05,
-and gives on the free premises upstream, `@if-built` 0.88 to 0.53 (its
-check badge lights at -0.32), `@asi-soon` 0.89 to 0.70, `@mis-ext` 0.97
-to 0.88. Read it as "then it was not built, or not soon": the book's
+moved to 0: the map meets the reader (0.000 at three decimals), bends
+no line past 0.05, and gives on the free premises upstream,
+`@if-built` 0.836 to 0.625 (its check badge lights at -0.125),
+`@mis-ext` 0.779 to 0.481, `@goals` 0.843 to 0.745 (lit at -0.105),
+`@asi-soon` 0.918 to 0.839. Read it as "then it was not built, or not
+lethal": the book's
 case is softest at its premises, because they are derived claims nobody
 pinned. Pin those too (the record's P6 set: built, misaligned when
 built, the misalignment extreme, the link fine, and still nobody dies)
@@ -1284,16 +1298,20 @@ means, and the Most moved panel shows it with each line's kind. Since
 2026-09-28 the two objections that deny `@mis-ext` argue against it
 instead of doubting the step (D170, section 4.5), so the step keeps one
 doubt to bend, and the same set's retreat lands on `$uc-experts`, 0.30
-to 0.98, and `$resp-exp`, 0.90 to 0.27, alone.
+to 0.98, and `$resp-exp`, 0.90 to 0.27, alone among the lines; of the
+authors' assertions, `@immature-field` alone leaves its interval,
+0.890 to 0.745 against `0.85..0.95` (measured 2026-10-07; the lines' figures
+read the same on 2026-09-28).
 
-**The refused residual.** The reader's number is met to within 0.002 in
+**The refused residual.** The reader's number is met to within 0.005 in
 every case above (through the shipped compile and kernel the P6 set's
 points read 0.0020, 0.9981 and 0.9982 for `@everyone-dies`, `@if-built`
 and `@mis-ext`, D161 item 4; `@llm-nice` at 0.1 reads 0.101, both
 re-measured 2026-09-08; since 2026-09-28 the P6 points read 0.0044,
 0.9956 and 0.9956, one undercut being left to bend), and that is the usual outcome, because 198
-flips outrank everything on the flagship except its 69 `deductive`
-lines.
+flips outrank everything on the flagship except its 67 `deductive`
+lines and its 4 `formal` ones (counted 2026-10-07; 69 `deductive` and no
+`formal` on 2026-09-08).
 Where the map cannot meet it, the adjustment row says by how much. On
 the confusions map's Socrates syllogism (`c4`: two premises at 0.99 and
 a `formal` step at 0.99) a reader's "not mortal" at 0 is held at 0.32,
@@ -1387,8 +1405,8 @@ different things.
    reference picks the point when nothing pushes (under D36 the
    balancing prior's maximum-entropy point; under D161 the map's own
    network, where the lines put it, and on the flagship every one of
-   the 224 intervals is met inside its bounds, 111 of them more than
-   0.05 above the floor, 2.2). Inference through the map never counts
+   the 237 intervals is met inside its bounds, 111 of them more than
+   0.05 above the floor, 2026-10-07, 2.2). Inference through the map never counts
    against the pair; the
    pair is read as direct evidence and the width is the author's honest
    spread. Since D161 **the width is also the firmness**: by Walley's
@@ -1514,10 +1532,11 @@ never the completion. Measured on the case that settled it: deriving
 `@goals` 0.842 to 0.712 and `@incorrigible` 0.821 to 0.695 (the two-floor
 pass, AUTHORING_NOTES 2026-08-23, under the retired uniform reference,
 whose antecedent pull amplified every such move). Under the shipped
-solve the same derivation moves it 0.899 to 0.843 and `@incorrigible`
-0.856 to 0.834, and leaves `@goals` at 0.851 (the map as it stands
+solve the same derivation moves it 0.899 to 0.839 and `@incorrigible`
+0.856 to 0.832, and leaves `@goals` at 0.84 (the map as it stands
 against a copy with the pin restored and the line removed,
-`solve_map.py` at its default, 2026-09-24). Either way it is a finding
+`solve_map.py` at its default, 2026-10-07; 0.899 to 0.843 on
+2026-09-24). Either way it is a finding
 about the book (its flat 0.9 outruns its own two grounds), and the map
 now shows it.
 
@@ -1868,7 +1887,13 @@ what makes the map solve nicely. The discipline that keeps this honest
    argument (or the rubric), and it should be recorded, not tuned away.
 3. **Mark provenance.** Every rubric-derived number carries `?`. A bare
    number is reserved for values the source states as a credence or
-   probability ("ten to twenty-five percent extinction odds"). A stated
+   probability ("ten to twenty-five percent extinction odds"). A number
+   the speaker relays from a named source and endorses is stated too, so
+   it stays bare as the line's strength, read as the carried lower bound,
+   and the speaker's trust in the source goes on the floor of the
+   statement that the source said it (the debate map's `$s-breakwater`
+   carries the insiders' "more than 10 percent" at 0.1, and Tang's trust
+   in them sits on `@insiders-warn`). A stated
    *frequency or rate* ("below one fatal accident per twenty million
    flight hours") is not a credence: keep it in the gloss and derive the
    statement's value from the assertion's register as usual. A stated
@@ -2173,9 +2198,9 @@ one left undone: four hopes that a superintelligence's goals never touch
 us (a digital realm, a cosmos elsewhere, no evolved greed, boredom), and
 the book answers all four with one fact, that material resources serve
 almost any goal. The coarse line carries that fact as its premise; the
-four objections under it do not, so the fold reads 0.268 against an
-authored 0.07 (measured 2026-09-24 under the one draw; 0.313 on
-2026-09-12, before it). Judge the repair by the conclusion's
+four objections under it do not, so the fold reads 0.279 against an
+authored 0.07 (measured 2026-10-07 under the one draw; 0.268 on
+2026-09-24; 0.313 on 2026-09-12, before it). Judge the repair by the conclusion's
 own value rather than by the fold: a conjunct that repeats the coarse
 line's own premise cannot show up in the folded number, because the fold
 is already read given that premise.
@@ -2252,15 +2277,16 @@ $harmless-no-extinction [if a misaligned ASI is not lethal, not everyone dies] 0
 Keep a by-meaning line strictly by meaning: the second line's
 `@misaligned-when-built` conjunct keeps it off the aligned worlds, where
 `~@mis-ext` says nothing about what an aligned ASI does (without the
-conjunct the misalignment drag reads 0.032 in place of 0.044, the
-extra drop being no argument of the book's). Find the shape with the
+conjunct the misalignment drag reads 0.030 in place of 0.044, the
+extra drop being no argument of the book's; measured 2026-10-07 on a
+scratch copy, 0.032 on 2026-09-27). Find the shape with the
 drag a reader is likeliest to make: before these lines, zeroing
 `@misaligned-when-built` left the title claim at 0.427, nearly all of
 it fill, and about 9 of the 0.708 points at rest were fill too; after
 them the title reads 0.617 at rest and 0.044 under that drag
 (measured 2026-09-27, AUTHORING_NOTES of that date; 0.603 at rest and
-still 0.044 under the drag since the objection rewiring of 2026-09-28,
-D170).
+still 0.044 under the drag after the objection rewiring of 2026-09-28,
+D170; 0.609 at rest and 0.044 under the drag on 2026-10-07).
 
 ### 7.8 Conditioning on an inference (the designed W1)
 
@@ -2375,8 +2401,8 @@ exactly the material that does not decompose into premises.
 
 ## 8. Writing large maps
 
-The flagship map holds roughly 200 statements and 270 evidences at
-depth 5. The disciplines that made that possible (AUTHORING_NOTES
+The flagship map holds 304 statements and 360 evidences at depth 5
+(counted 2026-10-07; roughly 200 and 270 in late July). The disciplines that made that possible (AUTHORING_NOTES
 2026-06-18 onward):
 
 1. **Width, not depth.** Every new objection cluster is a sibling under
@@ -2502,7 +2528,8 @@ being debt and becomes a checked, drawn box, and the validator will tell
 you if the topics you claim are separate have quietly grown a shared
 premise.
 
-A useful smell figure: the flagship map holds 431 nodes at depth 5. A
+A useful smell figure: the flagship map holds 664 nodes at depth 5
+(counted 2026-10-07; 431 when this was first written, 2026-07-25). A
 hundred-node map at depth 1 is under-nested even if every individual
 line is well-formed; its reader meets a wall of top-level nodes and the
 fold control does nothing.
@@ -2674,7 +2701,8 @@ Interpreting what you see:
    from the coarse strength its author wrote on the folded line ("steps
    outrun summaries", or the reverse at the spine). That
    composition is the folded line's readout in the editor (since
-   2026-09-08, D161 item 9), marked by a dotted track and, since
+   2026-09-08, D161 item 9), marked by the dashed arrow `⇢` in its
+   readout pair and, since
    2026-09-12, tinted like any other gap (D38 as amended); decide which
    side is wrong, both states occur in practice. The spectator gap
    beside it is a bench readout only: the network's delivered

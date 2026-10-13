@@ -46,14 +46,19 @@ Three things a reader sees since D161 (2026-09-08; tut 2.2, 4.6):
    strength, outside an interval, off a point) by more than 0.01; the
    solve filling an interval the author left open is shown uncoloured.
    On the flagship as authored one check badge sits past 0.10, the
-   headline's: 0.603 against its check 0.75..0.95, 0.147 short (0.617
+   headline's: 0.609 against its check 0.75..0.95, 0.141 short (0.617
    from the two inverses on the title claim that took out the reference
-   fill that had read 0.708, D168, to the objection rewiring of D170);
-   the next widest gap is `@mis-ext`'s, 0.795 against 0.85..0.95, then
-   `@fragile`'s, 0.796 (measured 2026-09-28). The headline's check was re-read on
+   fill that had read 0.708, D168, to the objection rewiring of D170;
+   0.603 after it, 0.591 after one objection's strength was re-derived
+   on 2026-09-29, 0.609 since `$link-fine` went to 0.99 by the meaning of
+   its terms on 2026-10-06); the next widest gap is `@mis-ext`'s, 0.779
+   against 0.85..0.95, then `@fragile`'s, 0.796 (measured 2026-10-07,
+   `solve_map.py` at its default). The headline's check was re-read on
    2026-09-25 from the book's unconditional sentences, with five other
    checks the dock audit found reading another quantity, and two lines
-   read just under their strength (measured 2026-09-25).
+   read just under their strength (measured 2026-09-25, and again
+   2026-10-07: `$nat-from-llm` 0.274 against 0.30, `$c5-moral-obj` 0.684
+   against 0.70).
 3. **What-if mode is revision.** The reader's number replaces the
    author's on that claim as a point at the cap and the map re-solves.
    On a root the map follows forward (nothing bends, nothing colours);
@@ -281,6 +286,12 @@ junctions.
    one speaker has both on one map, and the notes entry says per line
    which table was used (a column reads uniformly flat: expect every
    line at the unhedged class).
+   A number the speaker relays from a named source and endorses is stated
+   too, so it stays bare as the line's strength, read as the carried bound
+   (a line at p is the set [p, 1]), while the speaker's trust in the
+   source goes on the floor of the statement that the source said it
+   (`$s-breakwater` on the debate map: Tang's relayed "more than 10
+   percent" at 0.1, her trust in the insiders on `@insiders-warn`).
 3. Residual rule: frontier roots keep authored values; derived statements
    get `# check: p` trailing comments, never pins, because authoring
    both the support and the conclusion double-counts. Never both on one
@@ -486,8 +497,9 @@ solve).
    real inference the source omits is mapped, with a comment). Never
    withhold a derivation for what it does downstream: completion is
    always licensed, and the movement is the audit working
-   (`@steering-finds-subversion` 0.899 to 0.843 and `@incorrigible`
-   0.856 to 0.834 on the flagship under the shipped solve, 2026-09-24;
+   (`@steering-finds-subversion` 0.899 to 0.839 and `@incorrigible`
+   0.856 to 0.832 on the flagship under the shipped solve, 2026-10-07;
+   0.899 to 0.843 on 2026-09-24;
    0.893 to 0.628 under the retired reference, tut 4.7.3). Then the obligation: the old point becomes the
    check at its register's interval, and the residual stays EMPTY unless
    the text names a second unwired ground (floor at that ground's
@@ -628,8 +640,9 @@ in `examples/` (see its README).
    reader's likeliest drag finds the shape: zero a premise, and a
    conclusion near 0.5 is the fill (the flagship's title claim read
    0.427 under the misalignment drag and 0.708 at rest before its two
-   inverses, 0.044 and 0.617 after; 2026-09-27; 0.603 at rest since
-   2026-09-28, D170).
+   inverses, 0.044 and 0.617 after; 2026-09-27; 0.603 at rest after
+   2026-09-28, D170; 0.609 at rest and 0.044 under the drag on
+   2026-10-07).
 8. **Conditioning on an inference** (tut 7.8, anchor `$shutdown-ev`), a
    policy that hangs on an implication, not on a fact:
    `$policy 0.93? @should-act | $link`. Conditioning on the implication's
@@ -742,7 +755,8 @@ passage a second `>` quote on the existing line, checklist item 18); a
 every shared node listed with its home region and consumers, and the
 region-prefix scheme stated (`@c5-trade`, `$c5-trade-obj`,
 `$c5-trade-resp`); build in dependency order and lint after every region.
-Smell figure: the flagship holds 431 nodes at depth 5. A hundred-node map
+Smell figure: the flagship holds 664 nodes at depth 5 (2026-10-07; 431
+in late July). A hundred-node map
 at depth 1 is under-nested even if every line is well-formed. Its reader
 meets a wall of top-level nodes and the fold control does nothing.
 
