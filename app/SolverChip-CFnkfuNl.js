@@ -1,9 +1,0 @@
-import{o as F,u as v,aZ as O,ek as T,el as C,n as x,em as E,en as N,eo as b,ep as R,eq as y,er as D,es as _,et as B,eu as j,ev as P,ew as w,ex as z,aB as I,ey as U,ez as W,eA as q,eB as G,eh as H}from"./styles-g0JkweEu.js";const M=I.en;function Z({id:a,vocab:g}){var d,h,p,m;const e=F(n=>n.index.get(a)),k=v(n=>n.analysis.statements),t=v(n=>n.analysis.byId.get(a)),$=O(n=>n.overrides[a]),o=T(a),r=C(a);if(o!==null)return x.jsx("span",{className:"chip chip--solved chip--silent",title:o,children:"—"});if(!e||e.solved===null)return null;const i=(t==null?void 0:t.kind)==="evidence"&&t.strength?E($,e.authored,t.strength.value,((d=t.strength.opposed)==null?void 0:d.value)??null,N(t.children)):null,c=(t==null?void 0:t.kind)==="evidence"&&i?b(R(t.trailingComment,i.strength,i.opposed)):(t==null?void 0:t.kind)==="statement"&&t.marginal?y(D(t.marginal.value,((h=t.marginal.opposed)==null?void 0:h.value)??null)):null,l=e.spectator===!0,s=e.kind==="statement"&&e.authored===null&&!l?_(k).get(a)??null:null,A=s===null?null:Math.abs(B(s,e.solved)),S=l?j:e.kind==="statement"?"marginal":"in-force rate",u=((p=e.set)==null?void 0:p.shape)==="pair"?P(e.set):e.authored!==null?e.authored.toFixed(2):null,L=w(e,s),f=`${z(g??M,u,e.solved.toFixed(2),l)}
-implied ${S} ${e.solved.toFixed(3)}`+(e.authored!==null?`
-authored ${u}, ${e.set?U(e.solved,e.set):`tension ${((m=e.delta)==null?void 0:m.toFixed(3))??"—"}`}`:s!==null?`
-authors’ check ${W(s)}, badge ${A.toFixed(3)}`+(s.lo===s.hi?"":" (zero inside the check interval)"):`
-this reasoning link authors no number`)+(l?`
-${q}`:"")+(c!==null?`
-${c}`:"")+(r!==null?`
-${r}`:"")+`
-${G}`;return x.jsx("span",{className:"chip chip--solved"+(l?" chip--spectator":""),style:{color:H(L,"var(--text-dim-bench)")},title:f,children:e.solved.toFixed(2)})}export{Z as default};
